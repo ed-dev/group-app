@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  
+  <link rel="import" href="bower_components/polymer/polymer.html">
+  <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+  <link rel="import" href="elements/helpers/array-shuffle.html">
+  <link rel="import" href="elements/answer-space/answer-space.html">
+  <link rel="import" href="elements/pic-block/pic-block.html">
+  <link rel="import" href="elements/tile-word-drop-zone/tile-word-drop-zone.html">
+  <link rel="import" href="elements/tile-space/tile-space.html">
+  <link rel="import" href="elements/letter-tile/letter-tile.html">
+  
+  <title>MDDN 352 Project 3</title>
+</head>
+<body fullbleed unresolved>
+  
+  <polymer-element name="page-wrapper">
+    <template>
+      <core-ajax auto url="http://still-waters-3351.herokuapp.com/data.json" handleAs="json" response="{{ajaxResponse}}" on-core-response="{{ajaxSuccessHandler}}"></core-ajax>
+      <style>
+      :host{
+	      -webkit-user-select: none;
+	      -moz-user-select: none;
+	      -ms-user-select: none;
+        user-select: none;
+	    }
+      </style>
+      <answer-space>
+        <template repeat="{{d in ajaxResponse.data}}">
+	        <pic-block>
+	          <img src="{{d.img}}">
+	          <tile-word-drop-zone word="{{d.word}}"></tile-word-drop-zone>
+	        </pic-block>
+        </template>
+      </answer-space>
+      <tile-space flex>
+        <template repeat="{{l in letters}}">
+          <letter-tile>{{l}}</letter-tile>
+        </template>
+	    </tile-space>
+    </template>
+    <script>
+      Polymer({
+    	  letters: [],
+    	  ajaxSuccessHandler: function (event, detail, sender) {
+    		  var data = detail.response.data;
+    		  for(var i=0; i<data.length; i++){
+    			  var letterArray = data[i].word.split('');
+ 	          for(var j=0; j<letterArray.length; j++){
+ 	            this.letters.push(letterArray[j]);
+ 	          }
+    		  }
+    		  this.letters.shuffle();
+        },
+        ready: function(){
+        	
+        }
+      });
+    </script>
+  </polymer-element>
+  
+  <page-wrapper layout vertical fit></page-wrapper>
+  
+</body>
+</html>

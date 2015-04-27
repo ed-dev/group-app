@@ -1,0 +1,77 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="pic-block">
+  <template>
+		<style>
+		:host{
+		  display: block;
+      background: red;
+      width: 350px;
+      border: solid 3px black;
+		  position: relative;
+		}
+		:host:after {
+		  padding-top: 130%;
+		  display: block;
+		  content: '';
+		}
+    polyfill-next-selector { content: ':host img' }
+    ::content > img{
+      width: 300px;
+      height: 300px;
+      margin: 25px 25px 0 25px;
+      border: solid 2px black;
+      border-radius: 25px;
+    }
+    @media(max-width: 1280px){
+    :host{
+      width: 300px;
+    }
+    polyfill-next-selector { content: ':host img' }
+    ::content > img{
+      width: 260px;
+      height: 260px;
+      margin: 20px 20px 0 20px;
+    }
+    }
+    @media(max-width: 1024px){
+    :host{
+      width: 250px;
+    }
+    polyfill-next-selector { content: ':host img' }
+    ::content > img{
+      width: 220px;
+      height: 220px;
+      margin: 15px 15px 0 15px;
+    }
+    }
+    @media(max-width: 320px){
+    :host{
+      width: 96px;
+      border: solid 1px black;
+    }
+    :host:after {
+      padding-top: 140%;
+    }
+    polyfill-next-selector { content: ':host img' }
+    ::content > img{
+      width: 90px;
+      height: 90px;
+      margin: 3px 3px 0 3px;
+      border: solid 1px black;
+      border-radius: 5px;
+    }
+    }
+		</style>
+		<div horizontal layout around-justified wrap fit>
+      <content></content>
+    </div>
+  </template>
+  <script>
+  Polymer({
+    ready: function(){
+    	
+    }
+  });
+  </script>
+</polymer-element>
