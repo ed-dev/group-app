@@ -1,6 +1,6 @@
 {
   "name": "Node.js group app",
   "description": "MDDN NWEN Group App",
-  "repository": "https://github.com/",
+  "repository": "https://github.com/ed-dev/group-app",
   "keywords": ["node", "express", "static"]
 }

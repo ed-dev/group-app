@@ -1,27 +1,19 @@
 {
   "name": "group-app",
   "version": "0.0.1",
-  "description": "Prototype Node.js group app",
+  "description": "MDDN NWEN Group App",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "cors": "^2.5.3",
-    "express": "~4.9.x"
-  },
-  "engines": {
-    "node": "0.10.x"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/"
+    "url": "https://github.com/ed-dev/group-app.git"
   },
-  "keywords": [
-    "node",
-    "heroku",
-    "express"
-  ],
-  "license": "MIT",
-  
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ed-dev/group-app/issues"
+  },
+  "homepage": "https://github.com/ed-dev/group-app"
 }
