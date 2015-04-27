@@ -40,7 +40,7 @@ app.use(function(req, res, next) {
 
 /* /wildcard all get routes  */
 
-app.get('/*', function(req, res,next) {
+app.get('/data.json', function(req, res,next) {
 
 	res.header('Content-Length',hardcodedImages.length);
 	res.send(hardcodedImages); 
