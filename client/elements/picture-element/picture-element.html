@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="picture-element" attributes="pictureSpace">
+<polymer-element name="picture-element" attributes="word pictureSpace">
   <template>
     <style>
     :host{
@@ -80,6 +80,7 @@
      */
     domReady: function(){
       this.maintainAspectRatio();
+      this.pictureSpace.redraw();
     },
     
     /**

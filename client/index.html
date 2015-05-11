@@ -84,7 +84,7 @@
               <div fit>
                 <picture-space id="picture-space">
                   <template repeat="{{d in ajaxResponse.data}}">
-                    <picture-element word="{{d.word}}">
+                    <picture-element word="{{d.word}}" pictureSpace="{{$['picture-space']}}">
                       <img image src="{{d.img}}">
                       <template repeat="{{l in getLetters(d.word)}}">
                         <letter-tile>{{l}}</letter-tile>
