@@ -1,6 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="picture-element">
+<polymer-element name="picture-element" attributes="pictureSpace">
   <template>
     <style>
     :host{
@@ -71,15 +71,15 @@
     ready: function(){
       var $this = this;
       window.addEventListener('resize', function(){
-        $this.maintainApectRatio();
+        $this.maintainAspectRatio();
       });
     },
     
     /**
-     * Automatically called when the element is attached to the DOM.
+     * Automatically called when the element initial set of children are ready
      */
-    attached: function(){
-      this.maintainApectRatio();
+    domReady: function(){
+      this.maintainAspectRatio();
     },
     
     /**
@@ -88,9 +88,9 @@
      * This method is needed as there is no way (as far as I now)
      * to inforce an aspect ratio based on a set height using css.
      *
-     * @method maintainApectRatio
+     * @method maintainAspectRatio
      */
-    maintainApectRatio: function(){
+    maintainAspectRatio: function(){
       var ratio =  1 / 1.2;
       
       // set width of this element
