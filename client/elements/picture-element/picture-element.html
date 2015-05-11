@@ -113,8 +113,6 @@
       }, this);
       
       var image = this.getImage();
-      image.style.left = ((this.$['image-wrapper'].clientWidth - image.clientWidth) / 2) + 'px';
-      image.style.top = ((this.$['image-wrapper'].clientHeight - image.clientHeight) / 2) + 'px';
       
       if((image.clientWidth / image.clientHeight) > 1){
     	  image.style.height = this.$['image-wrapper'].clientHeight + 'px';
@@ -122,6 +120,9 @@
       else{
     	  image.style.width = this.$['image-wrapper'].clientWidth + 'px';
       }
+
+      image.style.left = ((this.$['image-wrapper'].clientWidth - image.clientWidth) / 2) + 'px';
+      image.style.top = ((this.$['image-wrapper'].clientHeight - image.clientHeight) / 2) + 'px';
     },
     
     /**
