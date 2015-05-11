@@ -78,11 +78,12 @@
             <core-header-panel main>
               <core-toolbar justify="center">
                 <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
-                <user-level level="{{level}}" flex></user-level>
+                <div flex></div>
                 <user-score score="{{score}}"></user-score>
               </core-toolbar>
               <div fit>
                 <picture-space id="picture-space">
+                  <user-level level="{{level}}"></user-level>
                   <template repeat="{{d in ajaxResponse.data}}">
                     <picture-element word="{{d.word}}" pictureSpace="{{$['picture-space']}}">
                       <img image src="{{d.img}}">
