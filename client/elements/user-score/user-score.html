@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../string-padLeft/string-padLeft.html">
 
 <polymer-element name="user-score" attributes="score">
   <template>
@@ -11,7 +10,7 @@
       font-family: Consolas;
     }
     </style>
-    Score: <span id="score-value">{{formatScore(score)}}</span>
+    Score: <span id="score-value"><span id="spacing"></span>{{updateSpacing()}}{{score}}</span>
   </template>
   <script>
   Polymer({
@@ -25,14 +24,37 @@
     score: 0,
     
     /**
-     * Format the given number into a printable string.
-     *
-     * @method formatScore
-     * @param score The number to format
-     * @return string
+     * Update the spacing between before the score value.
+     * 
+     * The score value can't simply be prefixed with spaces before printing,
+     * as the {{}} will escapes any HTML within them (including &nbsp;)
      */
-    formatScore: function(score){
-      return score.toString().padLeft(5, '0');
+    updateSpacing: function(){
+      // the first time this method is called, the 'this' object wont be ready yet.
+      // this method therefore needs to be called by the ready method.
+      if(!this.$) return;
+      
+      this.setSpacing('&nbsp;', 5 - this.score.toString().length);
+    },
+    
+    /**
+     * Insert the given character the given number of times, into the spacing container
+     * 
+     * @param character The character to insert
+     * @param number The number of times to insert the given character
+     */
+    setSpacing: function(character, number){
+      var str = '';
+      
+      for(var i=0; i<number; i++){
+        str += character;
+      }
+      
+      this.injectBoundHTML(str, this.$.spacing);
+    },
+    
+    ready: function(){
+      this.updateSpacing();
     }
   });
   </script>
