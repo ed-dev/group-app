@@ -46,17 +46,19 @@
       :host{
         
       }
-      core-drawer-panel [drawer]{
+      core-drawer-panel > [drawer],
+      core-drawer-panel #drawer > [drawer] /* for browsers without shadowDOM support*/{
         background: #ffffff;
+      }
+      core-drawer-panel > [main],
+      core-drawer-panel #main > [main] /* for browsers without shadowDOM support*/ {
+        z-index: 0;
       }
       core-toolbar{
         background: #318CE7;
       }
       #titlebar-right-padder{
         width: 38px;
-      }
-      [main]{
-        z-index: 0;
       }
       </style>
       <core-animated-pages fit selected={{page}} transitions="cross-fade-all">
