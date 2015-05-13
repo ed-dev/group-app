@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -27,13 +27,13 @@
   <link rel="import" href="elements/letter-tile/letter-tile.html">
   <link rel="import" href="elements/user-score/user-score.html">
   
-	<title></title>
-	
-	<style>
-	html /deep/ [centerText]{
+  <title></title>
+  
+  <style>
+  html /deep/ [centerText]{
     text-align: center;
   }
-	</style>
+  </style>
 </head>
 <body unresolved fullbleed>
   <polymer-element name="page-element">
@@ -69,83 +69,83 @@
         </section>
         <section name="Ingame">
           <core-drawer-panel forceNarrow disableEdgeSwipe>
-		        <core-header-panel drawer>
-		          <core-toolbar justify="start">Menu</core-toolbar>
-		          <core-menu on-core-select="{{menuSelectAction}}">
-		            <core-item icon="settings" label="Item 1"></core-item>
-		            <core-item icon="search" label="Item 2"></core-item>
-		            <core-item icon="cancel" label="Item 3"></core-item>
-		          </core-menu>
-		        </core-header-panel>
-		        <core-header-panel main>
-		          <core-toolbar justify="center">
-		            <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
-		            <div flex centerText>App Name / Level Number / etc.</div>
-		            <user-score score="{{score}}"></user-score>
-		          </core-toolbar>
-		          <div fit>
-			          <picture-space id="picture-space">
-			            <template repeat="{{d in ajaxResponse.data}}">
-			              <picture-element word="{{d.word}}">
-	                    <img image src="{{d.img}}">
-	                    <template repeat="{{l in getLetters(d.word)}}">
-		                    <letter-tile>{{l}}</letter-tile>
-		                  </template>
-	                  </picture-element>
-	                </template>
-			          </picture-space>
-			          <tile-space id="tile-space">
-			            <template repeat="{{l in letters}}">
-					          <letter-tile>{{l}}</letter-tile>
-					        </template>
-			          </tile-space>
-			        </div>
-		        </core-header-panel>
-		      </core-drawer-panel>
+            <core-header-panel drawer>
+              <core-toolbar justify="start">Menu</core-toolbar>
+              <core-menu on-core-select="{{menuSelectAction}}">
+                <core-item icon="settings" label="Item 1"></core-item>
+                <core-item icon="search" label="Item 2"></core-item>
+                <core-item icon="cancel" label="Item 3"></core-item>
+              </core-menu>
+            </core-header-panel>
+            <core-header-panel main>
+              <core-toolbar justify="center">
+                <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
+                <div flex centerText>App Name / Level Number / etc.</div>
+                <user-score score="{{score}}"></user-score>
+              </core-toolbar>
+              <div fit>
+                <picture-space id="picture-space">
+                  <template repeat="{{d in ajaxResponse.data}}">
+                    <picture-element word="{{d.word}}">
+                      <img image src="{{d.img}}">
+                      <template repeat="{{l in getLetters(d.word)}}">
+                        <letter-tile>{{l}}</letter-tile>
+                      </template>
+                    </picture-element>
+                  </template>
+                </picture-space>
+                <tile-space id="tile-space">
+                  <template repeat="{{l in letters}}">
+                    <letter-tile>{{l}}</letter-tile>
+                  </template>
+                </tile-space>
+              </div>
+            </core-header-panel>
+          </core-drawer-panel>
         </section>
       </core-animated-pages>
-	  </template>
+    </template>
     <script>
       Polymer({
-    	  /**
-    	   * The name of currently active page.
-    	   *
-    	   * @type string
-    	   */
-    	  page: 'Home',
-    	  
-    	  /**
-    	   * The path to use to get the json data.
-    	   * 
-    	   * @type url
-    	   */
-    	  dataPath: 'http://still-waters-3351.herokuapp.com/data.json',
-    	  
-    	  /**
-    	   * List of the letters that the current level uses.
-    	   *
-    	   * @type array
-    	   */
-    	  letters: [],
-    	  
-    	  /**
+        /**
+         * The name of currently active page.
+         *
+         * @type string
+         */
+        page: 'Home',
+        
+        /**
+         * The path to use to get the json data.
+         * 
+         * @type url
+         */
+        dataPath: 'http://still-waters-3351.herokuapp.com/data.json',
+        
+        /**
+         * List of the letters that the current level uses.
+         *
+         * @type array
+         */
+        letters: [],
+        
+        /**
          * The level the user is on
          * 
          * @type integer
          */
         level: 1,
         
-    	  /**
-    	   * The user's score
-    	   * 
-    	   * @type integer
-    	   */
-    	  score: 0,
-    	  
-    	  /**
-    	   * This method kind of works like a constructor for the page-element tag.
-    	   * Called when the <polymer-element> has been fully prepared.
-    	   */
+        /**
+         * The user's score
+         * 
+         * @type integer
+         */
+        score: 0,
+        
+        /**
+         * This method kind of works like a constructor for the page-element tag.
+         * Called when the <polymer-element> has been fully prepared.
+         */
         ready: function(){
           this.setPage('Ingame');
         },
@@ -156,16 +156,16 @@
          * @param name The name of the page to switch to
          */
         setPage: function(name){
-        	var $this = this;
-        	
-        	// wait until every else is done.
-        	setTimeout(function(){
-        		switch(name){
+          var $this = this;
+          
+          // wait until every else is done.
+          setTimeout(function(){
+            switch(name){
               case 'Home':
                 break;
                 
               case 'Ingame':
-            	  // make sure the page is layed out right
+                // make sure the page is layed out right
                 $this.$['picture-space'].redraw();
                 $this.$['tile-space'].redraw();
                 break;
@@ -176,23 +176,23 @@
             }
             
             $this.page = name;
-        	}, 0);
+          }, 0);
         },
         
         /**
          * Called on-tap of the start button.
          */
         btnStartAction: function(){
-        	this.setPage('Ingame');  // change the page to Ingame
+          this.setPage('Ingame');  // change the page to Ingame
         },
         
         /**
          * Called when a menu item is selected.
          */
         menuSelectAction: function(e, detail){
-        	if(!detail.isSelected) return; // handle select event, not deselect event
-        	
-        	console.log('Menu item selected: ' + detail.item.label);
+          if(!detail.isSelected) return; // handle select event, not deselect event
+          
+          console.log('Menu item selected: ' + detail.item.label);
         },
         
         /**
@@ -201,18 +201,18 @@
          * @return array
          */
         getLetters: function(str){
-        	return str.split('');
+          return str.split('');
         },
         
         /**
          * Handeler for when the ajax request succeed
          */
         ajaxSuccessHandler: function (event, detail, sender) {
-        	var data = detail.response.data; // the data returned
-        	
-        	this.letters = []; // empty the letter list
-        	
-        	// foreach word
+          var data = detail.response.data; // the data returned
+          
+          this.letters = []; // empty the letter list
+          
+          // foreach word
           for(var i=0; i<data.length; i++){
             var letterArray = this.getLetters(data[i].word);  // split it into an array of characters
             // for each letter
@@ -220,7 +220,7 @@
               this.letters.push(letterArray[j]);  // add it to the array of letters
             }
           }
-        	
+          
           this.letters.shuffle(); // shuffle the letters
         },
         
@@ -228,7 +228,7 @@
          * Handeler for when the ajax request fails
          */
         ajaxErrorHandler: function (event, detail, sender) {
-        	console.error('ajax error');
+          console.error('ajax error');
         }
       });
     </script>

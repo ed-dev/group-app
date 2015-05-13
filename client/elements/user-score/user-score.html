@@ -15,25 +15,25 @@
   </template>
   <script>
   Polymer({
-	  /**
-	   * The score value.
-	   * 
-	   * @attribute score
-	   * @type integer
-	   * @default 0
-	   */
-	  score: 0,
-	  
-	  /**
-	   * Format the given number into a printable string.
-	   *
-	   * @method formatScore
-	   * @param score The number to format
-	   * @return string
-	   */
-	  formatScore: function(score){
-		  return score.toString().padLeft(5, '0');
-	  }
+    /**
+     * The score value.
+     * 
+     * @attribute score
+     * @type integer
+     * @default 0
+     */
+    score: 0,
+    
+    /**
+     * Format the given number into a printable string.
+     *
+     * @method formatScore
+     * @param score The number to format
+     * @return string
+     */
+    formatScore: function(score){
+      return score.toString().padLeft(5, '0');
+    }
   });
   </script>
 </polymer-element>

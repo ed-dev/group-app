@@ -47,9 +47,9 @@
       top: 0;
       left: 0;
       width: auto;
-		  height: auto;
-		  max-width: 100%;
-		  max-height: 100%;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
     }
     polyfill-next-selector { content: ':host letter-tile' }
     ::content > letter-tile{
@@ -68,64 +68,64 @@
   </template>
   <script>
   Polymer({
-	  ready: function(){
-		  var $this = this;
-		  window.addEventListener('resize', function(){
-			  $this.maintainApectRatio();
-		  });
-	  },
-	  
-	  /**
+    ready: function(){
+      var $this = this;
+      window.addEventListener('resize', function(){
+        $this.maintainApectRatio();
+      });
+    },
+    
+    /**
      * Automatically called when the element is attached to the DOM.
      */
     attached: function(){
-	    this.maintainApectRatio();
-	  },
-	  
-	  /**
+      this.maintainApectRatio();
+    },
+    
+    /**
      * Resize the element to the correct aspect ratio.
      *
      * This method is needed as there is no way (as far as I now)
-	   * to inforce an aspect ratio based on a set height using css.
-	   *
-	   * @method maintainApectRatio
+     * to inforce an aspect ratio based on a set height using css.
+     *
+     * @method maintainApectRatio
      */
-	  maintainApectRatio: function(){
-		  var ratio =  1 / 1.2;
-		  
-		  // set width of this element
-		  this.style.width = (this.clientHeight * ratio) + 'px';
-		  
-		  // calculate the height of #word-zone
-		  this.$['word-zone'].style.height = (this.clientHeight - this.$['image-wrapper'].offsetHeight - 8 * 3 + parseInt(getComputedStyle(this.$['word-zone'], null).getPropertyValue('border-bottom-width'))) + 'px';
-		  
-		  var tiles = this.getLetterTiles();
-		  
-		  // resize the tiles
-		  tiles.forEach(function(element, index, array){
-			  element.style.width = this.$['word-zone'].clientHeight + 'px';
-		  }, this);
-		  
-		  // update the font-size of the tiles.
-		  // this is done after the tile resize as the flex container of the tiles may
-		  // further change their size
-		  tiles.forEach(function(element, index, array){
+    maintainApectRatio: function(){
+      var ratio =  1 / 1.2;
+      
+      // set width of this element
+      this.style.width = (this.clientHeight * ratio) + 'px';
+      
+      // calculate the height of #word-zone
+      this.$['word-zone'].style.height = (this.clientHeight - this.$['image-wrapper'].offsetHeight - 8 * 3 + parseInt(getComputedStyle(this.$['word-zone'], null).getPropertyValue('border-bottom-width'))) + 'px';
+      
+      var tiles = this.getLetterTiles();
+      
+      // resize the tiles
+      tiles.forEach(function(element, index, array){
+        element.style.width = this.$['word-zone'].clientHeight + 'px';
+      }, this);
+      
+      // update the font-size of the tiles.
+      // this is done after the tile resize as the flex container of the tiles may
+      // further change their size
+      tiles.forEach(function(element, index, array){
         element.updateFontSize();
       }, this);
-		  
-		  var image = this.getImage();
-		  image.style.left = ((this.$['image-wrapper'].clientWidth - image.clientWidth) / 2) + 'px';
-	    image.style.top = ((this.$['image-wrapper'].clientHeight - image.clientHeight) / 2) + 'px';
-	  },
-	  
-	  /**
+      
+      var image = this.getImage();
+      image.style.left = ((this.$['image-wrapper'].clientWidth - image.clientWidth) / 2) + 'px';
+      image.style.top = ((this.$['image-wrapper'].clientHeight - image.clientHeight) / 2) + 'px';
+    },
+    
+    /**
      * Get the distributed letter-tile children of this element.
      * 
      * @method getLetterTiles
      * @return array
      */
-	  getLetterTiles: function(){
-		  return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
+    getLetterTiles: function(){
+      return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
     },
 
     /**
@@ -138,15 +138,15 @@
       return this.$.image.getDistributedNodes()[0];
     },
     
-	  /**
-	   * Add the given tile to this element
-	   *
-	   * @method addTile
-	   */
-	  addTile: function(tile){
-		  // todo
-		  tile.updateFontSize();
-	  }
+    /**
+     * Add the given tile to this element
+     *
+     * @method addTile
+     */
+    addTile: function(tile){
+      // todo
+      tile.updateFontSize();
+    }
   });
   </script>
 </polymer-element>

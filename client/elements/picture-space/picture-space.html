@@ -51,17 +51,17 @@
        * @method redraw
        */
       redraw: function(){
-    	  var $this = this;
-    	  
-    	  // wait until everything else is done
-    	  setTimeout(function(){
-    		  var pictureElements = $this.getPictureElements();
-    		  
-    		  pictureElements.forEach(function(element, index, array){
-    			  element.maintainApectRatio();
-    		  }, $this);
-    		  
-    		  $this.layoutPictureElements();  // then layout the picture-elements
+        var $this = this;
+        
+        // wait until everything else is done
+        setTimeout(function(){
+          var pictureElements = $this.getPictureElements();
+          
+          pictureElements.forEach(function(element, index, array){
+            element.maintainApectRatio();
+          }, $this);
+          
+          $this.layoutPictureElements();  // then layout the picture-elements
         }, 0);
       },
       
@@ -72,7 +72,7 @@
        * @return array
        */
       getPictureElements: function(){
-    	  return Array.prototype.slice.call(this.$.pictures.getDistributedNodes());
+        return Array.prototype.slice.call(this.$.pictures.getDistributedNodes());
       },
       
       /**

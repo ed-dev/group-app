@@ -38,22 +38,22 @@
         return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
       },
       
-	    /**
-	     * Make sure all the letter-tile children are the right size.
-	     */
-	    redraw: function(){
-	      var $this = this;
-	      
-	      // wait until everything else is done
-	      setTimeout(function(){
-	        var tiles = $this.getLetterTiles();
-	        
-	        // resize the tiles
-	        tiles.forEach(function(element, index, array){
-	          element.updateSize();
-	        }, $this);
-	      }, 0);
-	    },
+      /**
+       * Make sure all the letter-tile children are the right size.
+       */
+      redraw: function(){
+        var $this = this;
+        
+        // wait until everything else is done
+        setTimeout(function(){
+          var tiles = $this.getLetterTiles();
+          
+          // resize the tiles
+          tiles.forEach(function(element, index, array){
+            element.updateSize();
+          }, $this);
+        }, 0);
+      },
     });
   </script>
 </polymer-element>
