@@ -25,15 +25,11 @@
   <link rel="import" href="elements/tile-space/tile-space.html">
   <link rel="import" href="elements/picture-element/picture-element.html">
   <link rel="import" href="elements/letter-tile/letter-tile.html">
+  <link rel="import" href="elements/user-level/user-level.html">
   <link rel="import" href="elements/user-score/user-score.html">
   
   <title></title>
   
-  <style>
-  html /deep/ [centerText]{
-    text-align: center;
-  }
-  </style>
 </head>
 <body unresolved fullbleed>
   <polymer-element name="page-element">
@@ -80,7 +76,7 @@
             <core-header-panel main>
               <core-toolbar justify="center">
                 <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
-                <div flex centerText>App Name / Level Number / etc.</div>
+                <user-level level="{{level}}" flex></user-level>
                 <user-score score="{{score}}"></user-score>
               </core-toolbar>
               <div fit>

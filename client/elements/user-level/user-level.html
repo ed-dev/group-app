@@ -1,0 +1,25 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="user-level" attributes="level">
+  <template>
+    <style>
+    :host{
+      display: block;
+      text-align: center;
+    }
+    </style>
+    Level: {{level}}
+  </template>
+  <script>
+  Polymer({
+    /**
+     * The level value.
+     * 
+     * @attribute level
+     * @type integer
+     * @default 0
+     */
+    level: 0,
+  });
+  </script>
+</polymer-element>
