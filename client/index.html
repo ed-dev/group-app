@@ -55,7 +55,8 @@
       #titlebar-right-padder{
         width: 38px;
       }
-      core-drawer-panel > [main]{
+      core-drawer-panel > [main],
+      core-drawer-panel #main > [main] /* for browsers without shadowDOM support*/ {
         z-index: 0;
       }
       </style>
