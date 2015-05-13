@@ -1,0 +1,38 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="user-score" attributes="score">
+  <template>
+    <style>
+    :host{
+      display: block;
+    }
+    #score-value{
+      font-family: Consolas;
+    }
+    </style>
+    Score: <span id="score-value">{{formatScore(score)}}</span>
+  </template>
+  <script>
+  Polymer({
+	  /**
+	   * The score value.
+	   * 
+	   * @attribute score
+	   * @type integer
+	   * @default 0
+	   */
+	  score: 0,
+	  
+	  /**
+	   * Format the given number into a printable string.
+	   *
+	   * @method formatScore
+	   * @param score The number to format
+	   * @return string
+	   */
+	  formatScore: function(score){
+		  return '0000' + score;
+	  }
+  });
+  </script>
+</polymer-element>

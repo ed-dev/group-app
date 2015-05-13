@@ -1,89 +1,72 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/core-drag-drop/core-drag-drop.html">
 
 <polymer-element name="letter-tile">
   <template>
-		<style>
-		:host{
-      border: solid 3px black;
-      border-radius: 5px;
-      width: 125px;
-      display: block;
-      margin: 15px;
+    <style>
+    :host{
       position: relative;
-      font-size: 36pt;
-      font-weight: bold;
+      display: block;
+      width: 48px;
+      border: solid 3px #000000;
+      border-radius: 5px;
       background: BurlyWood;
       text-transform: uppercase;
+      
+      -webkit-user-select: none;
+		  -moz-user-select: none;
+		  -ms-user-select: none;
+		  -o-user-select: none;
+		  user-select: none;
+		  cursor: default;
+		  cursor: all-scroll;
+		  cursor: grab;
     }
-    :host:after {
+    :host:after{
       padding-top: 100%;
       display: block;
       content: '';
     }
-    @media(max-width: 1280px){
-    :host{
-      width: 100px;
-      font-size: 30pt;
-    }
-    }
-    @media(max-width: 1024px){
-    :host{
-      width: 75px;
-      font-size: 26pt;
-    }
-    }
-    @media(max-width: 320px){
-    :host{
-      width: 64px;
-      font-size: 20pt;
-    }
-    }
-		</style>
-		<core-drag-drop></core-drag-drop>
-		<div layout horizontal center center-justified fit>
-	    <content id="content"></content>
-	  </div>
+    </style>
+    <div horizontal layout center center-justified fit>
+      <content></content>
+    </div>
   </template>
   <script>
   Polymer({
-    ready: function(){
-    	var $this = this;
-    	addEventListener('drag-start', function(e) {
-    		if(e.detail.event.target.parentNode !== $this.shadowRoot){
-    			return;
-    		}
- 	      var dragInfo = e.detail;
- 	      var style = getComputedStyle($this);
- 	      
- 	      $this.setAttribute('hidden', '');
- 	      
- 	      dragInfo.avatar.style.cssText =
- 	    	    'width: 50px; height: 50px; left: -25px; top: -25px;' +
- 	    	    'border: solid 2px; border-color: ' + style['border-color'] + '; border-radius: '+style['border-radius']+';' +
- 	    	    'background-color: '+style.backgroundColor; + ';'
-        dragInfo.avatar.style.fontSize = "20pt";
-        dragInfo.avatar.parentNode.style.cursor = 'none';
- 	      dragInfo.avatar.innerHTML = '<div layout horizontal center center-justified fit style="text-transform: uppercase;">'+$this.$.content.getDistributedNodes()[0].textContent+'</div>';
- 	      
- 	      dragInfo.drag = function(){
- 	      };
- 	      dragInfo.drop = function(){
- 	        dragInfo.avatar.parentNode.style.cursor = '';
- 	        
- 	        var dropTarget = dragInfo.event.relatedTarget;
- 	        console.log(dragInfo.event);
-	 	      if (dropTarget.tagName !== 'TILE-WORD-DROP-ZONE') {
-	 	    	  $this.removeAttribute('hidden');
-	 	    	  return;
-	 	      }
- 	        var f = dragInfo.framed;
- 	        var d = document.createElement('letter-tile');
- 	        d.textContent = $this.textContent;
- 	        dropTarget.appendChild(d);
-        };
- 	    });
-    }
+	  ready: function(){
+		  var $this = this;
+       
+       // on window resize
+       window.addEventListener('resize', function(){
+         $this.updateSize();  // resize the tile
+       });
+	  },
+	  
+	  /**
+	   * Automatically called when the element is attached to the DOM.
+	   */
+	  attached: function(){
+	    this.updateFontSize();
+	  },
+	  
+	  /**
+	   * Update the tile's size
+	   *
+	   * @method updateSize
+	   */
+	  updateSize: function(){
+		  //todo
+	    this.updateFontSize(); // update the font size
+	  },
+	  
+	  /**
+     * Update the font-size of the tile
+     *
+     * @method updateFontSize
+     */
+	  updateFontSize: function(){
+	      this.style.fontSize = (this.clientWidth * 0.8) + 'px';
+	    }
   });
   </script>
 </polymer-element>

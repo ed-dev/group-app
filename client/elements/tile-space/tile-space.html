@@ -2,37 +2,58 @@
 
 <polymer-element name="tile-space">
   <template>
-		<style>
-		:host{
-		  display: block;
-      padding: 50px;
-      background: DarkSeaGreen;
-		}
-    @media(max-width: 1280px){
+    <style>
     :host{
-      padding: 30px;
+      position: relative;
+      display: block;
+      background: red;
+      height: 40%;
+      overflow: auto;
     }
+    polyfill-next-selector { content: ':host letter-tile' }
+    ::content > letter-tile{
+      width: 64px;
+      height: 64px;
+      margin: 4px;
     }
-    @media(max-width: 1024px){
-    :host{
-      padding: 10px;
-    }
-    }
-    @media(max-width: 320px){
-    :host{
-      padding: 5px;
-    }
-    }
-		</style>
-		<div horizontal layout around-justified wrap>
-      <content></content>
+    </style>
+    <div horizontal layout wrap around-justified center fit>
+      <content select="letter-tile" id="tiles"></content>
     </div>
+    <content></content>
   </template>
   <script>
-  Polymer({
-    ready: function(){
-    	
-    }
-  });
+    Polymer({
+      ready: function(){
+        
+      },
+      
+      /**
+       * Get the distributed letter-tile children of this element.
+       * 
+       * @method getLetterTiles
+       * @return array
+       */
+      getLetterTiles: function(){
+        return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
+      },
+      
+	    /**
+	     * Make sure all the letter-tile children are the right size.
+	     */
+	    redraw: function(){
+	      var $this = this;
+	      
+	      // wait until everything else is done
+	      setTimeout(function(){
+	        var tiles = $this.getLetterTiles();
+	        
+	        // resize the tiles
+	        tiles.forEach(function(element, index, array){
+	          element.updateSize();
+	        }, $this);
+	      }, 0);
+	    },
+    });
   </script>
 </polymer-element>

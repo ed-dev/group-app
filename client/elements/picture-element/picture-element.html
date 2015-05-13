@@ -1,0 +1,152 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<polymer-element name="picture-element">
+  <template>
+    <style>
+    :host{
+      position: relative;
+      display: block;
+      box-sizing: border-box;
+      background: orange;
+      border: solid #000000 1px;
+      border-radius: 4px;
+      height: calc(95% - 32px);
+      max-width: 100vw;
+      -ms-transform-origin: 0 0;
+      -webkit-transform-origin: 0 0;
+      transform-origin: 0 0;
+    }
+    :host:after {
+      padding-left: 75%;
+      display: block;
+      content: '';
+    }
+    #image-wrapper{
+      width: calc(100% - 16px);
+      position: relative;
+      box-sizing: border-box;
+      border: solid 1px #000000;
+      border-radius: 2px;
+      margin: 8px;
+      overflow: hidden;
+      background: #000000;
+    }
+    #image-wrapper:before{
+      padding-top: 100%;
+      display: block;
+      content: '';
+    }
+    #word-zone{
+      margin: 8px 8px 5px 8px;
+      border-bottom: dashed 3px #000000;
+      box-sizing: border-box;
+    }
+    polyfill-next-selector { content: ':host [image]' }
+    ::content > [image]{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: auto;
+		  height: auto;
+		  max-width: 100%;
+		  max-height: 100%;
+    }
+    polyfill-next-selector { content: ':host letter-tile' }
+    ::content > letter-tile{
+      width: 32px;
+      border: solid 1px #000000;
+      border-radius: 3px;
+      margin: 2px;
+    }
+    </style>
+    <div id="image-wrapper">
+      <content id="image" select="[image]"></content>
+    </div>
+    <div id="word-zone" horizontal layout end center-justified>
+      <content id="tiles" select="letter-tile"></content>
+    </div>
+  </template>
+  <script>
+  Polymer({
+	  ready: function(){
+		  var $this = this;
+		  window.addEventListener('resize', function(){
+			  $this.maintainApectRatio();
+		  });
+	  },
+	  
+	  /**
+     * Automatically called when the element is attached to the DOM.
+     */
+    attached: function(){
+	    this.maintainApectRatio();
+	  },
+	  
+	  /**
+     * Resize the element to the correct aspect ratio.
+     *
+     * This method is needed as there is no way (as far as I now)
+	   * to inforce an aspect ratio based on a set height using css.
+	   *
+	   * @method maintainApectRatio
+     */
+	  maintainApectRatio: function(){
+		  var ratio =  1 / 1.2;
+		  
+		  // set width of this element
+		  this.style.width = (this.clientHeight * ratio) + 'px';
+		  
+		  // calculate the height of #word-zone
+		  this.$['word-zone'].style.height = (this.clientHeight - this.$['image-wrapper'].offsetHeight - 8 * 3 + parseInt(getComputedStyle(this.$['word-zone'], null).getPropertyValue('border-bottom-width'))) + 'px';
+		  
+		  var tiles = this.getLetterTiles();
+		  
+		  // resize the tiles
+		  tiles.forEach(function(element, index, array){
+			  element.style.width = this.$['word-zone'].clientHeight + 'px';
+		  }, this);
+		  
+		  // update the font-size of the tiles.
+		  // this is done after the tile resize as the flex container of the tiles may
+		  // further change their size
+		  tiles.forEach(function(element, index, array){
+        element.updateFontSize();
+      }, this);
+		  
+		  var image = this.getImage();
+		  image.style.left = ((this.$['image-wrapper'].clientWidth - image.clientWidth) / 2) + 'px';
+	    image.style.top = ((this.$['image-wrapper'].clientHeight - image.clientHeight) / 2) + 'px';
+	  },
+	  
+	  /**
+     * Get the distributed letter-tile children of this element.
+     * 
+     * @method getLetterTiles
+     * @return array
+     */
+	  getLetterTiles: function(){
+		  return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
+    },
+
+    /**
+     * Get image distributed in this element. (Assumes only one)
+     * 
+     * @method getImage
+     * @return HTMLelement
+     */
+    getImage: function(){
+      return this.$.image.getDistributedNodes()[0];
+    },
+    
+	  /**
+	   * Add the given tile to this element
+	   *
+	   * @method addTile
+	   */
+	  addTile: function(tile){
+		  // todo
+		  tile.updateFontSize();
+	  }
+  });
+  </script>
+</polymer-element>

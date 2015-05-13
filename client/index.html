@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="robots" content="noindex, nofollow">
+	<meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
@@ -11,63 +10,230 @@
   
   <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="bower_components/core-ajax/core-ajax.html">
-  <link rel="import" href="elements/helpers/array-shuffle.html">
-  <link rel="import" href="elements/answer-space/answer-space.html">
-  <link rel="import" href="elements/pic-block/pic-block.html">
-  <link rel="import" href="elements/tile-word-drop-zone/tile-word-drop-zone.html">
+  <link rel="import" href="bower_components/core-animated-pages/core-animated-pages.html">
+  <link rel="import" href="bower_components/core-drawer-panel/core-drawer-panel.html">
+  <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+  <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
+  <link rel="import" href="bower_components/core-menu/core-menu.html">
+  <link rel="import" href="bower_components/core-item/core-item.html">
+  
+  <link rel="import" href="bower_components/paper-button/paper-button.html">
+  
+  <link rel="import" href="elements/array-shuffle/array-shuffle.html">
+  <link rel="import" href="elements/picture-space/picture-space.html">
   <link rel="import" href="elements/tile-space/tile-space.html">
+  <link rel="import" href="elements/picture-element/picture-element.html">
   <link rel="import" href="elements/letter-tile/letter-tile.html">
+  <link rel="import" href="elements/user-score/user-score.html">
   
-  <title>MDDN 352 Project 3</title>
+	<title></title>
+	
+	<style>
+	html /deep/ [centerText]{
+    text-align: center;
+  }
+	</style>
 </head>
-<body fullbleed unresolved>
-  
-  <polymer-element name="page-wrapper">
+<body unresolved fullbleed>
+  <polymer-element name="page-element">
     <template>
-      <core-ajax auto url="http://still-waters-3351.herokuapp.com/data.json" handleAs="json" response="{{ajaxResponse}}" on-core-response="{{ajaxSuccessHandler}}"></core-ajax>
+      <core-ajax
+        auto
+        handleAs="json"
+        url="{{dataPath}}"
+        params='{"level":"{{level}}"}'
+        response="{{ajaxResponse}}"
+        on-core-response="{{ajaxSuccessHandler}}"
+        on-core-error="{{ajaxErrorHandler}}"></core-ajax>
       <style>
       :host{
-	      -webkit-user-select: none;
-	      -moz-user-select: none;
-	      -ms-user-select: none;
-        user-select: none;
-	    }
+        
+      }
+      core-drawer-panel [drawer]{
+        background: #ffffff;
+      }
+      core-toolbar{
+        background: #318CE7;
+      }
+      #titlebar-right-padder{
+        width: 38px;
+      }
+      [main]{
+        z-index: 0;
+      }
       </style>
-      <answer-space>
-        <template repeat="{{d in ajaxResponse.data}}">
-	        <pic-block>
-	          <img src="{{d.img}}">
-	          <tile-word-drop-zone word="{{d.word}}"></tile-word-drop-zone>
-	        </pic-block>
-        </template>
-      </answer-space>
-      <tile-space flex>
-        <template repeat="{{l in letters}}">
-          <letter-tile>{{l}}</letter-tile>
-        </template>
-	    </tile-space>
-    </template>
+      <core-animated-pages fit selected={{page}} transitions="cross-fade-all">
+        <section name="Home">
+          <paper-button id="start" raised on-tap="{{btnStartAction}}">Start</paper-button>
+        </section>
+        <section name="Ingame">
+          <core-drawer-panel forceNarrow disableEdgeSwipe>
+		        <core-header-panel drawer>
+		          <core-toolbar justify="start">Menu</core-toolbar>
+		          <core-menu on-core-select="{{menuSelectAction}}">
+		            <core-item icon="settings" label="Item 1"></core-item>
+		            <core-item icon="search" label="Item 2"></core-item>
+		            <core-item icon="cancel" label="Item 3"></core-item>
+		          </core-menu>
+		        </core-header-panel>
+		        <core-header-panel main>
+		          <core-toolbar justify="center">
+		            <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
+		            <div flex centerText>App Name / Level Number / etc.</div>
+		            <user-score score="{{score}}"></user-score>
+		          </core-toolbar>
+		          <div fit>
+			          <picture-space id="picture-space">
+			            <template repeat="{{d in ajaxResponse.data}}">
+			              <picture-element word="{{d.word}}">
+	                    <img image src="{{d.img}}">
+	                    <template repeat="{{l in getLetters(d.word)}}">
+		                    <letter-tile>{{l}}</letter-tile>
+		                  </template>
+	                  </picture-element>
+	                </template>
+			          </picture-space>
+			          <tile-space id="tile-space">
+			            <template repeat="{{l in letters}}">
+					          <letter-tile>{{l}}</letter-tile>
+					        </template>
+			          </tile-space>
+			        </div>
+		        </core-header-panel>
+		      </core-drawer-panel>
+        </section>
+      </core-animated-pages>
+	  </template>
     <script>
       Polymer({
+    	  /**
+    	   * The name of currently active page.
+    	   *
+    	   * @type string
+    	   */
+    	  page: 'Home',
+    	  
+    	  /**
+    	   * The path to use to get the json data.
+    	   * 
+    	   * @type url
+    	   */
+    	  dataPath: 'http://still-waters-3351.herokuapp.com/data.json',
+    	  
+    	  /**
+    	   * List of the letters that the current level uses.
+    	   *
+    	   * @type array
+    	   */
     	  letters: [],
-    	  ajaxSuccessHandler: function (event, detail, sender) {
-    		  var data = detail.response.data;
-    		  for(var i=0; i<data.length; i++){
-    			  var letterArray = data[i].word.split('');
- 	          for(var j=0; j<letterArray.length; j++){
- 	            this.letters.push(letterArray[j]);
- 	          }
-    		  }
-    		  this.letters.shuffle();
-        },
+    	  
+    	  /**
+         * The level the user is on
+         * 
+         * @type integer
+         */
+        level: 1,
+        
+    	  /**
+    	   * The user's score
+    	   * 
+    	   * @type integer
+    	   */
+    	  score: 0,
+    	  
+    	  /**
+    	   * This method kind of works like a constructor for the page-element tag.
+    	   * Called when the <polymer-element> has been fully prepared.
+    	   */
         ready: function(){
+          this.setPage('Ingame');
+        },
+        
+        /**
+         * Set the active page.
+         * 
+         * @param name The name of the page to switch to
+         */
+        setPage: function(name){
+        	var $this = this;
         	
+        	// wait until every else is done.
+        	setTimeout(function(){
+        		switch(name){
+              case 'Home':
+                break;
+                
+              case 'Ingame':
+            	  // make sure the page is layed out right
+                $this.$['picture-space'].redraw();
+                $this.$['tile-space'].redraw();
+                break;
+                
+              default:
+                console.error('invalid page requested: ' + name);
+                return;
+            }
+            
+            $this.page = name;
+        	}, 0);
+        },
+        
+        /**
+         * Called on-tap of the start button.
+         */
+        btnStartAction: function(){
+        	this.setPage('Ingame');  // change the page to Ingame
+        },
+        
+        /**
+         * Called when a menu item is selected.
+         */
+        menuSelectAction: function(e, detail){
+        	if(!detail.isSelected) return; // handle select event, not deselect event
+        	
+        	console.log('Menu item selected: ' + detail.item.label);
+        },
+        
+        /**
+         * Get all the characters in the given string as an array.
+         * 
+         * @return array
+         */
+        getLetters: function(str){
+        	return str.split('');
+        },
+        
+        /**
+         * Handeler for when the ajax request succeed
+         */
+        ajaxSuccessHandler: function (event, detail, sender) {
+        	var data = detail.response.data; // the data returned
+        	
+        	this.letters = []; // empty the letter list
+        	
+        	// foreach word
+          for(var i=0; i<data.length; i++){
+            var letterArray = this.getLetters(data[i].word);  // split it into an array of characters
+            // for each letter
+            for(var j=0; j<letterArray.length; j++){
+              this.letters.push(letterArray[j]);  // add it to the array of letters
+            }
+          }
+        	
+          this.letters.shuffle(); // shuffle the letters
+        },
+        
+        /**
+         * Handeler for when the ajax request fails
+         */
+        ajaxErrorHandler: function (event, detail, sender) {
+        	console.error('ajax error');
         }
       });
     </script>
   </polymer-element>
   
-  <page-wrapper layout vertical fit></page-wrapper>
-  
+  <page-element></page-element>
 </body>
 </html>
