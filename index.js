@@ -1,18 +1,15 @@
 var express = require('express');
 var cors = require('cors');
 var app = express();
+var ConnectSdk = require('connectsdk');
 
-
-
-var opts = {
-server: {
-socketOptions: { keepAlive: 1 }
-}
-};
-
-
-
-
+//
+//var opts = {
+//server: {
+//socketOptions: { keepAlive: 1 }
+//}
+//};
+//
 
 /*------------------------------------------------- hardcoded data-------------------------------------------------------*/
 
@@ -27,7 +24,6 @@ app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
 
-
 //add header information for all routes
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -36,21 +32,59 @@ app.use(function(req, res, next) {
   next();
 });
 
+function absent(el, array){
+  return array.indexOf(el)==-1;
+}
+
+function randomChoices(list, num){
+  var random_indices = [];
+  while (random_indices.length < num){
+    var ran = Math.floor(Math.random()*list.length);
+    if (absent(ran, random_indices))
+      random_indices.push(ran);
+  }
+  return random_indices.map(function(i){return list[i];});
+}
+
+function apiCall(cb){
+  sdk = new ConnectSdk("56bdt8yjqf64774m5a2yfuz4","a34kr22MJEDem4edRSqwfzpJfq8UXUx296yBWgcr5u9RA")
+            .search()
+            .images()
+            .creative()
+            .withExcludeNudity()
+            .withPage(1)
+            .withPageSize(100)
+            .withPhrase('single object')
+            .execute(cb);
+}
+
 /* ---------- routes ----------------------------*/
 
-/* /wildcard all get routes  */
-
-app.get('/data.json', function(req, res,next) {
-
-	res.header('Content-Length',hardcodedImages.length);
-	res.send(hardcodedImages); 
-	next();	
-
+app.get('/', function(request, response) {
+  apiCall(function(err,res){
+    if(err) response.send(err);
+    else{ 
+      response.header('Content-Length',res.length);
+      response.send(res);
+    }
+  });
 });
 
+app.get('/display', function(request, response) {
+  apiCall(function(err,res){
+    if(err) response.send(err);
+
+    images = res.images;
+    image_mapper = function(img){
+      return {'img':img.display_sizes[0].uri, 'word':img.title.split(" ")[0]};
+    }
+    data_to_send = {'data': randomChoices(images, 3).map(image_mapper)};
+    response.header('Content-Length',data_to_send.length);
+    response.send(data_to_send);
+  });
+});
 
 /* ----------------end routes -------------------*/
-
 
 var server = app.listen(app.get('port'), function() {
 var host = server.address().address;

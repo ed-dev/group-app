@@ -10,7 +10,12 @@
     "type": "git",
     "url": "https://github.com/ed-dev/group-app.git"
   },
-  "author": "",
+  "dependencies": {
+    "express": "~4.9.x",
+    "connectsdk": "1.0.x",
+    "cors": "2.6.x"
+  },
+ "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ed-dev/group-app/issues"
