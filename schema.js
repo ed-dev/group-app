@@ -6,6 +6,5 @@ var pg = require('pg').native,
 
 client = new pg.Client(connectionString);
 client.connect();
-
-	query = client.query('CREATE TABLE users ( user_id SERIAL PRIMARY KEY, username varchar(30) NOT NULL, password bytea NOT NULL,first_name varchar(20), last_name varchar(30), age smallint NOT NULL, difficulty smallint NOT NULL)'  );
+query = client.query( 'CREATE TABLE words (word_id serial PRIMARY KEY, word varchar(30) NOT NULL, word_part part, difficulty smallint NOT NULL)'   );
 query.on('end',function(result){ client.end();}  );	
