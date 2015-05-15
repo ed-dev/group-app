@@ -93,7 +93,7 @@ app.get('/display', function(request, response) {
 	});
 
         query.on('row',function(result){});
-	console.log('word id & img id =%s ,%s',query[0]['id],0);
+	console.log('word id & img id =%s',JSON.stringify(query,null,' '));
       /*query = client.query({
 	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
 	    values :[wordId , imgId]
