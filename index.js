@@ -3,10 +3,7 @@ var cors = require('cors');
 var app = express();
 var ConnectSdk = require('connectsdk');
 //--postgresql daqtabase connection client 
-var pg = require('pg').native,
-                     connectionString = process.env.DATABASE_URL,
-                     client,
-                     query;
+
 //
 //var opts = {
 //server: {
@@ -24,8 +21,7 @@ var pg = require('pg').native,
 
 //-------------------------------end data--------------------------------------------------------------------------------//
 //create connection to the database
-var client = new pg.Client(connectionString);
-client.connect();
+
 
 
 
@@ -93,9 +89,13 @@ app.get('/display', function(request, response) {
     data_to_send = {'data': randomChoices(images, 3).map(image_mapper)};
     
        //--test saving images to database
-    
+    var pg = require('pg').native,
+                     connectionString = process.env.DATABASE_URL,
+                     client,
+                     query;
       //for(var i=0;i<data_to_send.length;i++){
-         
+     var client = new pg.Client(connectionString);
+      client.connect();    
 	  query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[1].img]
