@@ -85,14 +85,14 @@ app.get('/display', function(request, response) {
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[i].img]
 	});
-        query.on('row',function(result){imgId = result.id;});
+        query.on('row',function(result){imgId = result.rows[0].id;});
 	
         query = client.query({
 	    text: 'INSERT INTO words(word,difficulty) VALUES($1,$2)',
 	    values :[data_to_send.data[i].word , 6]
 	});
 
-        query.on('row',function(result){wordId=result.id;});
+        query.on('row',function(result){wordId=result.rows[0].id;});
 	console.log('word id & img id =%d %d',wordId,imgId);
       query = client.query({
 	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
