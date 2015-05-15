@@ -27,6 +27,8 @@ var pg = require('pg').native,
 var client = new pg.Client(connectionString);
 client.connect();
 
+
+
  
 
 
@@ -92,13 +94,15 @@ app.get('/display', function(request, response) {
     
        //--test saving images to database
     
-   //   for(var i=0;i<data_to_send.length;i++){
-	client.query({
+      //for(var i=0;i<data_to_send.length;i++){
+         
+	  query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[1].img]
-        });
-        query.on('row',function(result){console.log(result);});
-
+	  });
+            query.on('row',function(result){console.log(result);});
+	     
+	      
      // }//end for loop
      //--end test saving images to database
    
