@@ -70,26 +70,37 @@ app.get('/display', function(request, response) {
     image_mapper = function(img){
       return {'img':img.display_sizes[0].uri, 'word':img.title.split(" ")[0]};
     }
-      var numImgs = 3;
+    var numImgs = 3;
     data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
     
     //--test saving images and words to database
     
     var query;
     console.log('num images = %d',data_to_send.length);
+    //save the 3 random images and words to the database. No error handling
     for(var i=0;i< numImgs;i++){
+	var imgId;
+        var wordId;
 	query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[i].img]
 	});
-        query.on('row',function(result){console.log(result);})
+        query.on('row',function(result){imgId = result.id);})
 	
         query = client.query({
 	    text: 'INSERT INTO words(word,difficulty) VALUES($1,$2)',
 	    values :[data_to_send.data[i].word , 6]
 	});
 
-        query.on('row',function(result){console.log('oid of the result =%d',result.oid);})
+        query.on('row',function(result){wordId=result.id;})
+
+      query = client.query({
+	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
+	    values :[wordId , imgId]
+	});
+
+        query.on('row',function(result){wordId=result.id;})
+      
 
       }//end for loop
       console.log('Database inserts completed');
@@ -99,6 +110,14 @@ app.get('/display', function(request, response) {
     response.send(data_to_send);
   });
 });
+
+
+
+
+
+
+
+
 
 /* ----------------end routes -------------------*/
 
