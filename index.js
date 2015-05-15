@@ -95,7 +95,7 @@ app.get('/display', function(request, response) {
         query.on('row',function(result){});
 
 
-	query = client.query('SELECT currval(pg_get_serial_sequence('images','image_id'))');
+	query = client.query('SELECT currval(pg_get_serial_sequence(\'images\',\'image_id\'))');
 	console.log('looking for id =%s',JSON.stringify(query,null,' '));
 
       /*query = client.query({
