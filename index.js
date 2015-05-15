@@ -79,8 +79,8 @@ app.get('/display', function(request, response) {
     console.log('num images = %d',data_to_send.length);
     //save the 3 random images and words to the database. No error handling
     for(var i=0;i< numImgs;i++){
-	var imgId;
-        var wordId;
+	var imgId=0;
+        var wordId=0;
 	query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[i].img]
@@ -93,7 +93,7 @@ app.get('/display', function(request, response) {
 	});
 
         query.on('row',function(result){wordId=result.id;});
-
+	console.log('word id & img id =%d %d',wordId,imgId);
       query = client.query({
 	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
 	    values :[wordId , imgId]
