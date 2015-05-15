@@ -1,7 +1,7 @@
 var pg = require('pg').native,connectionString = process.env.DATABASE_URL,client,query;
 
 
-var queryStrings= [ 'CREATE TYPE status AS ENUM(\'issued\',\'completed\');',
+var queryString= [ 'CREATE TYPE status AS ENUM(\'issued\',\'completed\');',
       	        'CREATE TYPE part AS ENUM(\'n\',\'v\',\'pn\',\'adj\',\'adv\',\'c\',\'pr\',\'i\');',
        	        'CREATE TABLE users ( user_id serial PRIMARY KEY, username varchar (30) NOT NULL, password bytea NOT NULL,first_name varchar(20), last_name(30), age smallint NOT NULL, difficulty smallint NOT NULL);',
                 'CREATE TABLE friends (user_id integer references users(user_id), friend_id integer references users(user_id),PRIMARY KEY(user_id,friend_id);',
