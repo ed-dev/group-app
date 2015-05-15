@@ -2,38 +2,16 @@ var express = require('express');
 var cors = require('cors');
 var app = express();
 var ConnectSdk = require('connectsdk');
+
 //--postgresql daqtabase connection client 
 var pg = require('pg').native,
                      connectionString = process.env.DATABASE_URL,
                      client,
                      query;
     
-    var client = new pg.Client(connectionString);
-    client.connect();   
-//
-//var opts = {
-//server: {
-//socketOptions: { keepAlive: 1 }
-//}
-//};
-//
-
-/*------------------------------------------------- hardcoded data-------------------------------------------------------*/
-
- var hardcodedImages= {"data" : [ 
-	{"img" : "http://graphics8.nytimes.com/images/2012/12/17/sports/AVIE_NightSki-slide-U5NK/AVIE_NightSki-slide-U5NK-jumbo.jpg", "word" : "night"}, 	 {"img" : "http://graphics8.nytimes.com/packages/images/multimedia/bundles/projects/2012/AvalancheDeploy/avalanche_crack.jpg", "word":"avalanche"},
-	{"img":"http://cdn.covers.complex.com/assets/pharrell/desktop/img/scene5/handout.jpg","word":"hand"}
-	]};
-
-//-------------------------------end data--------------------------------------------------------------------------------//
-//create connection to the database
-
-
-
-
- 
-
-
+var client = new pg.Client(connectionString);
+client.connect(); 
+  
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
@@ -95,7 +73,7 @@ app.get('/display', function(request, response) {
       var numImgs = 3;
     data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
     
-    //--test saving images to database
+    //--test saving images and words to database
     
     var query;
     console.log('num images = %d',data_to_send.length);
@@ -105,7 +83,14 @@ app.get('/display', function(request, response) {
 	    values :[data_to_send.data[i].img]
 	});
         query.on('row',function(result){console.log(result);})
-	      
+	
+        query = client.query({
+	    text: 'INSERT INTO words(word) VALUES($1)',
+	    values :[data_to_send.data[i].word]
+	});
+
+        query.on('row',function(result){console.log('oid of the result =%d',result.oid);})
+
       }//end for loop
       console.log('Database inserts completed');
      //--end test saving images to database
