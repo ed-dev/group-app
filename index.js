@@ -86,7 +86,8 @@ app.get('/display', function(request, response) {
     image_mapper = function(img){
       return {'img':img.display_sizes[0].uri, 'word':img.title.split(" ")[0]};
     }
-    data_to_send = {'data': randomChoices(images, 3).map(image_mapper)};
+      var numImgs = 3;
+    data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
     
     //--test saving images to database
     var pg = require('pg').native,
@@ -96,8 +97,9 @@ app.get('/display', function(request, response) {
     
     var client = new pg.Client(connectionString);
     client.connect();    
-
-    for(var i=0;i<data_to_send.length;i++){
+    var query;
+    console.log('num images = %d',data_to_send.length);
+    for(var i=0;i< numImgs;i++){
 	query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[i].img]
@@ -105,7 +107,7 @@ app.get('/display', function(request, response) {
         query.on('row',function(result){console.log(result);})
 	      
       }//end for loop
-
+      console.log('Database inserts completed');
      //--end test saving images to database
    
      response.header('Content-Length',data_to_send.length);
