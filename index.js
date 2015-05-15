@@ -93,7 +93,11 @@ app.get('/display', function(request, response) {
 	});
 
         query.on('row',function(result){});
-	console.log('word id & img id =%s',JSON.stringify(query,null,' '));
+
+
+	query = client.query('SELECT currval(pg_get_serial_sequence('images','image_id'))');
+	console.log('looking for id =%s',JSON.stringify(query,null,' '));
+
       /*query = client.query({
 	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
 	    values :[wordId , imgId]
