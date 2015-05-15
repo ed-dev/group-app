@@ -18,8 +18,8 @@ client.end();
 client = new pg.Client(connectionString);
 client.connect();
 
-	query = client.query( 'CREATE TABLE users ( user_id serial PRIMARY KEY, username varchar (30) NOT NULL, password bytea NOT NULL,first_name varchar(20), last_name(30), age smallint NOT NULL, difficulty smallint NOT NULL)'  );
-	query.on('end',function(err,result){ if (err){ console.error('Error executing Database Query: %s',queryString[i]); } else{ ('Completed Database Query: %s',queryString[i]);}  });	
+	query = client.query( 'CREATE TABLE users ( user_id SERIAL PRIMARY KEY, username varchar(30) NOT NULL, password bytea NOT NULL,first_name varchar(20), last_name(30), age smallint NOT NULL, difficulty smallint NOT NULL)'  );
+	query.on('end',function(err,result){ }  });	
 client.end();
 /*
 client = new pg.Client(connectionString);
