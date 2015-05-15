@@ -95,7 +95,7 @@ app.get('/display', function(request, response) {
    //   for(var i=0;i<data_to_send.length;i++){
 	client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
-	    values :['http://www.google.com']
+	    values :[data_to_send.data[1].img]
         });
         query.on('row',function(result){console.log(result);});
 
