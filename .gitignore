@@ -3,3 +3,4 @@
 .settings/
 client/bower_components/
 index.js~
+/schema_to_ian.js~
