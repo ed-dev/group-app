@@ -13,7 +13,7 @@
   "dependencies": {
     "express": "~4.9.x",
     "connectsdk": "1.0.x",
-    "cors": "2.6.x"
+    "cors": "2.6.x",
     "pg": "^3.0.3"
   },
  "author": "",
