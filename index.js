@@ -79,28 +79,28 @@ app.get('/display', function(request, response) {
     console.log('num images = %d',data_to_send.length);
     //save the 3 random images and words to the database. No error handling
     for(var i=0;i< numImgs;i++){
-	var imgId=0;
-        var wordId=0;
+	var imgId;
+        var wordId;
 	query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
 	    values :[data_to_send.data[i].img]
 	});
-        query.on('row',function(result){imgId = result.rows[0].id;});
+        query.on('row',function(result){JSON.stringify(result.rows,null," ");});
 	
         query = client.query({
 	    text: 'INSERT INTO words(word,difficulty) VALUES($1,$2)',
 	    values :[data_to_send.data[i].word , 6]
 	});
 
-        query.on('row',function(result){wordId=result.rows[0].id;});
-	console.log('word id & img id =%d %d',wordId,imgId);
-      query = client.query({
+        query.on('row',function(result){JSON.stringify(result.rows,null," ");});
+	console.log('word id & img id =%s ,%s',wordId,imgId);
+      /*query = client.query({
 	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
 	    values :[wordId , imgId]
 	});
 
         query.on('row',function(result){});
-      
+      */
 
       }//end for loop
       console.log('Database inserts completed');
