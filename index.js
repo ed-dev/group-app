@@ -85,8 +85,8 @@ app.get('/display', function(request, response) {
         query.on('row',function(result){console.log(result);})
 	
         query = client.query({
-	    text: 'INSERT INTO words(word) VALUES($1)',
-	    values :[data_to_send.data[i].word]
+	    text: 'INSERT INTO words(word,difficulty) VALUES($1,$2)',
+	    values :[data_to_send.data[i].word 6]
 	});
 
         query.on('row',function(result){console.log('oid of the result =%d',result.oid);})
