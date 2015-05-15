@@ -88,22 +88,24 @@ app.get('/display', function(request, response) {
     }
     data_to_send = {'data': randomChoices(images, 3).map(image_mapper)};
     
-       //--test saving images to database
+    //--test saving images to database
     var pg = require('pg').native,
                      connectionString = process.env.DATABASE_URL,
                      client,
                      query;
-      //for(var i=0;i<data_to_send.length;i++){
-     var client = new pg.Client(connectionString);
-      client.connect();    
-	  query = client.query({
+    
+    var client = new pg.Client(connectionString);
+    client.connect();    
+
+    for(var i=0;i<data_to_send.length;i++){
+	query = client.query({
 	    text: 'INSERT INTO images(url) VALUES($1)',
-	    values :[data_to_send.data[1].img]
-	  });
-            query.on('row',function(result){console.log(result);});
-	     
+	    values :[data_to_send.data[i].img]
+	});
+        query.on('row',function(result){console.log(result);})
 	      
-     // }//end for loop
+      }//end for loop
+
      //--end test saving images to database
    
      response.header('Content-Length',data_to_send.length);
