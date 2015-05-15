@@ -3,7 +3,13 @@ var cors = require('cors');
 var app = express();
 var ConnectSdk = require('connectsdk');
 //--postgresql daqtabase connection client 
-
+var pg = require('pg').native,
+                     connectionString = process.env.DATABASE_URL,
+                     client,
+                     query;
+    
+    var client = new pg.Client(connectionString);
+    client.connect();   
 //
 //var opts = {
 //server: {
@@ -90,13 +96,7 @@ app.get('/display', function(request, response) {
     data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
     
     //--test saving images to database
-    var pg = require('pg').native,
-                     connectionString = process.env.DATABASE_URL,
-                     client,
-                     query;
     
-    var client = new pg.Client(connectionString);
-    client.connect();    
     var query;
     console.log('num images = %d',data_to_send.length);
     for(var i=0;i< numImgs;i++){
