@@ -1,26 +1,40 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="user-level" attributes="level">
+<dom-module id="user-level">
+  <style>
+  :host{
+    display: block;
+    text-align: left;
+    padding: 8px;
+  }
+  </style>
   <template>
-    <style>
-    :host{
-      display: block;
-      text-align: left;
-      padding: 8px;
-    }
-    </style>
-    Difficulty Level: {{level}}
+    Difficulty Level: <span>{{_levelToSring(level)}}</span>
   </template>
-  <script>
-  Polymer({
-    /**
-     * The level value.
-     * 
-     * @attribute level
-     * @type integer
-     * @default 0
-     */
-    level: 0,
-  });
-  </script>
 </polymer-element>
+
+<script>
+Polymer({
+  is: 'user-level',
+  
+  properties: {
+	  /**
+	   * The level value.
+	   */
+	  level: {
+		  type: Number,
+		  value: 0,
+		  notify: true
+	  }
+  },
+  
+  _levelToSring: function(level){
+	  switch(level){
+	    case 0: return 'Easy';
+      case 1: return 'Medium';
+      case 2: return 'Hard';
+	  }
+	  console.error('unknown level');
+  }
+});
+</script>

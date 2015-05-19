@@ -1,124 +1,121 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="picture-space">
+<dom-module id="picture-space">
+  <style>
+  :host{
+    position: relative;
+    display: block;
+    background: yellow;
+    height: 60%;
+    overflow: hidden;
+  }
+  :host ::content picture-element{
+    position: absolute !important;
+    left: 0;
+    top: 0;
+  }
+  </style>
   <template>
-    <style>
-    :host{
-      position: relative;
-      display: block;
-      background: yellow;
-      height: 60%;
-    }
-    polyfill-next-selector { content: ':host picture-element' }
-    ::content > picture-element{
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-    </style>
     <content select="picture-element" id="pictures"></content>
     <content></content>
   </template>
-  <script>
-    Polymer({
-      /**
-       * Selected Picture Element.
-       * Used to indecate with picture element is currently active
-       * and can have letter-tiles put in it.
-       *
-       * @type integer
-       * @default 0
-       */
-      selectedPE: 0,
-      
-      ready: function(){
-        var $this = this;
-        window.addEventListener('resize', function(){
-          $this.layoutPictureElements();
-        });
-      },
-      
-      /**
-       * Automatically called when the element initial set of children are ready.
-       */
-      domReady: function(){
-        this.layoutPictureElements();
-      },
-      
-      /**
-       * Make sure all the picture-element children are the right size,
-       * then re-layout them out.
-       * 
-       * @method redraw
-       */
-      redraw: function(){
-        var $this = this;
-        
-        // wait until everything else is done
-        setTimeout(function(){
-          var pictureElements = $this.getPictureElements();
-          
-          pictureElements.forEach(function(element, index, array){
-            element.maintainAspectRatio();
-          }, $this);
-          
-          $this.layoutPictureElements();  // then layout the picture-elements
-        }, 0);
-      },
-      
-      /**
-       * Get the distributed picture-element children of this element.
-       * 
-       * @method getPictureElements
-       * @return array
-       */
-      getPictureElements: function(){
-        return Array.prototype.slice.call(this.$.pictures.getDistributedNodes());
-      },
-      
-      /**
-       * Layout the picture-element's children.
-       */
-      layoutPictureElements: function(){
-        var pictureElements = this.getPictureElements();
-        if(!pictureElements.length) return;
-        
-        // hard coded example of layout
-        var element = pictureElements[this.selectedPE];
-        var width  = this.offsetWidth;
-        var height = this.offsetHeight;
-        var zIndex = pictureElements.length;
-        var scale = 1;
-        var s;
-        
-        element.style.left = ((width  - element.offsetWidth  * scale) * 0.50) + 'px';
-        element.style.top  = ((height - element.offsetHeight * scale) * 0.80) + 'px';
-        element.style.zIndex = zIndex--;
-        s = 'scale('+scale+')';
-        element.style.WebkitTransform = s;
-        element.style.msTransform = s;
-        element.style.transform = s;
-        
-        element = pictureElements[1];
-        scale = 0.5;
-        element.style.left = ((width  - element.offsetWidth  * scale) * 0.05) + 'px';
-        element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
-        element.style.zIndex = zIndex--;
-        s = 'scale('+scale+')';
-        element.style.WebkitTransform = s;
-        element.style.msTransform = s;
-        element.style.transform = s;
+</dom-module>
 
-        element = pictureElements[2];
-        scale = 0.5;
-        element.style.left = ((width  - element.offsetWidth  * scale) * 0.95) + 'px';
-        element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
-        element.style.zIndex = zIndex--;
-        s = 'scale('+scale+')';
-        element.style.WebkitTransform = s;
-        element.style.msTransform = s;
-        element.style.transform = s;
-      }
+<script>
+Polymer({
+  is: 'picture-space',
+  
+  properties: {
+	  /**
+	   * Selected Picture Element.
+	   * Used to indecate with picture element is currently active
+	   * and can have letter-tiles put in it.
+	   */
+	  selectedPicturelElementIndex: {
+		  type: Number,
+		  value: 0,
+		  notify: true
+	  }
+  },
+	  
+  ready: function(){
+    var $this = this;
+    window.addEventListener('resize', function(){
+      $this.layoutPictureElements();
     });
-  </script>
-</polymer-element>
+  },
+  
+  /**
+   * Make sure all the picture-element children are the right size,
+   * then re-layout them out.
+   */
+  redraw: function(){
+    var $this = this;
+    
+    // wait until everything else is done
+    setTimeout(function(){
+      var pictureElements = $this.getPictureElements();
+      
+      // make sure everything is the right size
+      pictureElements.forEach(function(element, index, array){
+        element.maintainAspectRatio();
+      }, $this);
+      
+      $this.layoutPictureElements();  // then layout the picture-elements
+    }, 0);
+  },
+  
+  /**
+   * Get the distributed picture-element children of this element.
+   */
+  getPictureElements: function(){
+    return Polymer.dom(this.$.pictures).getDistributedNodes();
+  },
+  
+  /**
+   * Layout the picture-element's children.
+   */
+  layoutPictureElements: function(){
+	  Polymer.dom.flush();
+	  
+    var pictureElements = this.getPictureElements();
+    if(!pictureElements.length) return;
+    
+    // hard coded example of layout
+    var element = Polymer.dom(pictureElements[this.selectedPicturelElementIndex]).node;
+    var width  = Polymer.dom(this).node.offsetWidth;
+    var height = Polymer.dom(this).node.offsetHeight;
+    var zIndex = pictureElements.length;
+    var scale = 1;
+    var s;
+    
+    element.style.left = ((width  - element.offsetWidth  * scale) * 0.50) + 'px';
+    element.style.top  = ((height - element.offsetHeight * scale) * 0.80) + 'px';
+    element.style.zIndex = zIndex--;
+    s = 'scale('+scale+')';
+    element.style.WebkitTransform = s;
+    element.style.msTransform = s;
+    element.style.transform = s;
+    
+    element = pictureElements[1];
+    scale = 0.5;
+    element.style.left = ((width  - element.offsetWidth  * scale) * 0.05) + 'px';
+    element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
+    element.style.zIndex = zIndex--;
+    s = 'scale('+scale+')';
+    element.style.WebkitTransform = s;
+    element.style.msTransform = s;
+    element.style.transform = s;
+
+    element = pictureElements[2];
+    scale = 0.5;
+    element.style.left = ((width  - element.offsetWidth  * scale) * 0.95) + 'px';
+    element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
+    element.style.zIndex = zIndex--;
+    s = 'scale('+scale+')';
+    element.style.WebkitTransform = s;
+    element.style.msTransform = s;
+    element.style.transform = s;
+  }
+});
+</script>

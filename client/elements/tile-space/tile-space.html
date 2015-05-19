@@ -1,59 +1,54 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="tile-space">
+<dom-module id="tile-space">
+  <style>
+  :host{
+    position: relative;
+    display: block;
+    background: red;
+    height: 40%;
+    overflow: auto;
+  }
+  :host ::content letter-tile{
+    width: 64px;
+    height: 64px;
+    margin: 4px;
+  }
+  </style>
   <template>
-    <style>
-    :host{
-      position: relative;
-      display: block;
-      background: red;
-      height: 40%;
-      overflow: auto;
-    }
-    polyfill-next-selector { content: ':host letter-tile' }
-    ::content > letter-tile{
-      width: 64px;
-      height: 64px;
-      margin: 4px;
-    }
-    </style>
-    <div horizontal layout wrap around-justified center fit>
+    <div class="horizontal layout wrap around-justified center fit">
       <content select="letter-tile" id="tiles"></content>
     </div>
     <content></content>
   </template>
-  <script>
-    Polymer({
-      ready: function(){
-        
-      },
-      
-      /**
-       * Get the distributed letter-tile children of this element.
-       * 
-       * @method getLetterTiles
-       * @return array
-       */
-      getLetterTiles: function(){
-        return Array.prototype.slice.call(this.$.tiles.getDistributedNodes());
-      },
-      
-      /**
-       * Make sure all the letter-tile children are the right size.
-       */
-      redraw: function(){
-        var $this = this;
-        
-        // wait until everything else is done
-        setTimeout(function(){
-          var tiles = $this.getLetterTiles();
-          
-          // resize the tiles
-          tiles.forEach(function(element, index, array){
-            element.updateSize();
-          }, $this);
-        }, 0);
-      },
-    });
-  </script>
 </polymer-element>
+
+<script>
+Polymer({
+  is: 'tile-space',
+  
+  /**
+   * Get the distributed letter-tile children of this element.
+   */
+  getLetterTiles: function(){
+    return Polymer.dom(this.$.tiles).getDistributedNodes();
+  },
+  
+  /**
+   * Make sure all the letter-tile children are the right size.
+   */
+  redraw: function(){
+    var $this = this;
+    
+    // wait until everything else is done
+    setTimeout(function(){
+      var tiles = $this.getLetterTiles();
+      
+      // resize the tiles
+      tiles.forEach(function(element, index, array){
+        element.updateSize();
+      }, $this);
+    }, 0);
+  },
+});
+</script>

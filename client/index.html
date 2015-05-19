@@ -6,21 +6,23 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   
-  <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   
   <link rel="import" href="bower_components/polymer/polymer.html">
-  <link rel="import" href="bower_components/core-ajax/core-ajax.html">
-  <link rel="import" href="bower_components/core-animated-pages/core-animated-pages.html">
-  <link rel="import" href="bower_components/core-drawer-panel/core-drawer-panel.html">
-  <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
-  <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
-  <link rel="import" href="bower_components/core-icon-button/core-icon-button.html">
-  <link rel="import" href="bower_components/core-menu/core-menu.html">
-  <link rel="import" href="bower_components/core-item/core-item.html">
   
+  <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+  <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+  
+  <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
+  <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
+  <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
   <link rel="import" href="bower_components/paper-button/paper-button.html">
+  <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+  <link rel="import" href="bower_components/paper-menu/paper-menu.html">
+  <link rel="import" href="bower_components/paper-item/paper-icon-item.html">
   
-  <link rel="import" href="elements/array-shuffle/array-shuffle.html">
+  <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
+  
   <link rel="import" href="elements/picture-space/picture-space.html">
   <link rel="import" href="elements/tile-space/tile-space.html">
   <link rel="import" href="elements/picture-element/picture-element.html">
@@ -28,211 +30,253 @@
   <link rel="import" href="elements/user-level/user-level.html">
   <link rel="import" href="elements/user-score/user-score.html">
   
+  <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
+  
   <title></title>
   
+  <style>
+  body{
+    margin: 0;
+    height: 100vh;
+  }
+  </style>
 </head>
-<body unresolved fullbleed>
-  <polymer-element name="page-element">
+<body>
+  <dom-module id="page-element">
+    <style>
+    paper-drawer-panel paper-header-panel[drawer]{
+      background: #ffffff;
+      height: 100%;
+    }
+    paper-drawer-panel paper-header-panel[main]{
+      z-index: 0;
+      height: 100%;
+    }
+    paper-toolbar{
+      background: #318CE7 !important;
+      padding: 0 8px;
+    }
+    </style>
     <template>
-      <core-ajax
+      <iron-ajax
         auto
-        handleAs="json"
-        url="{{dataPath}}"
-        params='{"level":"{{level}}"}'
-        response="{{ajaxResponse}}"
-        on-core-response="{{ajaxSuccessHandler}}"
-        on-core-error="{{ajaxErrorHandler}}"></core-ajax>
-      <style>
-      :host{
-        
-      }
-      core-drawer-panel > [drawer],
-      core-drawer-panel #drawer > [drawer] /* for browsers without shadowDOM support*/ {
-        background: #ffffff;
-      }
-      core-drawer-panel > [main],
-      core-drawer-panel #main > [main] /* for browsers without shadowDOM support*/ {
-        z-index: 0;
-      }
-      core-toolbar{
-        background: #318CE7;
-      }
-      #titlebar-right-padder{
-        width: 38px;
-      }
-      </style>
-      <core-animated-pages fit selected={{page}} transitions="cross-fade-all">
+        handle-as="json"
+        url="[[dataPath]]"
+        params='{"difficulty":"[[difficulty]]"}'
+        method="GET"
+        last-response="{{ajaxResponse}}"
+        on-response="_ajaxSuccessHandler"
+        on-error="_ajaxErrorHandler"></iron-ajax>
+      <neon-animated-pages class="fit" selected="{{page}}" attr-for-selected="name" transitions="cross-fade-all">
         <section name="Home">
-          <paper-button id="start" raised on-tap="{{btnStartAction}}">Start</paper-button>
+          <paper-button id="start" raised on-tap="_btnStartAction">Start</paper-button>
         </section>
         <section name="Ingame">
-          <core-drawer-panel forceNarrow>
-            <core-header-panel drawer>
-              <core-toolbar justify="start">Menu</core-toolbar>
-              <core-menu on-core-select="{{menuSelectAction}}">
-                <core-item icon="settings" label="Item 1"></core-item>
-                <core-item icon="search" label="Item 2"></core-item>
-                <core-item icon="cancel" label="Item 3"></core-item>
-              </core-menu>
-            </core-header-panel>
-            <core-header-panel main>
-              <core-toolbar justify="center">
-                <core-icon-button icon="menu" core-drawer-toggle></core-icon-button>
-                <div flex></div>
+          <paper-drawer-panel force-narrow disable-edge-swipe>
+            <paper-header-panel drawer>
+              <paper-toolbar justify="start">Menu</paper-toolbar>
+              <paper-menu on-iron-select="_menuSelectAction">
+                <paper-icon-item id="menu-item-1">
+                  <iron-icon icon="settings" item-icon></iron-icon>Item 1
+                </paper-icon-item>
+                <paper-icon-item id="menu-item-2">
+                  <iron-icon icon="search" item-icon></iron-icon>Item 2
+                </paper-icon-item>
+                <paper-icon-item id="menu-item-3">
+                  <iron-icon icon="cancel" item-icon></iron-icon>Item 3
+                </paper-icon-item>
+              </paper-menu>
+            </paper-header-panel>
+            <paper-header-panel main>
+              <paper-toolbar justify="center">
+                <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+                <div class="flex"></div>
                 <user-score score="{{score}}"></user-score>
-              </core-toolbar>
-              <div fit>
+              </paper-toolbar>
+              <div class="fit">
                 <picture-space id="picture-space">
-                  <user-level level="{{level}}"></user-level>
-                  <template repeat="{{d in ajaxResponse.data}}">
-                    <picture-element word="{{d.word}}" pictureSpace="{{$['picture-space']}}">
-                      <img image src="{{d.img}}">
-                      <template repeat="{{l in getLetters(d.word)}}">
-                        <letter-tile>{{l}}</letter-tile>
+                  <user-level level="[[difficulty]]"></user-level>
+                  <template is="dom-repeat" items="{{ajaxResponse.data}}">
+                    <picture-element word="{{item.word}}" picture-space="[[pictureSpace]]">
+                      <img src="{{item.img}}">
+                      <template is="dom-repeat" items="{{_getLetters(item.word)}}">
+                        <letter-tile>{{item}}</letter-tile>
                       </template>
                     </picture-element>
                   </template>
                 </picture-space>
                 <tile-space id="tile-space">
-                  <template repeat="{{l in letters}}">
-                    <letter-tile>{{l}}</letter-tile>
+                  <template is="dom-repeat" items="{{letters}}">
+                    <letter-tile>{{_getLetter(index)}}</letter-tile>
                   </template>
                 </tile-space>
               </div>
-            </core-header-panel>
-          </core-drawer-panel>
+            </paper-header-panel>
+          </paper-drawer-panel>
         </section>
-      </core-animated-pages>
+      </neon-animated-pages>
     </template>
-    <script>
-      Polymer({
-        /**
-         * The name of currently active page.
-         *
-         * @type string
-         */
-        page: 'Home',
+  </dom-module>
+  <script>
+    Polymer({
+    	is: 'page-element',
+    	
+    	properties: {
+    		/**
+ 	       * The name of currently active page.
+ 	       */
+ 	      page: {
+ 	    	  type: String,
+ 	    	  value: 'Home',
+ 	    	  notify: true,
+ 	    	  observer: '_pageChangeEvent'
+ 	      },
+ 	      
+ 	      /**
+ 	       * The path to the json data.
+ 	       */
+ 	      dataPath: {
+ 	    	  type: String,
+ 	    	  value: 'http://still-waters-3351.herokuapp.com/display',
+ 	      },
+ 	      
+ 	      /**
+ 	       * List of all the letters that the current level has.
+ 	       */
+ 	      letters: {
+ 	    	  type: Array,
+ 	    	  value: [],
+ 	    	  notify: true
+ 	      },
+ 	      
+ 	      /**
+ 	       * The difficulty the user is on
+ 	       * 0 - Easy
+ 	       * 1 - Medium
+ 	       * 2 - Hard
+ 	       */
+ 	      difficulty: {
+ 	    	  type: Number,
+ 	    	  value: 0,
+          readOnly: true,
+          notify: true
+ 	      },
+ 	      
+ 	      /**
+ 	       * The user's score.
+ 	       */
+ 	      score: {
+ 	    	  type: Number,
+          value: 0,
+          readOnly: true,
+          notify: true
+ 	      },
+ 	      
+ 	      /**
+ 	       * The picture-space.
+ 	       * Used to give picture-elements their parent.
+ 	       */
+ 	      pictureSpace: {
+ 	    	  type: Object,
+ 	    	  value: function(){
+ 	    		  return this.$['picture-space'];
+ 	    	  },
+ 	    	  readOnly: true
+ 	      }
+    	},
+      
+      /**
+       * This method kind of works like a constructor for the page-element tag.
+       * Called when the <polymer-element> has been fully prepared.
+       */
+      ready: function(){
+        this.page = 'Ingame';
+      },
+      
+      /**
+       * Set the active page.
+       * 
+       * @param name The name of the page to switch to
+       */
+       _pageChangeEvent: function(newPage, oldPage){
+        var $this = this;
         
-        /**
-         * The path to use to get the json data.
-         * 
-         * @type url
-         */
-        dataPath: 'http://still-waters-3351.herokuapp.com/data.json',
-        
-        /**
-         * List of the letters that the current level uses.
-         *
-         * @type array
-         */
-        letters: [],
-        
-        /**
-         * The level the user is on
-         * 
-         * @type integer
-         */
-        level: 1,
-        
-        /**
-         * The user's score
-         * 
-         * @type integer
-         */
-        score: 0,
-        
-        /**
-         * This method kind of works like a constructor for the page-element tag.
-         * Called when the <polymer-element> has been fully prepared.
-         */
-        ready: function(){
-          this.setPage('Ingame');
-        },
-        
-        /**
-         * Set the active page.
-         * 
-         * @param name The name of the page to switch to
-         */
-        setPage: function(name){
-          var $this = this;
-          
-          // wait until every else is done.
-          setTimeout(function(){
-            switch(name){
-              case 'Home':
-                break;
-                
-              case 'Ingame':
-                // make sure the page is layed out right
-                $this.$['picture-space'].redraw();
-                $this.$['tile-space'].redraw();
-                break;
-                
-              default:
-                console.error('invalid page requested: ' + name);
-                return;
-            }
-            
-            $this.page = name;
-          }, 0);
-        },
-        
-        /**
-         * Called on-tap of the start button.
-         */
-        btnStartAction: function(){
-          this.setPage('Ingame');  // change the page to Ingame
-        },
-        
-        /**
-         * Called when a menu item is selected.
-         */
-        menuSelectAction: function(e, detail){
-          if(!detail.isSelected) return; // handle select event, not deselect event
-          
-          console.log('Menu item selected: ' + detail.item.label);
-        },
-        
-        /**
-         * Get all the characters in the given string as an array.
-         * 
-         * @return array
-         */
-        getLetters: function(str){
-          return str.split('');
-        },
-        
-        /**
-         * Handeler for when the ajax request succeed
-         */
-        ajaxSuccessHandler: function (event, detail, sender) {
-          var data = detail.response.data; // the data returned
-          
-          this.letters = []; // empty the letter list
-          
-          // foreach word
-          for(var i=0; i<data.length; i++){
-            var letterArray = this.getLetters(data[i].word);  // split it into an array of characters
-            // for each letter
-            for(var j=0; j<letterArray.length; j++){
-              this.letters.push(letterArray[j]);  // add it to the array of letters
-            }
+        // wait until every else is done.
+        setTimeout(function(){
+          switch(newPage){
+            case 'Home':
+              break;
+              
+            case 'Ingame':
+              // make sure the page is layed out right
+              $this.$['picture-space'].redraw();
+              $this.$['tile-space'].redraw();
+              break;
           }
-          
-          this.letters.shuffle(); // shuffle the letters
-        },
+        }, 0);
+      },
+      
+      /**
+       * Get all the characters in the given string as an array.
+       * 
+       * @return array
+       */
+      _getLetters: function(str){
+        return str.split('');
+      },
+      
+      /**
+       * Get the letter at the given index of the letters array.
+       * This is work as a work around for some weird bug in dom-repeat.
+       */
+      _getLetter: function(index){
+        return this.letters[index].toString();
+      },
+      
+      /**
+       * Called on-tap of the start button.
+       */
+      _btnStartAction: function(){
+        this.page = 'Ingame';  // change the page to Ingame
+      },
+      
+      /**
+       * Called when a menu item is selected.
+       */
+      _menuSelectAction: function(e, detail){
+        console.log('Menu item selected: ' + detail.item.id);
+        //e.target.selected = -1; // deselect the item
+      },
+      
+      /**
+       * Handeler for when the ajax request succeed
+       */
+      _ajaxSuccessHandler: function (event, detail, sender) {
+        var data = detail.response.data; // the data returned
         
-        /**
-         * Handeler for when the ajax request fails
-         */
-        ajaxErrorHandler: function (event, detail, sender) {
-          console.error('ajax error');
+        this.letters = []; // empty the letter list
+        
+        // foreach word
+        for(var i=0; i<data.length; i++){
+          var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
+          // for each letter
+          for(var j=0; j<letterArray.length; j++){
+            this.letters.push(letterArray[j].toLowerCase());  // add it to the array of letters
+          }
         }
-      });
-    </script>
-  </polymer-element>
-  
+
+        this.letters.shuffle(); // shuffle the letters
+      },
+      
+      /**
+       * Handeler for when the ajax request fails
+       */
+      _ajaxErrorHandler: function (event, detail, sender) {
+        console.error('ajax error');
+      },
+    });
+  </script>
+    
   <page-element></page-element>
 </body>
 </html>

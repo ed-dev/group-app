@@ -1,61 +1,67 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
-<polymer-element name="user-score" attributes="score">
+<dom-module id="user-score">
+  <style>
+  :host{
+    display: block;
+    padding: 8px;
+  }
+  :host #score-value{
+    font-family: Consolas;
+  }
+  </style>
   <template>
-    <style>
-    :host{
-      display: block;
-    }
-    #score-value{
-      font-family: Consolas;
-    }
-    </style>
-    Score: <span id="score-value"><span id="spacing"></span>{{updateSpacing()}}{{score}}</span>
+    Score: <span id="score-value"><span id="spacing"></span><span>[[_printScore(score)]]</span></span>
   </template>
-  <script>
-  Polymer({
-    /**
-     * The score value.
-     * 
-     * @attribute score
-     * @type integer
-     * @default 0
-     */
-    score: 0,
+</dom-module>
+
+<script>
+Polymer({
+  is: 'user-score',
+  
+  properties: {
+	  /**
+	   * The score value.
+	   */
+	  score: {
+		  type: Number,
+		  value: 0,
+		  reflect: true
+	  }
+  },
+  
+  /**
+   * return the score value but also update the spacing.
+   */
+  _printScore: function(){
+	  this._updateSpacing();
+	  return this.score;
+  },
+  
+  /**
+   * Update the spacing between before the score value.
+   * 
+   * The score value can't simply be prefixed with spaces before printing,
+   * as the {{}} will escapes any HTML within them (including &nbsp;)
+   */
+  _updateSpacing: function(){
+    this._setSpacing('&nbsp;', 5 - this.score.toString().length);
+  },
+  
+  /**
+   * Insert the given character the given number of times, into the spacing container
+   * 
+   * @param character The character to insert
+   * @param number The number of times to insert the given character
+   */
+  _setSpacing: function(character, number){
+    var str = '';
     
-    /**
-     * Update the spacing between before the score value.
-     * 
-     * The score value can't simply be prefixed with spaces before printing,
-     * as the {{}} will escapes any HTML within them (including &nbsp;)
-     */
-    updateSpacing: function(){
-      // the first time this method is called, the 'this' object wont be ready yet.
-      // this method therefore needs to be called by the ready method.
-      if(!this.$) return;
-      
-      this.setSpacing('&nbsp;', 5 - this.score.toString().length);
-    },
-    
-    /**
-     * Insert the given character the given number of times, into the spacing container
-     * 
-     * @param character The character to insert
-     * @param number The number of times to insert the given character
-     */
-    setSpacing: function(character, number){
-      var str = '';
-      
-      for(var i=0; i<number; i++){
-        str += character;
-      }
-      
-      this.injectBoundHTML(str, this.$.spacing);
-    },
-    
-    ready: function(){
-      this.updateSpacing();
+    for(var i=0; i<number; i++){
+      str += character;
     }
-  });
-  </script>
-</polymer-element>
+    
+    this.$.spacing.innerHTML = str;
+  }
+});
+</script>
