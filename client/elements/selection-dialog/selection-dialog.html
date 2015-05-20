@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="selection-dialog">
+  <link rel="import" type="css" href="../../bower_components/paper-dialog-behavior/paper-dialog-common.css">
+  <style is="custom-style">
+    :host{
+      position: relative;
+      margin: 4vw;
+      background: #e5e5e5 !important;
+      border-radius: 16px;
+      border: solid 1px #000;
+    }
+    #btn-close{
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      margin: 8px;
+      padding: 0;
+    }
+    #btn-close::shadow #icon{
+      width: 40px;
+      height: 40px;
+    }
+    #header{
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 56px;
+      padding: 0;
+      margin: 10px 8px 6px 8px;
+      height: 40px;
+    }
+    #header ::content h1{
+      font-size: 26px;
+      margin-left: 8px;
+    }
+    #content{
+      position: absolute;
+      top: 56px;
+      border: solid 1px #000;
+      border-radius: 8px;
+      margin: 0 8px 8px 8px;
+      background: #c0c0c0;
+    }
+  </style>
+
+  <template>
+    <paper-icon-button id="btn-close" icon="cancel" on-tap="_btnCancelAction"></paper-icon-button>
+    <div id="header" class="horizontal layout center">
+      <content select="h1"></content>
+    </div>
+    <div id="content" class="horizontal center-justified layout center wrap fit">
+      <content></content>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'selection-dialog',
+  
+  behaviors: [
+    Polymer.PaperDialogBehavior
+  ],
+  
+  hostAttributes: {
+    'with-backdrop': '',              // darken the background behind this dialog
+    'no-cancel-on-outside-click': ''  // don't close the dialog on a click outside of it
+  },
+  
+  ready: function(){
+    this.classList.add('fit');  // make this fit to its parent
+  },
+  
+  /**
+   * Called on-tap of the cancel button.
+   */
+  _btnCancelAction: function(){
+    this.cancel();
+  }
+});
+</script>
