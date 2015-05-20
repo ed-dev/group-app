@@ -16,8 +16,10 @@
   }
   </style>
   <template>
-    <content select="picture-element" id="pictures"></content>
-    <content></content>
+    <div hidden$="[[loading]]">
+      <content select="picture-element" id="pictures"></content>
+      <content></content>
+    </div>
   </template>
 </dom-module>
 
@@ -26,18 +28,26 @@ Polymer({
   is: 'picture-space',
   
   properties: {
-	  /**
-	   * Selected Picture Element.
-	   * Used to indecate with picture element is currently active
-	   * and can have letter-tiles put in it.
-	   */
-	  selectedPicturelElementIndex: {
-		  type: Number,
-		  value: 0,
-		  notify: true
-	  }
+    /**
+     * Selected Picture Element.
+     * Used to indecate with picture element is currently active
+     * and can have letter-tiles put in it.
+     */
+    selectedPicturelElementIndex: {
+      type: Number,
+      value: 0,
+      notify: true
+    },
+    
+    /**
+     * Set to true if this element's children are not ready to display yet
+     */
+    loading:{
+      type: Boolean,
+      value: false
+    }
   },
-	  
+    
   ready: function(){
     var $this = this;
     window.addEventListener('resize', function(){
@@ -76,8 +86,8 @@ Polymer({
    * Layout the picture-element's children.
    */
   layoutPictureElements: function(){
-	  Polymer.dom.flush();
-	  
+    Polymer.dom.flush();
+    
     var pictureElements = this.getPictureElements();
     if(!pictureElements.length) return;
     

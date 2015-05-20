@@ -1,0 +1,150 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../picture-space/picture-space.html">
+<link rel="import" href="../tile-space/tile-space.html">
+<link rel="import" href="../picture-element/picture-element.html">
+<link rel="import" href="../letter-tile/letter-tile.html">
+<link rel="import" href="../user-level/user-level.html">
+  
+<dom-module id="game-space">
+  <style>
+  #loading{
+    background: rgba(0,0,0,0.25);
+  }
+  </style>
+  <template>
+    <iron-ajax
+      id="ajax"
+      handle-as="json"
+      url="[[urlDataPath]]"
+      params='{"difficulty":"[[difficulty]]"}'
+      method="GET"
+      last-response="{{ajaxResponse}}"
+      on-response="_ajaxSuccessHandler"
+      on-error="_ajaxErrorHandler"></iron-ajax>
+    <picture-space id="picture-space" loading="[[loading]]">
+      <user-level level="[[difficulty]]"></user-level>
+      <template is="dom-repeat" items="[[ajaxResponse.data]]">
+        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]">
+          <img src="{{item.img}}">
+          <template is="dom-repeat" items="[[_getLetters(item.word)]]">
+            <letter-tile>{{item}}</letter-tile>
+          </template>
+        </picture-element>
+      </template>
+    </picture-space>
+    <tile-space loading="[[loading]]">
+      <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
+        <letter-tile>{{item}}</letter-tile>
+      </template>
+    </tile-space>
+    <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'game-space',
+  
+  properties: {
+    /**
+     * The difficulty the user is on
+     * 0 - Easy
+     * 1 - Medium
+     * 2 - Hard
+     */
+    difficulty: {
+      type: Number,
+      value: 0,
+      notify: true
+    },
+    
+    /**
+     * The user's score.
+     */
+    score: {
+      type: Number,
+      value: 0,
+      notify: true
+    },
+    
+    /**
+     * True if the game is waiting for images from the server
+     */
+    loading:{
+      type: Boolean,
+      value: false,
+      notify: true
+    },
+    
+    /**
+     * The path to the server to get the image json data
+     */
+    urlDataPath: String,
+    
+    /**
+     * The picture-space.
+     * Used to give picture-elements their parent.
+     */
+    _pictureSpace: {
+      type: Object,
+      value: function(){
+        return this.$['picture-space'];
+      },
+      readOnly: true
+    }
+  },
+  
+  /**
+   * Start a new Level
+   */
+  newLevel: function(){
+    this.$.ajax.generateRequest();
+    this.loading = true;
+  },
+
+  /**
+   * Get the characters in the given string as an array.
+   * 
+   * @return array
+   */
+  _getLetters: function(str){
+    return str.split('');
+  },
+  
+  /**
+   * Get all the letter in the words in the given collection.
+   */
+  _getAllLetters: function(data){
+    var letters = [];
+    
+    // foreach word
+    for(var i=0; i<data.length; i++){
+      var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
+      // for each letter
+      for(var j=0; j<letterArray.length; j++){
+        letters.push(letterArray[j].toLowerCase());  // add it to the array of letters
+      }
+    }
+
+    letters.shuffle(); // shuffle the letters
+    
+    return letters;
+  },
+  
+  /**
+   * Handeler for when the ajax request succeed
+   */
+  _ajaxSuccessHandler: function (event, detail, sender) {
+    this.loading = false;
+  },
+  
+  /**
+   * Handeler for when the ajax request fails
+   */
+  _ajaxErrorHandler: function (event, detail, sender) {
+    console.error('ajax error');
+    this.loading = false;
+  }
+});
+</script>

@@ -16,16 +16,28 @@
   }
   </style>
   <template>
-    <div class="horizontal layout wrap around-justified center fit">
-      <content select="letter-tile" id="tiles"></content>
+    <div hidden$="[[loading]]">
+      <div class="horizontal layout wrap around-justified center fit">
+        <content select="letter-tile" id="tiles"></content>
+      </div>
+      <content></content>
     </div>
-    <content></content>
   </template>
 </polymer-element>
 
 <script>
 Polymer({
   is: 'tile-space',
+  
+  properties: {    
+    /**
+     * Set to true if this element's children are not ready to display yet
+     */
+    loading:{
+      type: Boolean,
+      value: false
+    }
+  },
   
   /**
    * Get the distributed letter-tile children of this element.
