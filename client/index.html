@@ -87,10 +87,12 @@
           <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog">
-            <h1>Dialog Title</h1>
+            <h1>Select Difficulty</h1>
+            <div></div>
             <paper-button raised elevation="1" data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
             <paper-button raised elevation="2" data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
             <paper-button raised elevation="3" data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
+            <div></div>
           </selection-dialog>
         </section>
         <section id="ingame">
