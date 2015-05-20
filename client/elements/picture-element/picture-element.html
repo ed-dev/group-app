@@ -47,10 +47,6 @@
 	  width: auto;
 	  height: auto;
 	}
-	:host ::content letter-tile{
-	  width: 32px;
-	  margin: 2px !important;
-	}
 	</style>
   <template>
     <div id="image-wrapper">
@@ -151,8 +147,10 @@ Polymer({
    * Add the given tile to this element
    */
   addTile: function(tile){
-    // todo
+    Polymer.dom(this).appendChild(tile);
     tile.updateFontSize();
+
+    return true;
   }
 });
 </script>

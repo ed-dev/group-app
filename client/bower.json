@@ -17,7 +17,8 @@
     "iron-elements": "PolymerElements/iron-elements#^0.9.1",
     "paper-elements": "PolymerElements/paper-elements#^0.9.1",
     "neon-animation": "PolymerElements/neon-animation#^0.9.2",
-    "layout": "Polymer/layout"
+    "layout": "Polymer/layout",
+    "draggabilly": "~1.2.3"
   },
   "resolutions": {
     "polymer": "^0.9.1",

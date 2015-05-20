@@ -11,6 +11,19 @@
   #loading{
     background: rgba(0,0,0,0.25);
   }
+  :host > picture-space letter-tile{
+    width: 32px;
+    margin: 1px;
+  }
+  :host > tile-space letter-tile{
+    width: 64px;
+    height: 64px;
+    margin: 4px;
+  }
+  :host > letter-tile{
+    width: 64px;
+    z-index: 10;
+  }
   </style>
   <template>
     <iron-ajax
@@ -25,14 +38,14 @@
     <picture-space id="picture-space" loading="[[loading]]">
       <user-level level="[[difficulty]]"></user-level>
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
-        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]">
+        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" class="letter-tile-drop-zone clone-letter-tiles">
           <img src="{{item.img}}">
         </picture-element>
       </template>
     </picture-space>
-    <tile-space loading="[[loading]]">
+    <tile-space loading="[[loading]]" class="letter-tile-drop-zone redisplay-letter-tiles">
       <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
-        <letter-tile src="[[letterTileSrc]]" letter="[[item]]"></letter-tile>
+        <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
       </template>
     </tile-space>
     <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
@@ -92,6 +105,18 @@ Polymer({
       type: Object,
       value: function(){
         return this.$['picture-space'];
+      },
+      readOnly: true
+    },
+    
+    /**
+     * This
+     * Used to give letter-tiles their ghost parent.
+     */
+    _gameSpace: {
+      type: Object,
+      value: function(){
+        return this;
       },
       readOnly: true
     }

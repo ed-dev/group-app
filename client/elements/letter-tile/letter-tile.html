@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../helpers/draggabilly/draggabilly.html">
 
 <dom-module id="letter-tile">
   <style>
@@ -6,6 +7,9 @@
     position: relative;
     display: block;
     width: 48px;
+    left: 0;
+    top: 0;
+    
     background-size: 1248px 48px;
     background-repeat: no-repeat;
     -webkit-user-select: none;
@@ -37,24 +41,231 @@ Polymer({
   is: 'letter-tile',
   
   properties: {
-    src: String,
+    /**
+     * A unquie id for the tile
+     */
+    index: {
+      type: Number,
+      reflectToAttribute: true
+    },
     
-    letter: String
+    /**
+     * The path to the tile's image
+     */
+    src: {
+      type: String,
+      value: '',
+      reflectToAttribute: true
+    },
+    
+    /**
+     * the letter the tile is for
+     */
+    letter: {
+      type: String,
+      value: '',
+      reflectToAttribute: true
+    },
+    
+    /**
+     * the container the tile is contained to when be dragged
+     */
+    dragContainer: Object,
+    
+    /**
+     * The draggie object
+     * Used to make the elemnet dragable
+     */
+    _draggie: {
+      type: Object,
+      value: {}
+    },
+    
+    /**
+     * The X offset for this element (only used when initialy placing the element)
+     */
+    _offsetX: {
+      type: Number,
+      value: 0
+    },
+    
+    /**
+     * The Y offset for this element (only used when initialy placing the element)
+     */
+    _offsetY: {
+      type: Number,
+      value: 0
+    }
   },
   
   ready: function(){
-    this.style.backgroundImage = 'url("' + this.src + '")';
-    
     var $this = this;
-     
-     // on window resize
-     window.addEventListener('resize', function(){
-       $this.updateSize();  // resize the tile
-     });
+    
+    this._setupDragHandling();
+
+    // on window resize
+    window.addEventListener('resize', function(){
+      $this.updateSize();  // resize the tile
+    });
   },
   
   attached: function(){
+    this.style.backgroundImage = 'url("' + this.src + '")';
+    
+    this.style.left = this._offsetX + 'px';
+    this.style.top = this._offsetY + 'px';
+    
     this.updateSize();
+  },
+  
+  /**
+   * Setup all the drag events
+   */
+  _setupDragHandling: function(){
+    var $this = this;
+    this._draggie = new Draggabilly(this, {});  // create the draggie
+    
+    var ghost;  // This element is not visible when being dragged. Instead this ghost is displayed.
+    
+    this._draggie.on('dragStart', function(event, pointer){
+      // get my position
+      var ref = $this._getPositionOf($this);
+      var my_xPos = ref[0];
+      var my_yPos = ref[1];
+      
+      // get the dragContainer's position
+      ref = $this._getPositionOf($this.dragContainer);
+      var dc_xPos = ref[0];
+      var dc_yPos = ref[1];
+      
+      ghost = $this._clone();                // create the ghost
+      ghost._draggie.disable();              // disable dragging the ghost
+      ghost.style.position = 'absolute';
+      ghost._offsetX = my_xPos - dc_xPos;    // position the ghost so it's in the same place as me
+      ghost._offsetY = my_yPos - dc_yPos;
+      
+      Polymer.dom($this.dragContainer.root).appendChild(ghost);  // add the ghost to it's drag container
+      $this._hide();                                  // hide me
+    });
+    
+    this._draggie.on('dragMove', function(event, pointer, moveVector){
+      $this._copyTransform($this, ghost)
+    });
+    
+    this._draggie.on('dragEnd', function(event, pointer){
+      $this.dragContainer.removeChild(ghost);  // delete the ghost
+      
+      // what was I dropped on to?
+      var dropZone = $this._getDropZone(pointer.pageX, pointer.pageY);
+      
+      // if invalid drop target
+      if(!dropZone){
+        $this._resetVisibility();
+        return;
+      }
+      
+      // if the tile needs to be cloned
+      if(dropZone.classList.contains('clone-letter-tiles')){
+        if (typeof dropZone.addTile == 'function') { 
+          var tile = $this._clone(); // clone it
+          var addToPictureElement = dropZone.addTile(tile, pointer.pageX, pointer.pageY);  // add it to the drop zone
+          //$this._hide();  // hide me (I'm already hiding - done on drag-start)
+          
+          // if failed to add to drop zone
+          if(!addToPictureElement){
+            $this._resetVisibility();   // redisplay me
+          } 
+        }
+        else{
+          console.error('An element with classes .letter-tile-drop-zone and .clone-letter-tiles must have a function addTile(tile, x, y)');
+        }
+      }
+      // if the tile just needs to be redisplayed
+      else if(dropZone.classList.contains('redisplay-letter-tiles')){
+        var tile = Polymer.dom(dropZone).querySelector('letter-tile[index="'+$this.index+'"]'); // find it
+        tile._resetVisibility();                                                                // redisplay it
+        
+        // if the tile was not already in the drop zone
+        if(tile != $this){
+          $this.parentElement.removeChild($this);  // remove me (the tile in the old position)
+        }
+      }
+    });
+  },
+  
+  /**
+   * Hide me
+   */
+  _hide: function(){
+    this.style.visibility = 'hidden';
+  },
+  
+  /**
+   * Unhide me and set me back to normal
+   */
+  _resetVisibility: function(){
+    this.style.visibility = 'visible';
+    this.style.left = '0';
+    this.style.top = '0';
+  },
+  
+  /**
+   * Create a copy of this tile
+   */
+  _clone: function(){
+    var tile = document.createElement('letter-tile');
+    tile.src = this.src;
+    tile.letter = this.letter;
+    tile.dragContainer = this.dragContainer;
+    tile.index = this.index;
+    
+    return tile;
+  },
+  
+  /**
+   * Get the element I was drop on to.
+   * The element must have the class 'letter-tile-drop-zone' (will search up the DOM tree)
+   */
+  _getDropZone: function(x, y){
+    var droppedOn = document.elementFromPoint(x, y);
+    while(droppedOn){
+      if(droppedOn.classList.contains('letter-tile-drop-zone')){
+        return droppedOn;
+      }
+      else{
+        droppedOn = droppedOn.parentElement;
+      }
+    }
+    return false;
+  },
+  
+  /**
+   * Copy a transformation for one element to another
+   */
+  _copyTransform(from, to){
+    to.style.webkitTransform = from.style.webkitTransform;
+    to.style.MozTransform = from.style.MozTransform;
+    to.style.msTransform = from.style.msTransform;
+    to.style.OTransform = from.style.OTransform;
+    to.style.transform = from.style.transform;
+  },
+  
+  /**
+   * Get the position of the given element relative to the page
+   */
+  _getPositionOf: function(e) {
+    var xPos = 0;
+    var yPos = 0;
+    var element = e;
+    
+    // loop until we are at the top of the DOM tree
+    while (element) {
+      // increase pos x and y by the position of element
+      xPos += element.offsetLeft - element.scrollLeft + element.clientLeft;
+      yPos += element.offsetTop - element.scrollTop + element.clientTop;
+      element = element.offsetParent;
+    }
+    return [xPos, yPos];
   },
   
   /**
