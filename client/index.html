@@ -82,7 +82,6 @@
           <div class="flex"></div>
           <paper-button raised class="large-font" on-tap="_btnPlayAction">Play</paper-button>
           <paper-button raised class="large-font" hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
-          <paper-button raised class="large-font" hidden$="[[loggedin]]" on-tap="_btnSignupAction">Signup</paper-button>
           <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
           <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
           <div class="padder"></div>
@@ -203,13 +202,6 @@
        */
       _btnLogoutAction: function(){
         this.loggedin = false;
-      },
-
-      /**
-       * Called on-tap of the signup button.
-       */
-      _btnSignupAction: function(){
-        
       },
       
       /**
