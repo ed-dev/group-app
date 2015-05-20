@@ -122,6 +122,7 @@
     </template>
   </dom-module>
   <script>
+  window.addEventListener('WebComponentsReady', function(e) {
     Polymer({
       is: 'page-element',
       
@@ -241,6 +242,7 @@
         Polymer.dom(this.$.ingame).querySelector('paper-drawer-panel').closeDrawer(); // close the drawer
       }
     });
+  });
   </script>
   
   <page-element></page-element>
