@@ -6,7 +6,8 @@
     position: relative;
     display: block;
     width: 48px;
-    
+    background-size: 1248px 48px;
+    background-repeat: no-repeat;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -27,7 +28,7 @@
   }
   </style>
   <template>
-    <img src="[[src]]">
+    <content></content>
   </template>
 </dom-module>
 
@@ -35,7 +36,15 @@
 Polymer({
   is: 'letter-tile',
   
+  properties: {
+    src: String,
+    
+    letter: String
+  },
+  
   ready: function(){
+    this.style.backgroundImage = 'url("' + this.src + '")';
+    
     var $this = this;
      
      // on window resize
@@ -60,7 +69,10 @@ Polymer({
    * Update the font-size of the tile
    */
   updateFontSize: function(){
-    this.style.fontSize = (this.clientWidth * 0.8) + 'px';
-  }
+    var width = parseFloat(window.getComputedStyle(this, null).getPropertyValue('width'));
+
+    this.style.backgroundSize = (width*26) + 'px ' + width + 'px';
+    this.style.backgroundPosition = (-(this.letter.charCodeAt(0) - 'a'.charCodeAt(0)) * width) + 'px 0px';
+  },
 });
 </script>

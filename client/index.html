@@ -112,7 +112,7 @@
                 <div class="flex"></div>
                 <user-score score="{{score}}"></user-score>
               </paper-toolbar>
-              <game-space class="fit" id="game-space" url-data-path="[[dataPath]]" score="{{score}}" difficulty="{{difficulty}}" tile-path="assets/images/letters/"></game-space>
+              <game-space class="fit" id="game-space" url-data-path="[[dataPath]]" score="{{score}}" difficulty="{{difficulty}}" letter-tile-src="assets/images/tiles.png" tile-size="144"></game-space>
             </paper-header-panel>
           </paper-drawer-panel>
         </section>
@@ -218,7 +218,7 @@
         
         // set difficulty before change to the game page
         this.difficulty = parseInt(btn.dataset.difficulty); // make sure the difficulty is a number, not a string
-        this.$['difficulty-dialog'].close();               // close the dialog
+        this.$['difficulty-dialog'].close();                // close the dialog
         this.page = 'ingame';
       },
       

@@ -28,14 +28,14 @@
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]">
           <img src="{{item.img}}">
           <template is="dom-repeat" items="[[_getLetters(item.word)]]">
-            <letter-tile src="[[_getTilePath(item)]]"></letter-tile>
+            <letter-tile src="[[letterTileSrc]]" letter="[[item]]"></letter-tile>
           </template>
         </picture-element>
       </template>
     </picture-space>
     <tile-space loading="[[loading]]">
       <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
-        <letter-tile src="[[_getTilePath(item)]]"></letter-tile>
+        <letter-tile src="[[letterTileSrc]]" letter="[[item]]"></letter-tile>
       </template>
     </tile-space>
     <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
@@ -114,7 +114,7 @@ Polymer({
    * @return array
    */
   _getLetters: function(str){
-    return str.split('');
+    return str.toLowerCase().split('');
   },
   
   /**
@@ -128,17 +128,13 @@ Polymer({
       var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
       // for each letter
       for(var j=0; j<letterArray.length; j++){
-        letters.push(letterArray[j].toLowerCase());  // add it to the array of letters
+        letters.push(letterArray[j]);  // add it to the array of letters
       }
     }
 
     letters.shuffle(); // shuffle the letters
     
     return letters;
-  },
-  
-  _getTilePath: function(item){
-	  return this.tilePath + item + '.png';
   },
   
   /**
