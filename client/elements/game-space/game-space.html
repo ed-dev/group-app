@@ -27,9 +27,6 @@
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]">
           <img src="{{item.img}}">
-          <template is="dom-repeat" items="[[_getLetters(item.word)]]">
-            <letter-tile src="[[letterTileSrc]]" letter="[[item]]"></letter-tile>
-          </template>
         </picture-element>
       </template>
     </picture-space>
