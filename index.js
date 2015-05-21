@@ -62,7 +62,9 @@ app.get('/', function(request, response) {
   });
 });
 
-app.get('/display', function(request, response) {
+//Takes parameters 'difficulty' and 'num_images'.
+//Returns {'data': [{'img':url,'word':word}]}
+app.get('/play', function(request, response) {
   apiCall(function(err,res){
     if(err) response.send(err);
 
@@ -114,6 +116,24 @@ app.get('/display', function(request, response) {
     response.send(data_to_send);
   });
 });
+
+//Takes parameters 'user1_id', 'user2_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
+//Possible expansion: images completed, time taken for each, etc etc.
+//Returns 'true' or 'false'
+app.post('/challenge', function(request, response) {
+}
+
+//Takes parameters 'user_id'
+//Returns all challenges made by other users TO this user
+app.get('/challengesreceived', function(request, response) {
+	//First task is just returning all challenges.
+}
+
+//Takes parameters 'user_id'
+//Returns all challenges made to other users BY this user.
+app.get('/challengessent', function(request, response) {
+	//First task is just returning all challenges.
+}
 
 
 
