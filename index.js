@@ -121,21 +121,25 @@ app.get('/play', function(request, response) {
 //Possible expansion: images completed, time taken for each, etc etc.
 //Returns 'true' or 'false'
 app.post('/challenge', function(request, response) {
-}
+});
 
 //Takes parameters 'user_id'
 //Returns all challenges made by other users TO this user
 app.get('/challengesreceived', function(request, response) {
 	//First task is just returning all challenges.
-}
+});
 
 //Takes parameters 'user_id'
 //Returns all challenges made to other users BY this user.
 app.get('/challengessent', function(request, response) {
 	//First task is just returning all challenges.
-}
+});
 
-
+//Takes parameters 'user_id', 'score' where score is some number
+//calculated based on difficulty, time taken etc.
+app.get('/updatescore', function(request, response){
+	
+});
 
 
 
