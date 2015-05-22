@@ -28,14 +28,14 @@
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]">
           <img src="{{item.img}}">
           <template is="dom-repeat" items="[[_getLetters(item.word)]]">
-            <letter-tile>{{item}}</letter-tile>
+            <letter-tile src="[[_getTilePath(item)]]"></letter-tile>
           </template>
         </picture-element>
       </template>
     </picture-space>
     <tile-space loading="[[loading]]">
       <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
-        <letter-tile>{{item}}</letter-tile>
+        <letter-tile src="[[_getTilePath(item)]]"></letter-tile>
       </template>
     </tile-space>
     <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
@@ -81,6 +81,11 @@ Polymer({
      * The path to the server to get the image json data
      */
     urlDataPath: String,
+    
+    /**
+     * the path to the tile images
+     */
+    tilePath: String,
     
     /**
      * The picture-space.
@@ -130,6 +135,10 @@ Polymer({
     letters.shuffle(); // shuffle the letters
     
     return letters;
+  },
+  
+  _getTilePath: function(item){
+	  return this.tilePath + item + '.png';
   },
   
   /**
