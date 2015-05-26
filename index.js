@@ -100,8 +100,8 @@ app.get('/', function(request, response) {
 });
 
 app.get('/account', function(request,response){
-  if(!req.isAuthenticated()){
-    res.redirect('/login');
+  if(!request.isAuthenticated()){
+    response.redirect('/login');
     return;
   } 
   
