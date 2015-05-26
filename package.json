@@ -14,7 +14,9 @@
     "express": "~4.9.x",
     "connectsdk": "1.0.x",
     "cors": "2.6.x",
-    "pg": "^3.0.3"
+    "pg": "^3.0.3",
+    "passport-google-oauth": "0.2.x",
+    "passport": "0.2.x"
   },
  "author": "",
   "license": "ISC",
