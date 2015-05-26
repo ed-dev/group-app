@@ -81,6 +81,14 @@ function apiCall(cb){
 
 /*OAuth toy code begins.  Most of this needs changing.*/
 
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
+
 app.get('/', function(request, response) {
   apiCall(function(err,res){
     if(err) response.send(err);
