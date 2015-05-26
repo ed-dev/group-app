@@ -114,9 +114,20 @@
                 <div class="flex"></div>
                 <user-score score="{{score}}"></user-score>
               </paper-toolbar>
-              <game-space class="fit" id="game-space" url-data-path="[[dataPath]]" score="{{score}}" difficulty="{{difficulty}}" letter-tile-src="assets/images/tiles.png" tile-size="144"></game-space>
+              <game-space class="fit" id="game-space"
+              url-data-path="[[dataPath]]"
+              score="{{score}}"
+              difficulty="{{difficulty}}"
+              letter-tile-src="assets/images/tiles.png"
+              tile-size="144"
+              on-level-complete="_onLevelComplete"></game-space>
             </paper-header-panel>
           </paper-drawer-panel>
+          <selection-dialog id="level-win-dialog">
+            <h1>Well Done</h1>
+            Continue to the next level?
+            <paper-button raised on-tap="_btnNextLevelAction">Next Level</paper-button>
+          </selection-dialog>
         </section>
       </neon-animated-pages>
     </template>
@@ -218,6 +229,21 @@
         this.page = 'ingame';
       },
       
+      /**
+       * Called on-tap of the next level button.
+       */
+      _btnNextLevelAction: function(){
+        this.$['level-win-dialog'].close();
+        this.$['game-space'].newLevel();
+      },
+      
+      /**
+       * Called when a level is complete
+       */
+      _onLevelComplete: function(){
+    	  this.$['level-win-dialog'].open();
+      },
+
       /**
        * Called when a menu item is selected.
        */

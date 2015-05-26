@@ -147,9 +147,12 @@ Polymer({
     Polymer.dom(this).appendChild(tile);
     tile.updateFontSize();
     
-    this.fire('add-tile', {
-    	letter: tile.letter
-    });
+    var $this = this;
+    setTimeout(function(){
+	    $this.fire('add-tile', {
+	    	letter: tile.letter
+	    });
+    }, 0);
     return true;
   },
   
@@ -164,10 +167,27 @@ Polymer({
 	  
 	  tile.parentElement.removeChild(tile);
     
-    this.fire('remove-tile', {
-      letter: tile.letter
-    });
+	  var $this = this;
+	  setTimeout(function(){
+	    $this.fire('remove-tile', {
+	      letter: tile.letter
+	    });
+	  }, 0);
     return true;
+  },
+  
+  isCorrect: function(){
+	  return this._getUserWord().length > 0;
+	  //return this._getUserWord() == this.word;
+  },
+  
+  _getUserWord: function(){
+	  var word = '';
+	  var letters = this._getLetterTiles();
+	  letters.forEach(function(element, index, array){
+		  word += element.letter;
+	  });
+	  return word;
   }
 });
 </script>

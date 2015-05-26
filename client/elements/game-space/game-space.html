@@ -49,11 +49,6 @@
       </template>
     </tile-space>
     <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
-    <selection-dialog id="win-dialog">
-      <h1>Well Done</h1>
-      Continue to the next level?
-      <paper-button raised on-tap="_btnNextLevelAction">Next Level</paper-button>
-    </selection-dialog>
   </template>
 </dom-module>
 
@@ -179,18 +174,27 @@ Polymer({
     this.loading = false;
   },
   
-  /**
-   * Called on-tap of the next level button.
-   */
-  _btnNextLevelAction: function(){
-	  this.newLevel();
+  _getPictureElements: function(){
+	  return this.querySelectorAll('picture-element');
   },
   
   /**
    * Called when a tile is added to a picture element
    */
   _pictureElementOnAddTile: function(event, detail){
-	  console.log('added letter: ' + detail.letter);
+	  var allCorrect = true;
+	  
+	  var pes = this._getPictureElements();
+	  for(var i=0; i<pes.length; i++){
+		  if(!pes[i].isCorrect()){
+			  allCorrect = false;
+			  break;
+		  }
+	  };
+	  
+	  if(allCorrect){
+		  this.fire('level-complete');
+	  }
   },
   
   /**
