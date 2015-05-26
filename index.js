@@ -29,6 +29,7 @@ app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
 app.use(passport.initialize());
+app.use(passport.session());
 
 //add header information for all routes
 app.use(function(req, res, next) {
@@ -116,11 +117,10 @@ app.get('/login', function(req, res){
 app.get('/auth/google',passport.authenticate('google', {scope: ['email']}));
 
 app.get('/authredir',
-    passport.authenticate('google', {failureRedirect: '/login'}),
-    function(req,res){
-        res.redirect('/');
-        
-        }
+  passport.authenticate('google', {failureRedirect: '/login'}),
+  function(req,res){
+    res.send('authenticated :)');
+  }
 );
 
 /*OAuth toy code ends*/
