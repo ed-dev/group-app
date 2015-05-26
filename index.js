@@ -29,7 +29,6 @@ app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
 app.use(passport.initialize());
-app.use(passport.session());
 
 //add header information for all routes
 app.use(function(req, res, next) {
@@ -120,6 +119,11 @@ app.get('/authredir',
   passport.authenticate('google', {failureRedirect: '/login'}),
   function(req,res){
     res.send('authenticated :)');
+    //At this point, the standard approach would be to persist the access token through
+    //sessions, which is done automatically by the authenticate function if sessions
+    //are available, but they're not in this app.
+    //Instead, we want to save the access token which should be available at this point
+    //in execution. Might require some experimentation with passport.
   }
 );
 
