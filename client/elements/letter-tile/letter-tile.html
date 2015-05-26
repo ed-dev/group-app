@@ -187,7 +187,8 @@ Polymer({
         
         // if the tile was not already in the drop zone
         if(tile != $this){
-          $this.parentElement.removeChild($this);  // remove me (the tile in the old position)
+        	// FIXME - uses _lightParent
+        	var removed = $this._lightParent.removeTile($this);  // remove me (the tile in the old position)
         }
       }
     });

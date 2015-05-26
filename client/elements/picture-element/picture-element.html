@@ -149,7 +149,27 @@ Polymer({
   addTile: function(tile){
     Polymer.dom(this).appendChild(tile);
     tile.updateFontSize();
-
+    
+    this.fire('add-tile', {
+    	letter: tile.letter
+    });
+    return true;
+  },
+  
+  /**
+   * Remove the given tile from this element
+   */
+  removeTile: function(tile){
+    // FIXME - uses _lightParent
+	  if(this != tile._lightParent){
+		  return false;
+	  }
+	  
+	  tile.parentElement.removeChild(tile);
+    
+    this.fire('remove-tile', {
+      letter: tile.letter
+    });
     return true;
   }
 });

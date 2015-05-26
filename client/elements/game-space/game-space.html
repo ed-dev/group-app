@@ -38,7 +38,7 @@
     <picture-space id="picture-space" loading="[[loading]]">
       <user-level level="[[difficulty]]"></user-level>
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
-        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" class="letter-tile-drop-zone clone-letter-tiles">
+        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone clone-letter-tiles">
           <img src="{{item.img}}">
         </picture-element>
       </template>
@@ -49,6 +49,11 @@
       </template>
     </tile-space>
     <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
+    <selection-dialog id="difficulty-dialog">
+      <h1>Well Done</h1>
+      Continue to the next level?
+      <paper-button raised on-tap="_btnNextLevelAction">Next Level</paper-button>
+    </selection-dialog>
   </template>
 </dom-module>
 
@@ -172,6 +177,27 @@ Polymer({
   _ajaxErrorHandler: function (event, detail, sender) {
     console.error('ajax error');
     this.loading = false;
+  },
+  
+  /**
+   * Called on-tap of the next level button.
+   */
+  _btnNextLevelAction: function(){
+	  this.newLevel();
+  },
+  
+  /**
+   * Called when a tile is added to a picture element
+   */
+  _pictureElementOnAddTile: function(event, detail){
+	  console.log('added letter: ' + detail.letter);
+  },
+  
+  /**
+   * Called when a tile is added to a picture element
+   */
+  _pictureElementOnRemoveTile: function(event, detail){
+    console.log('removed letter: ' + detail.letter);
   }
 });
 </script>
