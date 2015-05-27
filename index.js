@@ -155,6 +155,8 @@ app.get('/play', function(request, response) {
         img.nouns = img.title.filter(function(w){return words[w] == 'n';});
       });
 
+      images = images.filter(function(img){return img.nouns.length > 0;});
+
       image_mapper = function(img){
         return {'img':img.display_sizes[0].uri, 'word':img.nouns[0]};
       }
