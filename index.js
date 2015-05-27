@@ -18,9 +18,7 @@ passport.use(new googleStrat({
 
 //--postgresql daqtabase connection client 
 var pg = require('pg').native,
-                     connectionString = process.env.DATABASE_URL,
-                     client,
-                     query;
+                     connectionString = process.env.DATABASE_URL
     
 var client = new pg.Client(connectionString);
 client.connect(); 
@@ -58,11 +56,11 @@ function apiCall(cb){
   //Set to true to use hardcoded image list instead of calling the API
   onLabsSoStubOutAPI = false; 
   if(onLabsSoStubOutAPI){
-    cb(null,{"images":[
-            {"display_sizes":[{"uri":"http://cache4.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone"},
-            {"display_sizes":[{"uri":"http://cache2.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone"},
-            {"display_sizes":[{"uri":"http://cache2.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone"},
-            {"display_sizes":[{"uri":"http://cache2.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone"}]});
+    imgs = [];
+    for(var i=0; i<30; i++) {
+      imgs.push({"display_sizes":[{"uri":"http://cache4.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone dog"});
+    }
+    cb(null,{"images":imgs});
 
   } else{
     sdk = new ConnectSdk("56bdt8yjqf64774m5a2yfuz4","a34kr22MJEDem4edRSqwfzpJfq8UXUx296yBWgcr5u9RA")
@@ -135,32 +133,37 @@ app.get('/play', function(request, response) {
   apiCall(function(err,res){
     if(err) response.send(err);
 
-    images = res.images;
-    image_mapper = function(img){
-      return {'img':img.display_sizes[0].uri, 'word':img.title.split(" ")[0]};
-    }
-    var numImgs = 3;
-    data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
+    images = randomChoices(res.images, 10);
 
-    /*--test saving images and words to database
-    
-    var query;
-    //save a random image to the database. No error handling
-	query = client.query({
-	    text: 'INSERT INTO images(url) VALUES($1)',
-	    values :[data_to_send.data[0].img]
-	});
+    var titleWords = [];
+    images.forEach(function(img){
+      img.title = img.title.toLowerCase().split(" ");
+      titleWords = titleWords.concat(img.title);
+    })
 
-    query.on('row',function(result){});
+    //Make a list of unique words over all titles
+    titleWords = titleWords.filter(function(w,i,l){return w != '' && l.indexOf(w) === i;})
 
-	query = client.query('SELECT currval(pg_get_serial_sequence(\'images\',\'image_id\'))');
-	console.log('looking for id =%s',JSON.stringify(query,null,' '));
+    var params = titleWords.map(function(w,i){return '$'+(i+1);});
+    var words = {};
 
-    console.log('Database inserts completed');
-    //--end test saving images to database */
-   
-    response.header('Content-Length',data_to_send.data.length);
-    response.send(data_to_send);
+    var query = client.query('SELECT word,nounorverb FROM words2 WHERE word IN (' + params.join(',') + ')',titleWords);
+    query.on('row',function(w){words[w.word] = w.nounorverb;});
+    query.on('end',function(){
+
+      images.forEach(function(img){
+        img.nouns = img.title.filter(function(w){return words[w] == 'n';});
+      });
+
+      image_mapper = function(img){
+        return {'img':img.display_sizes[0].uri, 'word':img.nouns[0]};
+      }
+      data_to_send = {'data': randomChoices(images,3).map(image_mapper)};
+
+      response.header('Content-Length',data_to_send.data.length);
+      response.send(data_to_send);
+
+    });
   });
 });
 
