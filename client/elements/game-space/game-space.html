@@ -156,16 +156,18 @@ Polymer({
   _getAllLetters: function(data){
     var letters = [];
     
-    // foreach word
-    for(var i=0; i<data.length; i++){
-      var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
-      // for each letter
-      for(var j=0; j<letterArray.length; j++){
-        letters.push(letterArray[j]);  // add it to the array of letters
+    if(data){
+      // foreach word
+      for(var i=0; i<data.length; i++){
+        var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
+        // for each letter
+        for(var j=0; j<letterArray.length; j++){
+          letters.push(letterArray[j]);  // add it to the array of letters
+        }
       }
+  
+      letters.shuffle(); // shuffle the letters
     }
-
-    letters.shuffle(); // shuffle the letters
     
     return letters;
   },
@@ -174,15 +176,21 @@ Polymer({
    * Handeler for when the ajax request succeed
    */
   _ajaxSuccessHandler: function (event, detail, sender) {
-    this.loading = false;
+    if(detail.xhr.status === 0){
+      this._ajaxErrorHandler(event, detail, sender);
+    }
+    else{
+      this.loading = false;
+      this.fire('level-load-success');
+    }
   },
   
   /**
    * Handeler for when the ajax request fails
    */
   _ajaxErrorHandler: function (event, detail, sender) {
-    console.error('ajax error');
     this.loading = false;
+    this.fire('level-load-fail');
   },
   
   /**
