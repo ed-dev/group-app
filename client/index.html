@@ -120,22 +120,14 @@
     #ingame user-score{
       font-size: 3vh;
     }
-    #difficulty-dialog{
+    selection-dialog.large{
       @apply(--layout-fit);
     }
-    #signin-dialog{
+    selection-dialog.small{
       width: 100vw;
       height: 75vw;
     }
-    #level-win-dialog{
-      width: 100vw;
-      height: 75vw;
-    }
-    #level-loading-error-dialog{
-      width: 100vw;
-      height: 75vw;
-    }
-    #level-loading-error-dialog paper-button{
+    selection-dialog.small paper-button{
       font-size: 4vh;
       line-height: 3vh;
     }
@@ -152,7 +144,7 @@
           <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
           <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</paper-button>
           <div class="padder"></div>
-          <selection-dialog id="difficulty-dialog">
+          <selection-dialog id="difficulty-dialog" class="large">
             <h1>Select Difficulty</h1>
             <div></div>
             <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
@@ -160,7 +152,7 @@
             <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
             <div></div>
           </selection-dialog>
-          <selection-dialog id="signin-dialog">
+          <selection-dialog id="signin-dialog" class="small">
             <h1>Sign In</h1>
             <google-signin
               id="google-signin"
@@ -202,12 +194,12 @@
               on-level-load-fail="_onLevelLoadFail"></game-space>
             </paper-header-panel>
           </paper-drawer-panel>
-          <selection-dialog id="level-win-dialog">
+          <selection-dialog id="level-win-dialog" class="small">
             <h1>Well Done</h1>
             Continue to the next level?
             <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
           </selection-dialog>
-          <selection-dialog id="level-loading-error-dialog" no-close-btn>
+          <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
             <h1>Error</h1>
             An error has occured while trying to load the level.
             <paper-button raised noink on-tap="_btnLevelLoadErrorOkAction">OK</paper-button>
@@ -236,7 +228,7 @@
          */
         dataPath: {
           type: String,
-          value: 'http://still-waters-3351.herokuapp.com/play',
+          value: 'http://still-waters-3351.herokuapp.com/play'
         },
         
         /**
