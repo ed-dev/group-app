@@ -32,6 +32,8 @@
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   
+  <link rel="stylesheet" type="text/css" href="assets/css/fonts-sketchetik-light.css">
+  
   <title></title>
   
   <style>
@@ -44,6 +46,11 @@
 <body>
   <dom-module id="page-element">
     <style>
+    :host{
+      font-family: SketchetikLight;
+      font-weight: normal;
+      font-style: normal;
+    }
     neon-animated-pages{
       @apply(--layout-fit);
     }
@@ -94,7 +101,6 @@
     }
     #home paper-button{
       font-size: 4.5vh;
-      font-weight: bold;
       line-height: 4.5vh;
     }
     #home > .padder{
