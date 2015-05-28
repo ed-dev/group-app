@@ -131,6 +131,14 @@
       width: 100vw;
       height: 75vw;
     }
+    #level-loading-error-dialog{
+      width: 100vw;
+      height: 75vw;
+    }
+    #level-loading-error-dialog paper-button{
+      font-size: 4vh;
+      line-height: 3vh;
+    }
     #game-space{
       @apply(--layout-fit);
     }
@@ -190,13 +198,19 @@
               difficulty="{{difficulty}}"
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
-              on-level-complete="_onLevelComplete"></game-space>
+              on-level-complete="_onLevelComplete"
+              on-level-load-fail="_onLevelLoadFail"></game-space>
             </paper-header-panel>
           </paper-drawer-panel>
           <selection-dialog id="level-win-dialog">
             <h1>Well Done</h1>
             Continue to the next level?
             <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
+          </selection-dialog>
+          <selection-dialog id="level-loading-error-dialog">
+            <h1>Error</h1>
+            An error has occured while trying to load the level.
+            <paper-button raised noink on-tap="_btnLevelLoadErrorOkAction">OK</paper-button>
           </selection-dialog>
         </section>
       </neon-animated-pages>
@@ -318,6 +332,21 @@
       _btnNextLevelAction: function(){
         this.$['level-win-dialog'].close();
         this.$['game-space'].newLevel();
+      },
+      
+      /**
+       * Called on-tap of the ok button in the level loading error dialog.
+       */
+      _btnLevelLoadErrorOkAction: function(){
+        this.$['level-loading-error-dialog'].close();
+        this.page = 'home';
+      },
+      
+      /**
+       * Called when an error occurs during a level load.
+       */
+      _onLevelLoadFail: function(){
+        this.$['level-loading-error-dialog'].open();
       },
       
       /**
