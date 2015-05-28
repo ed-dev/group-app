@@ -45,7 +45,7 @@
     <picture-space id="picture-space" loading="[[loading]]">
       <user-level level="[[difficulty]]"></user-level>
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
-        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone clone-letter-tiles">
+        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone">
           <img src="{{item.img}}">
         </picture-element>
       </template>
