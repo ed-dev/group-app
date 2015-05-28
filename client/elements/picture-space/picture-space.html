@@ -39,11 +39,6 @@ Polymer({
       notify: true
     },
     
-    selectedPictureElement:{
-      type: Object,
-      computed: '_getSelectedPictureElement(selectedPictureElementIndex)'
-    },
-    
     /**
      * Set to true if this element's children are not ready to display yet
      */
@@ -171,8 +166,8 @@ Polymer({
     return ang;
   },
   
-  _getSelectedPictureElement: function(index){
-    return this.getPictureElements()[index];
+  getSelectedPictureElement: function(){
+    return this.getPictureElements()[this.selectedPictureElementIndex];
   }
 });
 </script>

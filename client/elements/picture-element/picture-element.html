@@ -148,7 +148,7 @@ Polymer({
    * Add the given tile to this element
    */
   addTile: function(tile, x, y){
-    if(this.pictureSpace.selectedPictureElement != this){
+    if(this.pictureSpace.getSelectedPictureElement() != this){
       return false;
     }
     Polymer.dom(this).appendChild(tile);
