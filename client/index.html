@@ -56,42 +56,56 @@
     }
     selection-dialog paper-button::shadow{
       width: 100%;
-      background: #ffffff;
     }
     selection-dialog paper-button::shadow paper-material{
       font-size: 5vh;
       padding: 4vh 0;
     }
     #home{
-      background: #e5e5e5;
+      background: url('assets/images/home-background.jpg');
+      background-size: 100vw auto;
     }
     #home > paper-button{
       margin: 1.5vh 3vh;
-      background: #ffffff;
-      color: #1a1a1a;
     }
     #home paper-button.large-font::shadow paper-material{
-      font-size: 4vh;
+      font-size: 4.5vh;
+      font-weight: bold;
     }
     #home > .padder{
       height: 1.5vh;
     }
+    paper-button[noink]{
+      background-image: url('assets/images/main-btn.png');
+      background-size: 100% 200%;
+      background-position: 0 0;
+      color: #ffcc00;
+    }
+    paper-button[noink][pressed]{
+      background-position: 0 -100%;
+    }
+    /*paper-button[noink][focused]{
+      background-position: 0 -200%;
+    }
+    paper-button[noink][pressed][focused]{
+      background-position: 0 -300%;
+    }*/
     </style>
     <template>
       <neon-animated-pages class="fit" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home" class="vertical layout">
           <div class="flex"></div>
-          <paper-button raised class="large-font" on-tap="_btnPlayAction">Play</paper-button>
-          <paper-button raised class="large-font" hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
-          <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
-          <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
+          <paper-button raised noink class="large-font" on-tap="_btnPlayAction">Play</paper-button>
+          <paper-button raised noink class="large-font" hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
+          <paper-button raised noink class="large-font" hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
+          <paper-button raised noink class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog">
             <h1>Select Difficulty</h1>
             <div></div>
-            <paper-button raised data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
-            <paper-button raised data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
-            <paper-button raised data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
+            <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
+            <paper-button raised noink data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
+            <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
             <div></div>
           </selection-dialog>
         </section>
@@ -126,7 +140,7 @@
           <selection-dialog id="level-win-dialog">
             <h1>Well Done</h1>
             Continue to the next level?
-            <paper-button raised on-tap="_btnNextLevelAction">Next Level</paper-button>
+            <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
           </selection-dialog>
         </section>
       </neon-animated-pages>
