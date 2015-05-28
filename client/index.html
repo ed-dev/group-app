@@ -24,6 +24,8 @@
   
   <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
   
+  <link rel="import" href="bower_components/google-signin/google-signin.html">
+  
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/user-score/user-score.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
@@ -121,6 +123,10 @@
             <paper-button raised noink data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
             <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
             <div></div>
+          </selection-dialog>
+          <selection-dialog id="login-dialog">
+            <h1>Login</h1>
+            <google-signin width="wide" clientId="..." scopes="https://www.googleapis.com/auth/drive" on-tap="_btnLoginWithGoogleAction"></google-signin>
           </selection-dialog>
         </section>
         <section id="ingame">
@@ -235,7 +241,15 @@
        * Called on-tap of the login button.
        */
       _btnLoginAction: function(){
+        this.$['login-dialog'].open();
+      },
+      
+      /**
+       * Called on-tap of the login with google button.
+       */
+      _btnLoginWithGoogleAction: function(){
         this.loggedin = true;
+        this.$['login-dialog'].close();
       },
 
       /**
