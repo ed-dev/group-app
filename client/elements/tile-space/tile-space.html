@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="tile-space">
   <style>
@@ -9,10 +10,13 @@
     height: 40%;
     overflow-y: auto;
   }
+  #layout{
+      @apply(--layout-horizontal --layout-around-justified --layout-center --layout-wrap --layout-fit);
+  }
   </style>
   <template>
     <div hidden$="[[loading]]">
-      <div class="horizontal layout wrap around-justified center fit">
+      <div id="layout">
         <content select="letter-tile" id="tiles"></content>
       </div>
       <content></content>

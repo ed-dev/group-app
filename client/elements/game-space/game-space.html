@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../picture-space/picture-space.html">
 <link rel="import" href="../tile-space/tile-space.html">
@@ -24,6 +25,12 @@
     width: 64px;
     z-index: 10;
   }
+  #loading{
+    @apply(--layout-horizontal);
+    @apply(--layout-center-justified);
+    @apply(--layout-center);
+    @apply(--layout-fit);
+  }
   </style>
   <template>
     <iron-ajax
@@ -48,7 +55,7 @@
         <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
       </template>
     </tile-space>
-    <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
+    <div id="loading" hidden$="[[!loading]]">Loading...</div>
   </template>
 </dom-module>
 

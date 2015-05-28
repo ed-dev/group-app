@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="picture-element">
 	<style>
@@ -39,6 +40,9 @@
 	  margin: 8px 8px 5px 8px;
 	  border-bottom: dashed 3px #000000;
 	  box-sizing: border-box;
+    @apply(--layout-horizontal);
+    @apply(--layout-end);
+    @apply(--layout-center);
 	}
 	:host ::content img{
 	  position: absolute !important;
@@ -52,7 +56,7 @@
     <div id="image-wrapper">
       <content id="image" select="img"></content>
     </div>
-    <div id="word-zone" class="horizontal layout end center-justified">
+    <div id="word-zone">
       <content id="tiles" select="letter-tile"></content>
     </div>
   </template>
