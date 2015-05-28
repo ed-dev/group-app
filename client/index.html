@@ -133,7 +133,7 @@
               signed-in="{{signedin}}"
               client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
               scopes="email"
-              on-google-signin-success="_signInWithGoogleAction"
+              on-google-signin-success="_googleSignInAction"
               on-google-signed-out="_googleSignOutAction"></google-signin>
           </selection-dialog>
         </section>
@@ -260,14 +260,15 @@
       /**
        * Called upon sign in with google
        */
-       _signInWithGoogleAction: function(){
+       _googleSignInAction: function(e){
         this.$['signin-dialog'].close();
       },
       
       /**
        * Called upon sign out of google
        */
-      _googleSignOutAction: function(){
+      _googleSignOutAction: function(e){
+        console.log('e')
         //todo
       },
       
