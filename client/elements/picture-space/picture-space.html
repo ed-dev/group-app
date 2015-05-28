@@ -33,10 +33,15 @@ Polymer({
      * Used to indecate with picture element is currently active
      * and can have letter-tiles put in it.
      */
-    selectedPicturelElementIndex: {
+    selectedPictureElementIndex: {
       type: Number,
       value: 0,
       notify: true
+    },
+    
+    selectedPictureElement:{
+      type: Object,
+      computed: '_getSelectedPictureElement(selectedPictureElementIndex)'
     },
     
     /**
@@ -117,17 +122,21 @@ Polymer({
         }
         
         // snap angle to align with closest picture element
+        var elementCount = this.getPictureElements().length;
+        
         this._angle = this._cycleAngle(this._angle);
-        var angleIntival = 2 * Math.PI / this.getPictureElements().length;
+        var angleIntival = 2 * Math.PI / elementCount;
         var a = this._angle - angleIntival / 2;
         var count = 0;
         while(a > 0){
           a -= angleIntival;
           count++;
         }
+        count = count % elementCount;
         this._angle = count * angleIntival;
         this.layoutPictureElements();
-        this.selectedPicturelElementIndex = count;
+        this.selectedPictureElementIndex = count;
+        console.log(this.selectedPictureElementIndex);
         break;
     }
   },
@@ -140,7 +149,7 @@ Polymer({
     var pictureElements = this.getPictureElements();
     
     pictureElements.forEach(function(e, i, a){
-      var angle = $this._cycleAngle(2 * Math.PI * i / pictureElements.length + $this._angle);
+      var angle = $this._cycleAngle(-2 * Math.PI * i / pictureElements.length + $this._angle);
       var scale = 1 - 0.5 * Math.abs(Math.sin(0.5*angle));
       var x = 0.5 * (angle > Math.PI ? -1 : 1) * $this.offsetWidth * Math.sin(angle/2);
       var y = ($this.offsetHeight - e.offsetHeight * scale) * 0.80;
@@ -161,6 +170,10 @@ Polymer({
       ang += tau;
     }
     return ang;
+  },
+  
+  _getSelectedPictureElement: function(index){
+    return this.getPictureElements()[index];
   }
 });
 </script>
