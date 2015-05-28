@@ -180,9 +180,11 @@ Polymer({
     return true;
   },
   
+  /**
+   * Return whether or not the tiles in this element spell the correct word.
+   */
   isCorrect: function(){
-	  return this._getUserWord().length > 0;
-	  //return this._getUserWord() == this.word;
+	  return this._getUserWord() == this.word;
   },
   
   _getUserWord: function(){
