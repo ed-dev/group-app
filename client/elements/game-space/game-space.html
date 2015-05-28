@@ -126,8 +126,12 @@ Polymer({
    * Start a new Level
    */
   newLevel: function(){
-    this.$.ajax.generateRequest();
     this.loading = true;
+    // clear the old ajaxResponse object - so that the arn't tiles hanging around for the last level
+    if(this.ajaxResponse){
+      this.ajaxResponse = { data: [] };
+    }
+    this.$.ajax.generateRequest();
   },
 
   /**
@@ -207,7 +211,7 @@ Polymer({
   },
   
   /**
-   * Called when a tile is added to a picture element
+   * Called when a tile is removed to a picture element
    */
   _pictureElementOnRemoveTile: function(event, detail){
     console.log('removed letter: ' + detail.letter);
