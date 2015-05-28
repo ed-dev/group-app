@@ -69,9 +69,13 @@ Polymer({
   behaviors: [
     Polymer.PaperDialogBehavior
   ],
-  
+  /*
   hostAttributes: {
     'modal': ''       // can't be closed without action
+  },
+  */
+  ready: function(){
+    this.setAttribute('modal', '');
   },
   
   /**
