@@ -71,12 +71,7 @@ Polymer({
   ],
   
   hostAttributes: {
-    'with-backdrop': '',              // darken the background behind this dialog
-    'no-cancel-on-outside-click': ''  // don't close the dialog on a click outside of it
-  },
-  
-  ready: function(){
-    this.classList.add('fit');  // make this fit to its parent
+    'modal': ''       // can't be closed without action
   },
   
   /**

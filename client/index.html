@@ -75,6 +75,10 @@
     #home > .padder{
       height: 1.5vh;
     }
+    #ingame #level-win-dialog{
+      width: 100vw;
+      height: 75vw;
+    }
     paper-button[noink]{
       background-image: url('assets/images/main-btn.png');
       background-size: 100% 200%;
@@ -100,7 +104,7 @@
           <paper-button raised noink class="large-font" hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
           <paper-button raised noink class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
           <div class="padder"></div>
-          <selection-dialog id="difficulty-dialog">
+          <selection-dialog id="difficulty-dialog" class="fit">
             <h1>Select Difficulty</h1>
             <div></div>
             <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
