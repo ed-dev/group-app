@@ -59,7 +59,7 @@
   </style>
 
   <template>
-    <paper-icon-button id="btn-close" icon="cancel" on-tap="_btnCancelAction"></paper-icon-button>
+    <paper-icon-button id="btn-close" icon="cancel" hidden$="[[noCloseBtn]]" on-tap="_btnCancelAction"></paper-icon-button>
     <div id="header" class="horizontal layout center">
       <content select="h1"></content>
     </div>
@@ -72,6 +72,13 @@
 <script>
 Polymer({
   is: 'selection-dialog',
+  
+  properties: {
+    noCloseBtn:{
+      type: Boolean,
+      value: false
+    }
+  },
   
   behaviors: [
     Polymer.PaperDialogBehavior
