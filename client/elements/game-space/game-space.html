@@ -30,7 +30,7 @@
       id="ajax"
       handle-as="json"
       url="[[urlDataPath]]"
-      params='{"difficulty":"[[difficulty]]"}'
+      params='[[_getAjaxParams(difficulty)]]'
       method="GET"
       last-response="{{ajaxResponse}}"
       on-response="_ajaxSuccessHandler"
@@ -172,6 +172,15 @@ Polymer({
   _ajaxErrorHandler: function (event, detail, sender) {
     console.error('ajax error');
     this.loading = false;
+  },
+  
+  /**
+   * Get the params to send to the server
+   */
+  _getAjaxParams: function(difficulty_level){
+    return {
+      difficulty: difficulty_level
+    };
   },
   
   _getPictureElements: function(){
