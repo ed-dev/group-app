@@ -172,7 +172,7 @@ Polymer({
 		  return false;
 	  }
 	  
-	  tile.parentElement.removeChild(tile);
+	  Polymer.dom(tile._lightParent).removeChild(tile);
     
 	  var $this = this;
 	  setTimeout(function(){
