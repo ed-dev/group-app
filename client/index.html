@@ -46,35 +46,50 @@
 <body>
   <dom-module id="page-element">
     <style>
-    :host{
+    :root {
+      --dark-primary-color: #303F9F;
+      --default-primary-color:#3F51B5;
+      --light-primary-color: #C5CAE9;
+      --text-primary-color: #ffffff;
+      --accent-color: #FF4081;
+      
+      --primary-background-color: #c5cae9;
+      --primary-text-color: #212121;
+      --secondary-text-color: #727272;
+      --disabled-text-color: #bdbdbd;
+      --divider-color: #B6B6B6;
+
+      --drawer-menu-color: #ffffff;
+      --drawer-border-color: 1px solid #ccc;
+      --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+      
+      --paper-menu-background-color: #ffffff;
+      --menu-link-color: #111111;
+    }
+    :host,
+    paper-button{
       font-family: SketchetikLight;
       font-weight: normal;
       font-style: normal;
     }
+    paper-button{
+      font-size: 6vh;
+      line-height: 2.5vh;
+      letter-spacing: 2px;
+    }
     neon-animated-pages{
       @apply(--layout-fit);
     }
-    selection-dialog{
-      @apply(--layout-fit);
-    }
-    paper-drawer-panel paper-header-panel[drawer]{
-      background: #ffffff;
-      height: 100%;
-    }
-    paper-drawer-panel paper-header-panel[main]{
-      z-index: 0;
-      height: 100%;
-    }
     paper-toolbar{
-      background: #318CE7 !important;
       padding: 0 8px;
+    }
+    paper-button::shadow .paper-button.keyboard-focus{
+      font-weight: normal !important;
     }
     selection-dialog paper-button{
       width: 100%;
-    }
-    selection-dialog paper-button{
-      font-size: 5vh;
-      line-height: 5vh;
+      font-size: 6.5vh;
+      line-height: 2.5vh;
     }
     paper-button[noink]{
       background-image: url('assets/images/main-btn.png');
@@ -99,14 +114,20 @@
     #home > paper-button{
       margin: 1.5vh 3vh;
     }
-    #home paper-button{
-      font-size: 4.5vh;
-      line-height: 4.5vh;
-    }
     #home > .padder{
       height: 1.5vh;
     }
-    #ingame #level-win-dialog{
+    #ingame user-score{
+      font-size: 3vh;
+    }
+    #difficulty-dialog{
+      @apply(--layout-fit);
+    }
+    #signin-dialog{
+      width: 100vw;
+      height: 75vw;
+    }
+    #level-win-dialog{
       width: 100vw;
       height: 75vw;
     }
@@ -136,6 +157,7 @@
             <google-signin
               id="google-signin"
               width="wide"
+              height="tall"
               signed-in="{{signedin}}"
               client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
               scopes="email"
