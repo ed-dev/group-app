@@ -113,9 +113,9 @@
         <section id="home">
           <div class="flex"></div>
           <paper-button raised noink on-tap="_btnPlayAction">Play</paper-button>
-          <paper-button raised noink hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
-          <paper-button raised noink hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
-          <paper-button raised noink hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
+          <paper-button raised noink hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</paper-button>
+          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
+          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnSignOutoutAction">Sign Out</paper-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog">
             <h1>Select Difficulty</h1>
@@ -125,15 +125,15 @@
             <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
             <div></div>
           </selection-dialog>
-          <selection-dialog id="login-dialog">
-            <h1>Login</h1>
+          <selection-dialog id="signin-dialog">
+            <h1>Sign In</h1>
             <google-signin
               id="google-signin"
               width="wide"
               signed-in="{{signedin}}"
               client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
               scopes="email"
-              on-google-signin-success="_signinWithGoogleAction"
+              on-google-signin-success="_signInWithGoogleAction"
               on-google-signed-out="_googleSignOutAction"></google-signin>
           </selection-dialog>
         </section>
@@ -198,12 +198,9 @@
         },
         
         /**
-         * Whether or not the user is logged in
+         * Whether or not the user is signed in
          */
-        loggedin: {
-          type: Boolean,
-          value: false,
-        }
+        signedin: Boolean
       },
       
       /**
@@ -246,26 +243,25 @@
       },
 
       /**
-       * Called on-tap of the login button.
+       * Called on-tap of the sign in button.
        */
-      _btnLoginAction: function(){
-        this.$['login-dialog'].open();
+      _btnSignInAction: function(){
+        this.$['signin-dialog'].open();
       },
 
       /**
-       * Called on-tap of the logout button.
+       * Called on-tap of the sign out button.
        */
-      _btnLogoutAction: function(){
-        this.loggedin = false;
+      _btnSignOutAction: function(){
+        this.signedin = false;
         this.$['google-signin'].signOut();
       },
       
       /**
        * Called upon sign in with google
        */
-       _signinWithGoogleAction: function(){
-        this.loggedin = true;
-        this.$['login-dialog'].close();
+       _signInWithGoogleAction: function(){
+        this.$['signin-dialog'].close();
       },
       
       /**
