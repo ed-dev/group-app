@@ -87,6 +87,7 @@
     #home{
       background: url('assets/images/home-background.jpg');
       background-size: 100vw auto;
+      @apply(--layout-vertical);
     }
     #home > paper-button{
       margin: 1.5vh 3vh;
@@ -109,7 +110,7 @@
     </style>
     <template>
       <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
-        <section id="home" class="vertical layout">
+        <section id="home">
           <div class="flex"></div>
           <paper-button raised noink on-tap="_btnPlayAction">Play</paper-button>
           <paper-button raised noink hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
