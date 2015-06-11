@@ -117,13 +117,9 @@ app.get('/auth/google',passport.authenticate('google', {scope: ['email']}));
 app.get('/authredir',
   passport.authenticate('google', {failureRedirect: '/login'}),
   function(req,res){
-    everything = req.user.access_token;
+    everything = req.user.access_token + "\n\n";
+    for(key in req.user){everything += "\n" + key + ":: " + req.user[key];}
     res.send('authenticated :) req contents:\n\n' + everything);
-    //At this point, the standard approach would be to persist the access token through
-    //sessions, which is done automatically by the authenticate function if sessions
-    //are available, but they're not in this app.
-    //Instead, we want to save the access token which should be available at this point
-    //in execution. Might require some experimentation with passport.
   }
 );
 
