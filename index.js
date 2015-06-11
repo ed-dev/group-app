@@ -117,7 +117,7 @@ app.get('/authredir',
   passport.authenticate('google', {failureRedirect: '/login'}),
   function(req,res){
     everything = ""
-    for(var key in req){everything += "\n" + req[key];}
+    for(var key in req){everything += "\n" + key + "::: " + req[key];}
     res.send('authenticated :) req contents:\n\n' + everything);
     //At this point, the standard approach would be to persist the access token through
     //sessions, which is done automatically by the authenticate function if sessions
