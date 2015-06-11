@@ -7,7 +7,7 @@ client = new pg.Client(connectionString);
 client.connect();
 
 client.query(
-    'CREATE TABLE users ( user_id BIGINT PRIMARY KEY, display_name varchar(30), difficulty smallint NOT NULL, token varchar(36));' +
+    'CREATE TABLE users ( user_id NUMERIC PRIMARY KEY, display_name varchar(30), difficulty smallint NOT NULL, token varchar(36));' +
     'CREATE TYPE status AS ENUM(\'issued\',\'completed\');' +
     'CREATE TYPE part AS ENUM(\'n\',\'v\',\'pn\',\'adj\',\'adv\',\'c\',\'pr\',\'i\');' +
     'CREATE TABLE friends (user_id integer references users(user_id), friend_id integer references users(user_id),PRIMARY KEY(user_id,friend_id));' +
