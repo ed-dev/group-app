@@ -9,7 +9,7 @@ var googleStrat = require('passport-google-oauth').OAuth2Strategy;
 passport.use(new googleStrat({
   clientID: "431848180596-4n65gocm2d8k71elvq3a6vchtka9cqgv.apps.googleusercontent.com",
   clientSecret: "H6IsbWVBcOWWnHmQEDtjynnZ",
-  callbackURL: "http://still-waters-3351.herokuapp.com/authredir"
+  callbackURL: "https://still-waters-3351.herokuapp.com/authredir"
   }
   , function(accessToken, refreshToken, profile, done){
     done(null, profile);
@@ -116,7 +116,9 @@ app.get('/auth/google',passport.authenticate('google', {scope: ['email']}));
 app.get('/authredir',
   passport.authenticate('google', {failureRedirect: '/login'}),
   function(req,res){
-    res.send('authenticated :)');
+    everything = ""
+    for(var key in req){everything += "\n" + req[key];}
+    res.send('authenticated :) req contents:\n\n' + everything);
     //At this point, the standard approach would be to persist the access token through
     //sessions, which is done automatically by the authenticate function if sessions
     //are available, but they're not in this app.

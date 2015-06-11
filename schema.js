@@ -13,8 +13,6 @@ client.query('CREATE TYPE status AS ENUM(\'issued\',\'completed\')');
 
 client.query( 'CREATE TYPE part AS ENUM(\'n\',\'v\',\'pn\',\'adj\',\'adv\',\'c\',\'pr\',\'i\')'   );
 
-client.query( 'CREATE TABLE users ( user_id SERIAL PRIMARY KEY, username varchar(30) NOT NULL, password bytea NOT NULL,first_name varchar(20), last_name varchar(30), age smallint NOT NULL, difficulty smallint NOT NULL)'  );
-
 client.query(  'CREATE TABLE friends (user_id integer references users(user_id), friend_id integer references users(user_id),PRIMARY KEY(user_id,friend_id)'   );
 
 client.query(	'CREATE TABLE parents(user_id integer references users(user_id) NOT NULL, parent_gmail varchar(30) NOT NULL)'   );
