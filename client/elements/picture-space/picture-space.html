@@ -33,7 +33,7 @@ Polymer({
      * Used to indecate with picture element is currently active
      * and can have letter-tiles put in it.
      */
-    selectedPicturelElementIndex: {
+    selectedPictureElementIndex: {
       type: Number,
       value: 0,
       notify: true
@@ -45,7 +45,16 @@ Polymer({
     loading:{
       type: Boolean,
       value: false
+    },
+    
+    _angle:{
+      type: Number,
+      value: 0
     }
+  },
+  
+  listeners: {
+    'track': '_trackHandler'
   },
     
   ready: function(){
@@ -53,6 +62,10 @@ Polymer({
     window.addEventListener('resize', function(){
       $this.layoutPictureElements();
     });
+  },
+  
+  reset: function(){
+    this._angle = 0;
   },
   
   /**
@@ -83,49 +96,82 @@ Polymer({
   },
   
   /**
+   * Handler for tracking dragging over the screen
+   */
+  _trackHandler: function(e){
+    switch(e.detail.state) {
+      case 'start':
+        if(document.elementFromPoint(e.detail.x, e.detail.y).tagName == 'LETTER-TILE'){
+          this._noTrack = true;
+          break;
+        }
+        this._angle_start = this._angle;
+        break;
+      
+      case 'track':
+        if(this._noTrack) break;
+        this._angle = (e.detail.dx / this.offsetWidth) * 2 * Math.PI + this._angle_start;
+        this.layoutPictureElements();
+        break;
+      
+      case 'end':
+        if(this._noTrack){
+          this._noTrack = false;
+          break;
+        }
+        
+        // snap angle to align with closest picture element
+        var elementCount = this.getPictureElements().length;
+        
+        this._angle = this._cycleAngle(this._angle);
+        var angleIntival = 2 * Math.PI / elementCount;
+        var a = this._angle - angleIntival / 2;
+        var count = 0;
+        while(a > 0){
+          a -= angleIntival;
+          count++;
+        }
+        count = count % elementCount;
+        this._angle = count * angleIntival;
+        this.layoutPictureElements();
+        this.selectedPictureElementIndex = count;
+        break;
+    }
+  },
+  
+  /**
    * Layout the picture-element's children.
    */
   layoutPictureElements: function(){
-    Polymer.dom.flush();
-    
+    var $this = this;
     var pictureElements = this.getPictureElements();
-    if(!pictureElements.length) return;
     
-    // hard coded example of layout
-    var element = Polymer.dom(pictureElements[this.selectedPicturelElementIndex]).node;
-    var width  = Polymer.dom(this).node.offsetWidth;
-    var height = Polymer.dom(this).node.offsetHeight;
-    var zIndex = pictureElements.length;
-    var scale = 1;
-    var s;
-    
-    element.style.left = ((width  - element.offsetWidth  * scale) * 0.50) + 'px';
-    element.style.top  = ((height - element.offsetHeight * scale) * 0.80) + 'px';
-    element.style.zIndex = zIndex--;
-    s = 'scale('+scale+')';
-    element.style.WebkitTransform = s;
-    element.style.msTransform = s;
-    element.style.transform = s;
-    
-    element = pictureElements[1];
-    scale = 0.5;
-    element.style.left = ((width  - element.offsetWidth  * scale) * 0.05) + 'px';
-    element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
-    element.style.zIndex = zIndex--;
-    s = 'scale('+scale+')';
-    element.style.WebkitTransform = s;
-    element.style.msTransform = s;
-    element.style.transform = s;
-
-    element = pictureElements[2];
-    scale = 0.5;
-    element.style.left = ((width  - element.offsetWidth  * scale) * 0.95) + 'px';
-    element.style.top  = ((height - element.offsetHeight * scale) * 0.50) + 'px';
-    element.style.zIndex = zIndex--;
-    s = 'scale('+scale+')';
-    element.style.WebkitTransform = s;
-    element.style.msTransform = s;
-    element.style.transform = s;
+    pictureElements.forEach(function(e, i, a){
+      var angle = $this._cycleAngle(-2 * Math.PI * i / pictureElements.length + $this._angle);
+      var scale = 1 - 0.5 * Math.abs(Math.sin(0.5*angle));
+      var x = 0.5 * (angle > Math.PI ? -1 : 1) * $this.offsetWidth * Math.sin(angle/2);
+      var y = ($this.offsetHeight - e.offsetHeight * scale) * 0.80;
+       
+      e.transform('scale('+scale+') translate('+x+'px, '+y+'px)');
+      e.style.left = 'calc(50% - ' + (e.offsetWidth / 2) + 'px)';
+      e.style.zIndex = parseInt(50 * (Math.cos(angle) + 1));
+    });
+  },
+  
+  /**
+   * Convert a given angle to an angle in the range of 0 to 2pi
+   */
+  _cycleAngle: function(angle){
+    var tau = 2*Math.PI;
+    var ang = angle % tau;
+    if(ang < 0){
+      ang += tau;
+    }
+    return ang;
+  },
+  
+  getSelectedPictureElement: function(){
+    return this.getPictureElements()[this.selectedPictureElementIndex];
   }
 });
 </script>

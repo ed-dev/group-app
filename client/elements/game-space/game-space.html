@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../picture-space/picture-space.html">
 <link rel="import" href="../tile-space/tile-space.html">
@@ -22,7 +23,14 @@
   }
   :host > letter-tile{
     width: 64px;
-    z-index: 10;
+    z-index: 101;
+  }
+  #loading{
+    @apply(--layout-horizontal);
+    @apply(--layout-center-justified);
+    @apply(--layout-center);
+    @apply(--layout-fit);
+    font-size: 6vh;
   }
   </style>
   <template>
@@ -30,7 +38,7 @@
       id="ajax"
       handle-as="json"
       url="[[urlDataPath]]"
-      params='{"difficulty":"[[difficulty]]"}'
+      params='[[_getAjaxParams(difficulty)]]'
       method="GET"
       last-response="{{ajaxResponse}}"
       on-response="_ajaxSuccessHandler"
@@ -38,7 +46,7 @@
     <picture-space id="picture-space" loading="[[loading]]">
       <user-level level="[[difficulty]]"></user-level>
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
-        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone clone-letter-tiles">
+        <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone">
           <img src="{{item.img}}">
         </picture-element>
       </template>
@@ -48,7 +56,7 @@
         <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
       </template>
     </tile-space>
-    <div id="loading" hidden$="[[!loading]]" class="fit horizontal layout center center-justified">Loading...</div>
+    <div id="loading" hidden$="[[!loading]]">Loading...</div>
   </template>
 </dom-module>
 
@@ -126,8 +134,13 @@ Polymer({
    * Start a new Level
    */
   newLevel: function(){
-    this.$.ajax.generateRequest();
     this.loading = true;
+    // clear the old ajaxResponse object - so that the arn't tiles hanging around for the last level
+    if(this.ajaxResponse){
+      this.ajaxResponse = { data: [] };
+    }
+    this.$.ajax.generateRequest();
+    this.$['picture-space'].reset();
   },
 
   /**
@@ -145,16 +158,18 @@ Polymer({
   _getAllLetters: function(data){
     var letters = [];
     
-    // foreach word
-    for(var i=0; i<data.length; i++){
-      var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
-      // for each letter
-      for(var j=0; j<letterArray.length; j++){
-        letters.push(letterArray[j]);  // add it to the array of letters
+    if(data){
+      // foreach word
+      for(var i=0; i<data.length; i++){
+        var letterArray = this._getLetters(data[i].word);  // split it into an array of characters
+        // for each letter
+        for(var j=0; j<letterArray.length; j++){
+          letters.push(letterArray[j]);  // add it to the array of letters
+        }
       }
+  
+      letters.shuffle(); // shuffle the letters
     }
-
-    letters.shuffle(); // shuffle the letters
     
     return letters;
   },
@@ -163,15 +178,30 @@ Polymer({
    * Handeler for when the ajax request succeed
    */
   _ajaxSuccessHandler: function (event, detail, sender) {
-    this.loading = false;
+    if(detail.xhr.status === 0){
+      this._ajaxErrorHandler(event, detail, sender);
+    }
+    else{
+      this.loading = false;
+      this.fire('level-load-success');
+    }
   },
   
   /**
    * Handeler for when the ajax request fails
    */
   _ajaxErrorHandler: function (event, detail, sender) {
-    console.error('ajax error');
     this.loading = false;
+    this.fire('level-load-fail');
+  },
+  
+  /**
+   * Get the params to send to the server
+   */
+  _getAjaxParams: function(difficulty_level){
+    return {
+      difficulty: difficulty_level
+    };
   },
   
   _getPictureElements: function(){
@@ -198,7 +228,7 @@ Polymer({
   },
   
   /**
-   * Called when a tile is added to a picture element
+   * Called when a tile is removed to a picture element
    */
   _pictureElementOnRemoveTile: function(event, detail){
     console.log('removed letter: ' + detail.letter);

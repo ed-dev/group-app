@@ -3,11 +3,22 @@ var cors = require('cors');
 var app = express();
 var ConnectSdk = require('connectsdk');
 
+var passport = require('passport');
+var googleStrat = require('passport-google-oauth').OAuth2Strategy;
+
+passport.use(new googleStrat({
+  clientID: "431848180596-4n65gocm2d8k71elvq3a6vchtka9cqgv.apps.googleusercontent.com",
+  clientSecret: "H6IsbWVBcOWWnHmQEDtjynnZ",
+  callbackURL: "http://still-waters-3351.herokuapp.com/authredir"
+  }
+  , function(accessToken, refreshToken, profile, done){
+    done(null, profile);
+  })
+);
+
 //--postgresql daqtabase connection client 
 var pg = require('pg').native,
-                     connectionString = process.env.DATABASE_URL,
-                     client,
-                     query;
+                     connectionString = process.env.DATABASE_URL
     
 var client = new pg.Client(connectionString);
 client.connect(); 
@@ -15,6 +26,7 @@ client.connect();
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
+app.use(passport.initialize());
 
 //add header information for all routes
 app.use(function(req, res, next) {
@@ -39,7 +51,19 @@ function randomChoices(list, num){
 }
 
 function apiCall(cb){
-  sdk = new ConnectSdk("56bdt8yjqf64774m5a2yfuz4","a34kr22MJEDem4edRSqwfzpJfq8UXUx296yBWgcr5u9RA")
+  //On the vuw lab machines, node can't make external calls for some reason...
+  //I emailed Aaron Chen about it.  Until it's fixed...
+  //Set to true to use hardcoded image list instead of calling the API
+  onLabsSoStubOutAPI = false; 
+  if(onLabsSoStubOutAPI){
+    imgs = [];
+    for(var i=0; i<30; i++) {
+      imgs.push({"display_sizes":[{"uri":"http://cache4.asset-cache.net/xt/83454805.jpg?v=1&g=fs1|0|DV|54|805&s=1&b=MkUw"}],"title":"Puppy with oversized bone dog"});
+    }
+    cb(null,{"images":imgs});
+
+  } else{
+    sdk = new ConnectSdk("56bdt8yjqf64774m5a2yfuz4","a34kr22MJEDem4edRSqwfzpJfq8UXUx296yBWgcr5u9RA")
             .search()
             .images()
             .creative()
@@ -48,19 +72,60 @@ function apiCall(cb){
             .withPageSize(100)
             .withPhrase('single object')
             .execute(cb);
+  }
 }
 
 /* ---------- routes ----------------------------*/
+
+/*OAuth toy code begins.  Most of this needs changing.*/
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 app.get('/', function(request, response) {
   apiCall(function(err,res){
     if(err) response.send(err);
     else{ 
       response.header('Content-Length',res.length);
-      response.send(res);
+      response.send(request.user ? request.user.displayName + " logged in" : "Log in.");
     }
   });
 });
+
+app.get('/account', function(request,response){
+  if(!request.isAuthenticated()){
+    response.redirect('/login');
+    return;
+  } 
+  
+  response.send("ID: " + request.user.id + "\nName: " + request.user.displayName);
+}); 
+
+app.get('/login', function(req, res){
+  res.header('content-type', 'text/html');
+  res.send("<a href=\"/auth/google\">Login with Google</a>");
+});
+
+app.get('/auth/google',passport.authenticate('google', {scope: ['email']}));
+
+app.get('/authredir',
+  passport.authenticate('google', {failureRedirect: '/login'}),
+  function(req,res){
+    res.send('authenticated :)');
+    //At this point, the standard approach would be to persist the access token through
+    //sessions, which is done automatically by the authenticate function if sessions
+    //are available, but they're not in this app.
+    //Instead, we want to save the access token which should be available at this point
+    //in execution. Might require some experimentation with passport.
+  }
+);
+
+/*OAuth toy code ends*/
 
 //Takes parameters 'difficulty' and 'num_images'.
 //Returns {'data': [{'img':url,'word':word}]}
@@ -68,68 +133,53 @@ app.get('/play', function(request, response) {
   apiCall(function(err,res){
     if(err) response.send(err);
 
-    images = res.images;
-    image_mapper = function(img){
-      return {'img':img.display_sizes[0].uri, 'word':img.title.split(" ")[0]};
-    }
-    var numImgs = 3;
-    data_to_send = {'data': randomChoices(images, numImgs).map(image_mapper)};
-    
-    //--test saving images and words to database
-    
-    var query;
-    console.log('num images = %d',data_to_send.length);
-    //save the 3 random images and words to the database. No error handling
-    for(var i=0;i< numImgs;i++){
-	var imgId;
-        var wordId;
-	query = client.query({
-	    text: 'INSERT INTO images(url) VALUES($1)',
-	    values :[data_to_send.data[i].img]
-	});
-        query.on('row',function(result){});
-	
-        query = client.query({
-	    text: 'INSERT INTO words(word,difficulty) VALUES($1,$2)',
-	    values :[data_to_send.data[i].word , 6]
-	});
+    images = randomChoices(res.images, 10);
 
-        query.on('row',function(result){});
+    var titleWords = [];
+    images.forEach(function(img){
+      img.title = img.title.toLowerCase().split(" ");
+      titleWords = titleWords.concat(img.title);
+    })
 
+    //Make a list of unique words over all titles
+    titleWords = titleWords.filter(function(w,i,l){return w != '' && l.indexOf(w) === i;})
 
-	query = client.query('SELECT currval(pg_get_serial_sequence(\'images\',\'image_id\'))');
-	console.log('looking for id =%s',JSON.stringify(query,null,' '));
+    var params = titleWords.map(function(w,i){return '$'+(i+1);});
+    var words = {};
 
-      /*query = client.query({
-	    text: 'INSERT INTO image_word(word_id,image_id) VALUES($1,$2)',
-	    values :[wordId , imgId]
-	});
+    var query = client.query('SELECT word,nounorverb FROM words2 WHERE word IN (' + params.join(',') + ')',titleWords);
+    query.on('row',function(w){words[w.word] = w.nounorverb;});
+    query.on('end',function(){
 
-        query.on('row',function(result){});
-      */
+      images.forEach(function(img){
+        img.nouns = img.title.filter(function(w){return words[w] == 'n';});
+      });
 
-      }//end for loop
-      console.log('Database inserts completed');
-     //--end test saving images to database
-   
-     response.header('Content-Length',data_to_send.length);
-    response.send(data_to_send);
+      images = images.filter(function(img){return img.nouns.length > 0;});
+
+      image_mapper = function(img){
+        return {'img':img.display_sizes[0].uri, 'word':img.nouns[0]};
+      }
+      data_to_send = {'data': randomChoices(images,3).map(image_mapper)};
+
+      response.header('Content-Length',data_to_send.data.length);
+      response.send(data_to_send);
+
+    });
   });
 });
 
-//Takes parameters 'user1_id', 'user2_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
+//Takes parameters 'user_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
 //Possible expansion: images completed, time taken for each, etc etc.
 //Returns 'true' or 'false'
 app.post('/challenge', function(request, response) {
 });
 
-//Takes parameters 'user_id'
 //Returns all challenges made by other users TO this user
 app.get('/challengesreceived', function(request, response) {
 	//First task is just returning all challenges.
 });
 
-//Takes parameters 'user_id'
 //Returns all challenges made to other users BY this user.
 app.get('/challengessent', function(request, response) {
 	//First task is just returning all challenges.

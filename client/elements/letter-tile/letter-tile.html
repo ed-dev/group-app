@@ -153,7 +153,7 @@ Polymer({
     });
     
     this._draggie.on('dragEnd', function(event, pointer){
-      $this.dragContainer.removeChild(ghost);  // delete the ghost
+      Polymer.dom($this.dragContainer).removeChild(ghost);  // delete the ghost
       
       // what was I dropped on to?
       var dropZone = $this._getDropZone(pointer.pageX, pointer.pageY);
@@ -164,8 +164,19 @@ Polymer({
         return;
       }
       
+      // if the tile just needs to be redisplayed
+      if(dropZone.classList.contains('redisplay-letter-tiles')){
+        var tile = Polymer.dom(dropZone).querySelector('letter-tile[index="'+$this.index+'"]'); // find it
+        tile._resetVisibility();                                                                // redisplay it
+        
+        // if the tile was not already in the drop zone
+        if(tile != $this){
+        	// FIXME - uses _lightParent
+        	var removed = $this._lightParent.removeTile($this);  // remove me (the tile in the old position)
+        }
+      }
       // if the tile needs to be cloned
-      if(dropZone.classList.contains('clone-letter-tiles')){
+      else{
         if (typeof dropZone.addTile == 'function') { 
           var tile = $this._clone(); // clone it
           var addToPictureElement = dropZone.addTile(tile, pointer.pageX, pointer.pageY);  // add it to the drop zone
@@ -174,21 +185,15 @@ Polymer({
           // if failed to add to drop zone
           if(!addToPictureElement){
             $this._resetVisibility();   // redisplay me
-          } 
+          }
+          
+          // FIXME - uses _lightParent
+          if(!$this._lightParent.classList.contains('redisplay-letter-tiles')){
+            var removed = $this._lightParent.removeTile($this);  // remove me (the tile in the old position)
+          }
         }
         else{
-          console.error('An element with classes .letter-tile-drop-zone and .clone-letter-tiles must have a function addTile(tile, x, y)');
-        }
-      }
-      // if the tile just needs to be redisplayed
-      else if(dropZone.classList.contains('redisplay-letter-tiles')){
-        var tile = Polymer.dom(dropZone).querySelector('letter-tile[index="'+$this.index+'"]'); // find it
-        tile._resetVisibility();                                                                // redisplay it
-        
-        // if the tile was not already in the drop zone
-        if(tile != $this){
-        	// FIXME - uses _lightParent
-        	var removed = $this._lightParent.removeTile($this);  // remove me (the tile in the old position)
+          console.error('An element with classes .letter-tile-drop-zone must have the function addTile(tile, x, y)');
         }
       }
     });

@@ -9,10 +9,10 @@
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   
   <link rel="import" href="bower_components/polymer/polymer.html">
-  <link rel="import" href="bower_components/layout/layout.html">
   
   <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
   <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+  <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
   
   <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
   <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
@@ -24,11 +24,15 @@
   
   <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
   
+  <link rel="import" href="bower_components/google-signin/google-signin.html">
+  
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/user-score/user-score.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
+  
+  <link rel="stylesheet" type="text/css" href="assets/css/fonts-sketchetik-light.css">
   
   <title></title>
   
@@ -42,57 +46,123 @@
 <body>
   <dom-module id="page-element">
     <style>
-    paper-drawer-panel paper-header-panel[drawer]{
-      background: #ffffff;
-      height: 100%;
+    :root {
+      --dark-primary-color: #303F9F;
+      --default-primary-color:#3F51B5;
+      --light-primary-color: #C5CAE9;
+      --text-primary-color: #ffffff;
+      --accent-color: #FF4081;
+      
+      --primary-background-color: #c5cae9;
+      --primary-text-color: #212121;
+      --secondary-text-color: #727272;
+      --disabled-text-color: #bdbdbd;
+      --divider-color: #B6B6B6;
+
+      --drawer-menu-color: #ffffff;
+      --drawer-border-color: 1px solid #ccc;
+      --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+      
+      --paper-menu-background-color: #ffffff;
+      --menu-link-color: #111111;
     }
-    paper-drawer-panel paper-header-panel[main]{
-      z-index: 0;
-      height: 100%;
+    :host,
+    paper-button{
+      font-family: SketchetikLight;
+      font-weight: normal;
+      font-style: normal;
+    }
+    paper-button{
+      font-size: 6vh;
+      line-height: 4vh;
+      letter-spacing: 2px;
+    }
+    neon-animated-pages{
+      @apply(--layout-fit);
     }
     paper-toolbar{
-      background: #318CE7 !important;
       padding: 0 8px;
     }
-    selection-dialog paper-button::shadow{
+    paper-button::shadow .paper-button.keyboard-focus{
+      font-weight: normal !important;
+    }
+    selection-dialog paper-button{
       width: 100%;
-      background: #ffffff;
+      font-size: 6.5vh;
+      line-height: 3vh;
     }
-    selection-dialog paper-button::shadow paper-material{
-      font-size: 5vh;
-      padding: 4vh 0;
+    paper-button[noink]{
+      background-image: url('assets/images/main-btn.png');
+      background-size: 100% 200%;
+      background-position: 0 0;
+      color: #ffcc00;
     }
+    paper-button[noink][pressed]{
+      background-position: 0 -100%;
+    }
+    /*paper-button[noink][focused]{
+      background-position: 0 -200%;
+    }
+    paper-button[noink][pressed][focused]{
+      background-position: 0 -300%;
+    }*/
     #home{
-      background: #e5e5e5;
+      background: url('assets/images/home-background.jpg');
+      background-size: 100vw 100vh;
+      @apply(--layout-vertical);
     }
     #home > paper-button{
       margin: 1.5vh 3vh;
-      background: #ffffff;
-      color: #1a1a1a;
-    }
-    #home paper-button.large-font::shadow paper-material{
-      font-size: 4vh;
     }
     #home > .padder{
       height: 1.5vh;
     }
+    #ingame user-score{
+      font-size: 3vh;
+    }
+    selection-dialog.large{
+      @apply(--layout-fit);
+    }
+    selection-dialog.small{
+      width: 100vw;
+      height: 75vw;
+    }
+    selection-dialog.small paper-button{
+      font-size: 4vh;
+      line-height: 3vh;
+    }
+    #game-space{
+      @apply(--layout-fit);
+    }
     </style>
     <template>
-      <neon-animated-pages class="fit" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
-        <section id="home" class="vertical layout">
+      <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
+        <section id="home">
           <div class="flex"></div>
-          <paper-button raised class="large-font" on-tap="_btnPlayAction">Play</paper-button>
-          <paper-button raised class="large-font" hidden$="[[loggedin]]" on-tap="_btnLoginAction">Login</paper-button>
-          <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
-          <paper-button raised class="large-font" hidden$="[[!loggedin]]" on-tap="_btnLogoutAction">Logout</paper-button>
+          <paper-button raised noink on-tap="_btnPlayAction">Play</paper-button>
+          <paper-button raised noink hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</paper-button>
+          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
+          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</paper-button>
           <div class="padder"></div>
-          <selection-dialog id="difficulty-dialog">
+          <selection-dialog id="difficulty-dialog" class="large">
             <h1>Select Difficulty</h1>
             <div></div>
-            <paper-button raised data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
-            <paper-button raised data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
-            <paper-button raised data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
+            <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
+            <paper-button raised noink data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
+            <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
             <div></div>
+          </selection-dialog>
+          <selection-dialog id="signin-dialog" class="small">
+            <h1>Sign In</h1>
+            <google-signin
+              id="google-signin"
+              width="wide"
+              height="tall"
+              signed-in="{{signedin}}"
+              client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
+              scopes="email"
+              on-google-signin-success="_googleSignInAction"
+              on-google-signed-out="_googleSignOutAction"></google-signin>
           </selection-dialog>
         </section>
         <section id="ingame">
@@ -114,19 +184,25 @@
                 <div class="flex"></div>
                 <user-score score="{{score}}"></user-score>
               </paper-toolbar>
-              <game-space class="fit" id="game-space"
+              <game-space id="game-space"
               url-data-path="[[dataPath]]"
               score="{{score}}"
               difficulty="{{difficulty}}"
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
-              on-level-complete="_onLevelComplete"></game-space>
+              on-level-complete="_onLevelComplete"
+              on-level-load-fail="_onLevelLoadFail"></game-space>
             </paper-header-panel>
           </paper-drawer-panel>
-          <selection-dialog id="level-win-dialog">
+          <selection-dialog id="level-win-dialog" class="small">
             <h1>Well Done</h1>
             Continue to the next level?
-            <paper-button raised on-tap="_btnNextLevelAction">Next Level</paper-button>
+            <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
+          </selection-dialog>
+          <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
+            <h1>Error</h1>
+            An error has occured while trying to load the level.
+            <paper-button raised noink on-tap="_btnLevelLoadErrorOkAction">OK</paper-button>
           </selection-dialog>
         </section>
       </neon-animated-pages>
@@ -152,16 +228,13 @@
          */
         dataPath: {
           type: String,
-          value: 'http://still-waters-3351.herokuapp.com/display',
+          value: 'http://still-waters-3351.herokuapp.com/play'
         },
         
         /**
-         * Whether or not the user is logged in
+         * Whether or not the user is signed in
          */
-        loggedin: {
-          type: Boolean,
-          value: false,
-        }
+        signedin: Boolean
       },
       
       /**
@@ -204,17 +277,33 @@
       },
 
       /**
-       * Called on-tap of the login button.
+       * Called on-tap of the sign in button.
        */
-      _btnLoginAction: function(){
-        this.loggedin = true;
+      _btnSignInAction: function(){
+        this.$['signin-dialog'].open();
       },
 
       /**
-       * Called on-tap of the logout button.
+       * Called on-tap of the sign out button.
        */
-      _btnLogoutAction: function(){
-        this.loggedin = false;
+      _btnSignOutAction: function(){
+        this.signedin = false;
+        this.$['google-signin'].signOut();
+      },
+      
+      /**
+       * Called upon sign in with google
+       */
+       _googleSignInAction: function(e){
+        this.$['signin-dialog'].close();
+      },
+      
+      /**
+       * Called upon sign out of google
+       */
+      _googleSignOutAction: function(e){
+        console.log(e)
+        //todo
       },
       
       /**
@@ -235,6 +324,21 @@
       _btnNextLevelAction: function(){
         this.$['level-win-dialog'].close();
         this.$['game-space'].newLevel();
+      },
+      
+      /**
+       * Called on-tap of the ok button in the level loading error dialog.
+       */
+      _btnLevelLoadErrorOkAction: function(){
+        this.$['level-loading-error-dialog'].close();
+        this.page = 'home';
+      },
+      
+      /**
+       * Called when an error occurs during a level load.
+       */
+      _onLevelLoadFail: function(){
+        this.$['level-loading-error-dialog'].open();
       },
       
       /**
