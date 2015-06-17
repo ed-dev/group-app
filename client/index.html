@@ -17,7 +17,6 @@
   <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
   <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
   <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
-  <link rel="import" href="bower_components/paper-button/paper-button.html">
   <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="bower_components/paper-menu/paper-menu.html">
   <link rel="import" href="bower_components/paper-item/paper-icon-item.html">
@@ -27,8 +26,8 @@
   <link rel="import" href="bower_components/google-signin/google-signin.html">
   
   <link rel="import" href="elements/game-space/game-space.html">
-  <link rel="import" href="elements/user-score/user-score.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
+  <link rel="import" href="elements/main-button/main-button.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   
@@ -67,15 +66,10 @@
       --menu-link-color: #111111;
     }
     :host,
-    paper-button{
+    main-button{
       font-family: SketchetikLight;
       font-weight: normal;
       font-style: normal;
-    }
-    paper-button{
-      font-size: 6vh;
-      line-height: 4vh;
-      letter-spacing: 2px;
     }
     neon-animated-pages{
       @apply(--layout-fit);
@@ -83,53 +77,45 @@
     paper-toolbar{
       padding: 0 8px;
     }
-    paper-button::shadow .paper-button.keyboard-focus{
-      font-weight: normal !important;
-    }
-    selection-dialog paper-button{
+    selection-dialog main-button{
       width: 100%;
-      font-size: 6.5vh;
-      line-height: 3vh;
-    }
-    paper-button[noink]{
-      background-image: url('assets/images/main-btn.png');
-      background-size: 100% 200%;
-      background-position: 0 0;
-      color: #ffcc00;
-    }
-    paper-button[noink][pressed]{
-      background-position: 0 -100%;
-    }
-    /*paper-button[noink][focused]{
-      background-position: 0 -200%;
-    }
-    paper-button[noink][pressed][focused]{
-      background-position: 0 -300%;
-    }*/
-    #home{
-      background: url('assets/images/home-background.jpg');
-      background-size: 100vw 100vh;
-      @apply(--layout-vertical);
-    }
-    #home > paper-button{
-      margin: 1.5vh 3vh;
-    }
-    #home > .padder{
-      height: 1.5vh;
-    }
-    #ingame user-score{
-      font-size: 3vh;
+      line-height: 0;
     }
     selection-dialog.large{
       @apply(--layout-fit);
+    }
+    selection-dialog.large main-button{
+      font-size: 5vh;
     }
     selection-dialog.small{
       width: 100vw;
       height: 75vw;
     }
-    selection-dialog.small paper-button{
+    selection-dialog.small main-button{
       font-size: 4vh;
-      line-height: 3vh;
+    }
+    #home,
+    #ingame{
+      background: -webkit-linear-gradient(160deg, #711740, #bf4337);
+      background: -o-linear-gradient(160deg, #711740, #bf4337);
+      background: -moz-linear-gradient(160deg, #711740, #bf4337);
+      background: linear-gradient(160deg, #711740, #bf4337);
+    }
+    #home{
+      @apply(--layout-vertical);
+    }
+    #home > main-button{
+      margin: 1vh 3vh;
+      font-size: 6vh;
+      line-height: 0;
+      letter-spacing: 2px;
+      --max-height: 15vh;
+    }
+    #home > .padder{
+      height: 2vh;
+    }
+    #ingame user-score{
+      font-size: 3vh;
     }
     #game-space{
       @apply(--layout-fit);
@@ -139,18 +125,18 @@
       <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
-          <paper-button raised noink on-tap="_btnPlayAction">Play</paper-button>
-          <paper-button raised noink hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</paper-button>
-          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
-          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</paper-button>
+          <main-button on-tap="_btnPlayAction">Play</main-button>
+          <main-button hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</main-button>
+          <main-button hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
+          <main-button hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</main-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog" class="large">
             <h1>Select Difficulty</h1>
-            <div></div>
-            <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
-            <paper-button raised noink data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
-            <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
-            <div></div>
+            <div style="width: 100%;"></div>
+            <main-button data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</main-button>
+            <main-button data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</main-button>
+            <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
+            <div style="width: 100%;"></div>
           </selection-dialog>
           <selection-dialog id="signin-dialog" class="small">
             <h1>Sign In</h1>
@@ -179,11 +165,6 @@
               </paper-menu>
             </paper-header-panel>
             <paper-header-panel main>
-              <paper-toolbar justify="center">
-                <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-                <div class="flex"></div>
-                <user-score score="{{score}}"></user-score>
-              </paper-toolbar>
               <game-space id="game-space"
               url-data-path="[[dataPath]]"
               score="{{score}}"
@@ -191,18 +172,20 @@
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
               on-level-complete="_onLevelComplete"
-              on-level-load-fail="_onLevelLoadFail"></game-space>
+              on-level-load-fail="_onLevelLoadFail">
+                <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+              </game-space>
             </paper-header-panel>
           </paper-drawer-panel>
           <selection-dialog id="level-win-dialog" class="small">
             <h1>Well Done</h1>
             Continue to the next level?
-            <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
+            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
           </selection-dialog>
           <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
             <h1>Error</h1>
             An error has occured while trying to load the level.
-            <paper-button raised noink on-tap="_btnLevelLoadErrorOkAction">OK</paper-button>
+            <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
           </selection-dialog>
         </section>
       </neon-animated-pages>
@@ -228,7 +211,7 @@
          */
         dataPath: {
           type: String,
-          value: 'http://still-waters-3351.herokuapp.com/play'
+          value: 'data.json'//'http://still-waters-3351.herokuapp.com/play'
         },
         
         /**
@@ -310,8 +293,10 @@
        * Called on-tap of the difficulty selection buttons.
        */
       _btnSetDifficultyAction: function(e, detail){
-        var btn = e.target.parentElement;
-        
+        var btn = e.target;
+        while(btn && !btn.dataset.difficulty){
+        	btn = btn.parentElement;
+        }
         // set difficulty before change to the game page
         this.difficulty = parseInt(btn.dataset.difficulty); // make sure the difficulty is a number, not a string
         this.$['difficulty-dialog'].close();                // close the dialog

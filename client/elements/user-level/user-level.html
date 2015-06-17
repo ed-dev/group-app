@@ -3,7 +3,7 @@
 <dom-module id="user-level">
   <style>
   :host{
-    display: block;
+    display: inline-block;
     text-align: left;
     padding: 8px;
   }
@@ -34,7 +34,7 @@ Polymer({
       case 1: return 'Medium';
       case 2: return 'Hard';
 	  }
-	  console.error('unknown level');
+	  console.error('unknown difficulty level');
   }
 });
 </script>

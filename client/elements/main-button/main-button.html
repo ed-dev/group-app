@@ -1,0 +1,101 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-behaviors/paper-button-behavior.html">
+
+<dom-module id="main-button">
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      box-sizing: border-box;
+      min-width: 5.14em;
+      background: transparent;
+      text-align: center;
+      font: inherit;
+      text-transform: uppercase;
+      outline: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: pointer;
+      z-index: 0;
+      @apply(--main-button);
+    }
+    :host([disabled]) {
+      background: #eaeaea;
+      color: #a8a8a8;
+      cursor: auto;
+      pointer-events: none;
+      @apply(--main-button-disabled);
+    }
+    :host([noink]) paper-ripple {
+      display: none;
+    }
+    #fill{
+      fill: #ffcd00;
+    }
+    #outline{
+      fill: #eeac0f
+    }
+    #corner{
+      fill: #ffffff;
+    }
+    #main paper-ripple{
+      color: #eeac0f;
+    }
+    #main{
+      position: relative;
+      margin: 15px;
+    }
+    #main:after{
+      padding-top: calc(100% * 76 / 290);
+	    display: block;
+	    content: '';
+    } 
+    #main svg{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      max-height: var(--max-height);
+    }
+    #content {
+      @apply(--layout-fit);
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+    }
+    #content > ::content * {
+      text-transform: inherit;
+    }
+  </style>
+
+  <template>
+    <div id="main">
+	    <svg version="1.1" x="0px" y="0px" viewBox="0 0 290 76">
+	      <polygon id="outline" points="290,0 60,0 0,30 0,76 290,76 "/>
+	      <polygon id="fill" points="280,66 10,66 10,25 40,10 280,10 "/>
+	    </svg>
+	    <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2"></paper-ripple>
+	    <svg version="1.1" x="0px" y="0px" viewBox="0 0 290 76">
+	      <polygon id="corner" points="0,0 60,0 52,4 4,4 4,28 0,30 "/>
+	    </svg>
+	    <div id="content">
+	      <content></content>
+	    </div>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+
+    is: 'main-button',
+
+    behaviors: [
+      Polymer.PaperButtonBehavior
+    ]
+  });
+</script>
