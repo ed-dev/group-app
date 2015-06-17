@@ -336,6 +336,8 @@
     </template>
   </dom-module>
   <script>
+  var app;
+  
   window.addEventListener('WebComponentsReady', function(e) {
     Polymer({
       is: 'page-element',
@@ -463,6 +465,13 @@
           type: Array,
           value: []
         }
+      },
+      
+      /**
+       * Once this element is initilized
+       */
+      ready: function(){
+        app = this;
       },
       
       /**
@@ -839,6 +848,28 @@
       }
     });
   });
+  
+  document.addEventListener('deviceready', function(){
+    /**
+     * Handler for the back button
+     */
+    document.addEventListener('backbutton', function(){
+      switch(app.page){
+      case 'home':
+        navigator.app.exitApp();
+        break;
+      case 'ingame':
+        app.page = 'home'
+        break;
+      case 'challenge':
+        app.page = 'home';
+        break;
+      case 'create-challenge':
+        app.page = 'challenge';
+        break;
+      }
+    }, false);
+  }, false);
   </script>
   
   <page-element></page-element>
