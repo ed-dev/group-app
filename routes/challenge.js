@@ -144,6 +144,40 @@ app.get('/challengesreceived', app.auth, function(request, response) {
   });
 });
 
+app.get('/challengesreceivedandsent', app.auth, function(request, response) {
+  var data_to_send = [];
+  var sql = 
+  "SELECT c.challenge_id,"+
+  "u1.display_name AS challenger,"+
+  "u2.display_name AS challengee,"+
+  "CASE WHEN c.challenged_seconds IS NULL"+
+    "THEN 'incomplete'"+
+    "ELSE CASE WHEN c.owner_seconds > c.challenged_seconds"+
+      "THEN 'won'"+
+      "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds"+
+        "THEN 'drew'"+
+        "ELSE 'lost'"+
+      "END"+
+    "END"+
+  "END AS result,"+
+  "c.owner_seconds AS challenger_time_taken,"+
+  "c.challenged_seconds AS challengee_time_taken,"+
+  "c.difficulty"+
+  "FROM challenges c"+
+  "INNER JOIN users u1 ON (u1.user_id = c.owner_id)"+
+  "INNER JOIN users u2 ON (u2.user_id = c.challenged_id)"+
+  "WHERE c.owner_id = $1 OR c.challenged_id = $1";
+  
+  var query = client.query(sql, [request.user.user_id]);
+  query.on('row', function(row){
+    data_to_send.push(row);
+  });
+  query.on('end', function(){
+    response.header('Content-Length', data_to_send.length);
+    response.send(data_to_send);
+  });
+});
+
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
 app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
