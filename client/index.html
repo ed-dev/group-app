@@ -121,6 +121,10 @@
       color: #e66355;
       @apply(--layout-fit);
     }
+    #game-space [paper-drawer-toggle]{
+      --iron-icon-width: 32px;
+      --iron-icon-height: 32px;
+    }
     </style>
     <template>
       <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">

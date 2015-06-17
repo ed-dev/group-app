@@ -43,6 +43,13 @@
     width: 64px;
     z-index: 101;
   }
+  user-score{
+    font-size: 3.5vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-family: "Arial Black", Gadget, sans-serif;
+  }
   #loading{
     @apply(--layout-horizontal);
     @apply(--layout-center-justified);
@@ -64,7 +71,7 @@
     <div id="titlebar">
       <content></content>
       <user-score score="[[score]]"></user-score>
-      <user-level level="[[difficulty]]"></user-level>
+      <!-- <user-level level="[[difficulty]]"></user-level> -->
     </div>
     <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
