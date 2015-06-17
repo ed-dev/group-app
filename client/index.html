@@ -547,8 +547,6 @@
        * Called on-tap of the sign in button.
        */
       _btnSignInAction: function(){
-    	  //window.open(this._serverPath + 'auth/google');
-        //this.signedin = true;
         if(this._auth_google_link){
           window.location.href = this._auth_google_link;
         }
@@ -558,7 +556,7 @@
        * Called on-tap of the sign out button.
        */
       _btnSignOutAction: function(){
-        this.signedin = false;
+        this._userToken = undefined;
       },
       
       /**
