@@ -212,6 +212,14 @@
         method="POST"
         on-response="_ajaxChallengeResponceSuccessHandler"
         on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
+      <iron-ajax
+        id="ajax-auth-google-get-link"
+        auto
+        handle-as="json"
+        url="[[authGoogleLinkDataPath]]"
+        method="GET"
+        on-response="_ajaxAuthGoogleLinkSuccessHandler"
+        on-error="_ajaxAuthGoogleLinkErrorHandler"></iron-ajax>
       <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
@@ -339,7 +347,7 @@
          */
         gameDataPath: {
           type: String,
-          computed: '_join(_serverPath, "play")'
+          computed: '_join(_serverPath, "play/")'
         },
         
         /**
@@ -347,36 +355,41 @@
          */
         updateScorePath: {
           type: String,
-          computed: '_join(_serverPath, "updatescore")'
+          computed: '_join(_serverPath, "updatescore/")'
         },
         
         // friends(token)
         friendsListDataPath: {
           type: String,
-          computed: '_join(_serverPath, "friends")'
+          computed: '_join(_serverPath, "friends/")'
         },
         
         // challengesreceived(token)
         challengesReceivedDataPath: {
           type: String,
-          computed: '_join(_serverPath, "challengesreceived")'
+          computed: '_join(_serverPath, "challengesreceived/")'
         },
         
         // challengessent(token)
         challengesSentDataPath: {
           type: String,
-          computed: '_join(_serverPath, "challengessent")'
+          computed: '_join(_serverPath, "challengessent/")'
         },
         
         // acceptchallenge(challengeid, responce, token)
         challengeResponcePath: {
           type: String,
-          computed: '_join(_serverPath, "acceptchallenge")'
+          computed: '_join(_serverPath, "acceptchallenge/")'
         },
         
         sendChallengePath: {
           type: String,
-          computed: '_join(_serverPath, "challenge")'
+          computed: '_join(_serverPath, "challenge/")'
+        },
+        
+        authGoogleLinkDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "auth/google/getlink/")'
         },
         
         /**
@@ -451,7 +464,10 @@
        */
       _btnSignInAction: function(){
     	  //window.open(this._serverPath + 'auth/google');
-        this.signedin = true;
+        //this.signedin = true;
+        if(this._auth_google_link){
+          window.location.href = this._auth_google_link;
+        }
       },
 
       /**
@@ -600,6 +616,20 @@
       
       _ajaxFriendsListErrorHandler: function(event, detail, sender){
         console.error('failed to get friends list.');
+      },
+      
+      _ajaxAuthGoogleLinkSuccessHandler: function(event, detail, sender){
+        console.log(detail.response);
+      },
+      
+      _ajaxAuthGoogleLinkErrorHandler: function(event, detail, sender){
+        //console.error('failed to get auth link from server.');
+        this.temp();
+      },
+      
+      temp: function(){
+        var link = "https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=https%3A%2F%2Fstill-waters-3351.herokuapp.com%2Fauthredir&scope=email&client_id=431848180596-4n65gocm2d8k71elvq3a6vchtka9cqgv.apps.googleusercontent.com";
+        this._auth_google_link = link;
       }
     });
   });
