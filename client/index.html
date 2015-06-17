@@ -333,6 +333,14 @@
         An error has occured while trying to load the level.
         <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
       </selection-dialog>
+      <selection-dialog id="exit-dialog" class="small" on-iron-overlay-closed="_onExitDialogClose">
+        <h1>Exit</h1>
+        <p>Are you sure you want to exit?</p>
+        <div class="action-btns">
+          <main-button on-tap="_btnExitNo">No</main-button>
+          <main-button on-tap="_btnExitYes">Yes</main-button>
+        </div>
+      </selection-dialog>
     </template>
   </dom-module>
   <script>
@@ -464,6 +472,14 @@
         completedChallenges: {
           type: Array,
           value: []
+        },
+        
+        /**
+         * When set to true, the app will exit when the back button is pressed
+         */
+        _exitOnBackButton: {
+          type: Boolean,
+          value: false
         }
       },
       
@@ -472,6 +488,31 @@
        */
       ready: function(){
         app = this;
+      },
+      
+      /**
+       * Display the exit prompt
+       */
+      displayExitPrompt: function(){
+        if(!navigator || !navigator.app){
+          return;
+        }
+        if(this._exitOnBackButton){
+          this.exit();
+        }
+        else{
+          this._exitOnBackButton = true;
+          this.$['exit-dialog'].open();
+        }
+      },
+      
+      /**
+       * Exit the app
+       */
+      exit: function(){
+        if(navigator && navigator.app){
+          navigator.app.exitApp();
+        }
       },
       
       /**
@@ -644,6 +685,27 @@
       },
       
       /**
+       * Called on-tap of the yes button in the exit prompt
+       */
+      _btnExitYes: function(){
+        this.exit();
+      },
+      
+      /**
+       * Called on-tap of the no button in the exit prompt
+       */
+      _btnExitYes: function(){
+        this.$['exit-dialog'].close();
+      },
+      
+      /**
+       * Called on-tap of the no button in the exit prompt
+       */
+      _onExitDialogClose: function(){
+        this._exitOnBackButton = false;
+      },
+      
+      /**
        * Called when an error occurs during a level load.
        */
       _onLevelLoadFail: function(){
@@ -680,7 +742,6 @@
           break;
         
         default:
-          console.log('Menu item selected: ' + id);
           break;
         }
         
@@ -763,21 +824,23 @@
     	  var issued = [];
     	  var completed = [];
     	  
-    	  for(var i=0; i<detail.response.length; i++){
-    		  detail.response[i].won = false;
-    		  switch (detail.response[i].completed){
-    		  case 'issued':
-    			  issued.push(detail.response[i]);
-    	      break;
-    	      
-    	    case 'completed':
-    	    	completed.push(detail.response[i]);
-    			  break;
-    	          
-          default:
-            console.log(detail.response[i]);
-            break;
-    		  }
+    	  if(detail.response){
+      	  for(var i=0; i<detail.response.length; i++){
+      		  detail.response[i].won = false;
+      		  switch (detail.response[i].completed){
+      		  case 'issued':
+      			  issued.push(detail.response[i]);
+      	      break;
+      	      
+      	    case 'completed':
+      	    	completed.push(detail.response[i]);
+      			  break;
+      	          
+            default:
+              console.log(detail.response[i]);
+              break;
+      		  }
+      	  }
     	  }
 
         this.newChallengesReceived = issued;
@@ -856,7 +919,7 @@
     document.addEventListener('backbutton', function(){
       switch(app.page){
       case 'home':
-        navigator.app.exitApp();
+        app.displayExitPrompt();
         break;
       case 'ingame':
         app.page = 'home'
