@@ -85,7 +85,7 @@
       id="ajax-challenge-someone"
       handle-as="json"
       url="[[urlChallengeSomeonePath]]"
-      params='[[_getAjaxChallengeSomeoneParams(userId, difficulty, time, ajaxGameDataResponse.data, userToken)]]'
+      params='[[_getAjaxChallengeSomeoneParams(difficulty, time, ajaxGameDataResponse.data, userToken)]]'
       method="POST"
       on-response="_ajaxChallengeSomeoneSuccessHandler"
       on-error="_ajaxChallengeSomeoneErrorHandler"></iron-ajax>
@@ -118,8 +118,6 @@ Polymer({
   is: 'game-space',
   
   properties: {
-	    
-		userId: Number,
 		
 		userToken: String,
 		
@@ -360,9 +358,8 @@ Polymer({
   /**
    * Get the params from the challenge someone request to send to the server
    */
-  _getAjaxChallengeSomeoneParams: function(_userid, _difficulty, _time, _gameData, _token){
+  _getAjaxChallengeSomeoneParams: function(_difficulty, _time, _gameData, _token){
     return {
-      user_id: _userid,
       difficulty: _difficulty,
       time: _time,
       token: _token,
