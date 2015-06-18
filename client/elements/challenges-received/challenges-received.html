@@ -1,0 +1,32 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<dom-module id="challenges-received">
+  <style>
+    :host{
+      display: block;
+      padding: 0 16px;
+      color: var(--primary-text-color);
+      font-size: 16px;
+      position: relative;
+    }
+    #challenges{
+      overflow: auto;
+      margin-top: 16px;
+      padding: 0 16px;
+      @apply(--layout-fit);
+    }
+  </style>
+  <template>
+    <content select=":not(challenge-received)"></content>
+    <div id="challenges">
+      <content select="challenge-received"></content>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'challenges-received'
+});
+</script>

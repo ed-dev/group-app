@@ -26,6 +26,9 @@
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
   <link rel="import" href="elements/main-button/main-button.html">
+  <link rel="import" href="elements/challenges-received/challenges-received.html">
+  <link rel="import" href="elements/challenge-received/challenge-received.html">
+  <link rel="import" href="elements/challenges-key/challenges-key.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   
@@ -51,10 +54,11 @@
       --accent-color: #FF4081;
       
       --primary-background-color: #c5cae9;
-      --primary-text-color: #212121;
+      --primary-text-color: #ffffff;
       --secondary-text-color: #727272;
       --disabled-text-color: #bdbdbd;
       --divider-color: #B6B6B6;
+      --primary-border-color: #ffffff;
 
       --drawer-menu-color: #ffffff;
       --drawer-border-color: 1px solid #ccc;
@@ -62,10 +66,20 @@
       
       --paper-menu-background-color: #ffffff;
       --menu-link-color: #111111;
+      
+      --easy-color: #3cc800;
+      --medium-color: #3c96ff;
+      --hard-color: #c80000;
+      --accept-color: #ff6867;
+      
+      --selection-dialog-color: #000000;
+      --selection-dialog-header-color: #000000;
+      --selection-dialog-close-btn-color: #000000;
     }
     :host,
     main-button{
-      font-family: SketchetikLight;
+      /*font-family: SketchetikLight;*/
+      font-family: Arial, san-serif;
       font-weight: normal;
       font-style: normal;
     }
@@ -74,6 +88,10 @@
     }
     paper-toolbar{
       padding: 0 8px;
+    }
+    selection-dialog{
+      font-size: 2.5vh;
+      line-height: normal;
     }
     selection-dialog main-button{
       width: 100%;
@@ -92,25 +110,46 @@
     selection-dialog.small main-button{
       font-size: 4vh;
     }
-    #home,
-    #ingame{
+    selection-dialog .text-content{
+      @apply(--layout-self-start);
+    }
+    selection-dialog .action-btns{
+      @apply(--layout-horizontal);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    selection-dialog .action-btns main-button{
+      font-size: 5.5vw; 
+    }
+    #pages > section{
       background: -webkit-linear-gradient(160deg, #711740, #bf4337);
       background: -o-linear-gradient(160deg, #711740, #bf4337);
       background: -moz-linear-gradient(160deg, #711740, #bf4337);
       background: linear-gradient(160deg, #711740, #bf4337);
     }
-    #home{
-      @apply(--layout-vertical);
-    }
-    #home > main-button{
+    main-button.large{
+      width: calc(100% - 6vh);
       margin: 1vh 3vh;
       font-size: 6vh;
       line-height: 0;
-      letter-spacing: 2px;
       --max-height: 15vh;
+    }
+    main-button.small-text{
+      font-size: 3.5vh;
+    }
+    #home{
+      @apply(--layout-vertical);
     }
     #home > .padder{
       height: 2vh;
+    }
+    #challenge{
+      @apply(--layout-vertical);
+    }
+    #challenge challenges-received{
+      @apply(--layout-flex);
     }
     #ingame user-score{
       font-size: 3vh;
@@ -125,13 +164,13 @@
     }
     </style>
     <template>
-      <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
+      <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
-          <main-button on-tap="_btnPlayAction">Play</main-button>
-          <main-button hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</main-button>
-          <main-button hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
-          <main-button hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</main-button>
+          <main-button class="large" on-tap="_btnPlayAction">Play</main-button>
+          <main-button class="large" hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</main-button>
+          <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
+          <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</main-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog" class="large">
             <h1>Select Difficulty</h1>
@@ -140,6 +179,29 @@
             <main-button data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</main-button>
             <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
             <div style="width: 100%;"></div>
+          </selection-dialog>
+        </section>
+        <section id="challenge">
+          <div style="height: 110px;">Heading</div>
+          <challenges-received>
+            <span>Challenges Received:</span>
+            <template is="dom-repeat" items="[[challengesReceived]]">
+              <challenge-received from="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_challengeSelect"></challenge-received>
+            </template>
+          </challenges-received>
+          <main-button class="large small-text">Create Challenge</main-button>
+          <challenges-key></challenges-key>
+          <selection-dialog id="challenge-dialog" class="small">
+            <h1>Challenge</h1>
+            <div class="text-content">
+              <p><span>[[_challengeSender]]</span> has callenged you.</p>
+		          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in <span>[[_challengeTime]]</span>.</p>
+	            <p>Think you can do better?</p>
+	          </div>
+            <div class="action-btns">
+              <main-button on-tap="_btnChallengeReject">Reject</main-button>
+	            <main-button on-tap="_btnChallengeAccept">Accept</main-button>
+            </div>
           </selection-dialog>
         </section>
         <section id="ingame">
@@ -211,6 +273,17 @@
         signedin: {
         	type: Boolean,
         	value: false
+        },
+        
+        challengesReceived: {
+        	type: Array,
+        	value: [
+        	  { from: "Tom T.", time: "2:13", difficulty: "hard" },
+        	  { from: "Jim P.", time: "1:09", difficulty: "easy" },
+            { from: "Very Long Name", time: "23:54:12", difficulty: "medium" },
+            { from: "Bob R.", time: "13:12", difficulty: "easy" },
+            { from: "Simon A.", time: "1:07:52", difficulty: "hard" }
+        	]
         }
       },
       
@@ -250,7 +323,7 @@
        * Called on-tap of the challenge button.
        */
       _btnChallengeAction: function(){
-        
+        this.page = 'challenge';
       },
 
       /**
@@ -295,6 +368,29 @@
       _btnLevelLoadErrorOkAction: function(){
         this.$['level-loading-error-dialog'].close();
         this.page = 'home';
+      },
+      
+      _challengeSelect: function(e){
+    	  var challenge = e.target;
+    	  while(challenge && challenge.tagName != 'CHALLENGE-RECEIVED'){
+    		  challenge = challenge.parentNode;
+    	        console.log(challenge);
+    	  }
+    	  if(!challenge){
+    		  return;
+    	  }
+    	  this._challengeSender = challenge.from;
+        this._challengeTime = challenge.time;
+        this._challengeDifficulty = challenge.difficulty;
+    	  this.$['challenge-dialog'].open();
+      },
+      
+      _btnChallengeAccept: function(){
+    	  
+      },
+      
+      _btnChallengeReject: function(){
+          
       },
       
       /**

@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+  
+<dom-module id="challenge-key-item">
+  <style>
+    :host{
+      display: block;
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+    #block{
+      width: 100%;
+      position: relative;
+    }
+	  #block:after{
+	    padding-top: 100%;
+	    display: block;
+	    content: '';
+      background: var(--background);
+	  }
+	  #block span{
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+      @apply(--layout-center);
+      @apply(--layout-fit);
+      color: var(--primary-text-color);
+      font-size: var(--letter-size);
+      font-weight: bold;
+	  }
+	  #caption{
+	    text-align: center;
+	    margin: 4px;
+      font-size: var(--caption-size);
+      color: var(--primary-text-color);
+	  }
+  </style>
+  <template>
+    <div id="block"><span>[[letter]]</span></div>
+    <span id="caption">[[caption]]</span>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'challenge-key-item',
+  
+  properties: {
+    letter:{
+    	type: String
+    },
+    
+    caption:{
+    	type: String
+    }
+  }
+});
+</script>
