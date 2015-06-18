@@ -11,6 +11,7 @@
     #block{
       width: 100%;
       position: relative;
+      box-sizing: border-box;
     }
 	  #block:after{
 	    padding-top: 100%;
@@ -18,6 +19,11 @@
 	    content: '';
       background: var(--background);
 	  }
+	  #block .border{
+	    @apply(--layout-fit);
+      border: solid rgba(0,0,0,0.33) 6px;
+      box-sizing: border-box;
+    }
 	  #block span{
       @apply(--layout-vertical);
       @apply(--layout-center-justified);
@@ -35,7 +41,7 @@
 	  }
   </style>
   <template>
-    <div id="block"><span>[[letter]]</span></div>
+    <div id="block"><span>[[letter]]</span><div class="border"></div></div>
     <span id="caption">[[caption]]</span>
   </template>
 </dom-module>
