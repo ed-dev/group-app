@@ -23,8 +23,6 @@
   
   <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
   
-  <link rel="import" href="bower_components/google-signin/google-signin.html">
-  
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
   <link rel="import" href="elements/main-button/main-button.html">
@@ -143,18 +141,6 @@
             <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
             <div style="width: 100%;"></div>
           </selection-dialog>
-          <selection-dialog id="signin-dialog" class="small">
-            <h1>Sign In</h1>
-            <google-signin
-              id="google-signin"
-              width="wide"
-              height="tall"
-              signed-in="{{signedin}}"
-              client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
-              scopes="email"
-              on-google-signin-success="_googleSignInAction"
-              on-google-signed-out="_googleSignOutAction"></google-signin>
-          </selection-dialog>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>
@@ -222,7 +208,10 @@
         /**
          * Whether or not the user is signed in
          */
-        signedin: Boolean
+        signedin: {
+        	type: Boolean,
+        	value: false
+        }
       },
       
       /**
@@ -268,7 +257,7 @@
        * Called on-tap of the sign in button.
        */
       _btnSignInAction: function(){
-        this.$['signin-dialog'].open();
+        this.signedin = true;
       },
 
       /**
@@ -276,22 +265,6 @@
        */
       _btnSignOutAction: function(){
         this.signedin = false;
-        this.$['google-signin'].signOut();
-      },
-      
-      /**
-       * Called upon sign in with google
-       */
-       _googleSignInAction: function(e){
-        this.$['signin-dialog'].close();
-      },
-      
-      /**
-       * Called upon sign out of google
-       */
-      _googleSignOutAction: function(e){
-        console.log(e)
-        //todo
       },
       
       /**
