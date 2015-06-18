@@ -24,8 +24,14 @@
       @apply(--layout-center);
       @apply(--layout-justified);
     }
-    #frame paper-ripple{
-      color: var(--primary-border-color);
+    #frame paper-ripple.easy{
+      color: var(--easy-color);
+    }
+    #frame paper-ripple.medium{
+      color: var(--medium-color);
+    }
+    #frame paper-ripple.hard{
+      color: var(--hard-color);
     }
     #from{
       max-width: calc(100% - 80px);
@@ -81,7 +87,7 @@
     <div id="left-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
     <div id="right-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
 	  <div id="frame">
-      <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2"></paper-ripple>
+      <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2" class$="[[difficulty]]"></paper-ripple>
 	    <span id="from" class="ellipsis">[[from]]</span>
 	    <span id="time" class="ellipsis">[[time]]</span>
     </div>
