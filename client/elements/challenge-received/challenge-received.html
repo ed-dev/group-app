@@ -42,6 +42,11 @@
       @apply(--layout-center-justified);
       @apply(--layout-center);
     }
+    .bar .border{
+      @apply(--layout-fit);
+      border: solid rgba(0,0,0,0.33) 2px;
+      box-sizing: border-box;
+    }
     #left-bar{
       left: 0;
     }
@@ -73,8 +78,8 @@
 	  }
   </style>
   <template>
-    <div id="left-bar" class$="[[_getBarClasses(difficulty)]]"></div>
-    <div id="right-bar" class$="[[_getBarClasses(difficulty)]]"></div>
+    <div id="left-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
+    <div id="right-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
 	  <div id="frame">
       <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2"></paper-ripple>
 	    <span id="from" class="ellipsis">[[from]]</span>
