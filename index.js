@@ -27,6 +27,7 @@ app.use(function(req, res, next) {
 
 require('./routes/auth')(app, client);
 require('./routes/play')(app, client);
+require('./routes/friends')(app, client);
 require('./routes/challenge')(app, client);
 
 //Takes parameters 'user_id', 'score' where score is some number

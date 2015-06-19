@@ -79,36 +79,78 @@ module.exports = function(app, client){
     });
   });
   
-  //Returns all challenges made by other users TO this user
-  //{'challenged': Display Name,
-  // 'completed': true/false,
-  // 'timeTaken': 512 (seconds),
-  // 'difficulty': 1,
-  // 'challenge_id': 92837
-  //}
-  app.get('/challengesreceived', function(request, response) {
-  	//First task is just returning all challenges.
+app.get('/challengesreceived', function(request, response) {
+  //First task is just returning all challenges.
+  var data_to_send = [];
+  var query = client.query('SELECT challenges.challenge_id,' +
+                        'challenges.owner_seconds AS timeTaken,' +
+                        'challenges.cur_status AS completed,' +
+                        'users.display_name,' +
+                        'challenges.difficulty ' +
+                    'FROM challenges INNER JOIN users ON (users.user_id = challenges.owner_id)' +
+                    'WHERE challenged_id = $1', [request.user.user_id]);
+  query.on('row', function(row){
+    data_to_send.push(row);
   });
-  
-  //Take parameter 'challenge_id'
-  //returns {'data': [{img:img, word:word}]}
-  app.post('/acceptchallenge', function(request, response){
-  
+  query.on('end', function(){
+    response.header('Content-Length', data_to_send.length);
+    response.send(data_to_send);
   });
-  
-  //Takes parameter 'challenge_id' and 'timeTaken'
-  app.post('/completechallenge', function(request, repsonse){
-  
+});
+
+//Take parameter 'challenge_id'
+//returns {'data': [{img:img, word:word}]}
+app.post('/acceptchallenge', function(request, response){
+  var data_to_send = [];
+  var query = client.query('SELECT images.url AS img,' +
+                       'words.word AS word ' +
+                       'FROM challenges '+
+                       'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
+                       'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
+                       'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
+                       'WHERE challenges.challenge_id = $1', [request.challenge_id]);
+  query.on('row', function(row) {
+    data_to_send.push(row);
   });
-  
-  //Returns all challenges made to other users BY this user.
-  //{'challenged': Display Name,
-  // 'completed': true/false,
-  // 'timeTaken': 512 (seconds),
-  // 'difficulty': 1
-  //}
-  app.get('/challengessent', function(request, response) {
-  	//First task is just returning all challenges.
+  query.on('end', function() {
+    response.header('Content-Length', data_to_send.length);
+    response.send(data_to_send);
   });
+});
+
+//Takes parameter 'challenge_id' and 'timeTaken'
+app.post('/completechallenge', function(request, repsonse){
+  var query = client.query('UPDATE challenges ' +
+                        'SET cur_status = $1 ' +
+                        'WHERE challenge_id = $2', ['completed', request.challnge_id]);
+  query.on('end', function(result){
+    if(result.rowCount===1){response.send(true);}
+    else{response.send(false);}
+  }); 
+});
+
+//Returns all challenges made to other users BY this user.
+//{'display_name': Display Name,
+// 'completed': true/false,
+// 'timeTaken': 512 (seconds),
+// 'difficulty': 1
+//}
+app.get('/challengessent', function(request, response) {
+  //First task is just returning all challenges.
+  var data_to_send = [];
+  var query = client.query('SELECT users.display_name,'+
+                        'challenges.cur_status AS completed,'+
+                        'challenges.challenged_seconds AS timeTaken,'+
+                        'challenges.difficulty '+
+                        'FROM challenges INNER JOIN users ON (users.user_id = challenges.challenged_id) '+
+                        'WHERE owner_id = $1', [request.user.user_id]);
+  query.on('row', function(row){
+    data_to_send.push(row);
+  });
+  query.on('end', function(){
+    response.header('Content-Length', data_to_send.length);
+    response.send(data_to_send);
+  });
+});
   
 } 
