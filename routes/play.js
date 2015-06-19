@@ -81,5 +81,21 @@ module.exports = function(app, client){
       });
     });
   });
+  
+//Takes parameter 'score' where score equals the number to increase the users score by
+//calculated based on difficulty, time taken etc.
+//Returns the updated score
+app.post('/updatescore', function(request, response){
+	var newScore;	
+	var query = client.query('UPDATE users '+
+                      'SET score = score + $1 '+
+                      'WHERE user_id = $2 RETURNING score', [request.score, request.user.user_id]);
+	query.on('row', function(row) {
+		newScore = row.score;
+	});
+	query.on('end', function() {
+		response.send(newScore);
+	});
+});
 
 }
