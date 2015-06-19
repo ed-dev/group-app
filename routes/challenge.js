@@ -79,6 +79,13 @@ module.exports = function(app, client){
     });
   });
   
+//Returns all challenges made by other users TO this user
+//{'display_ame': Display Name,
+// 'completed': true/false,
+// 'timeTaken': 512 (seconds),
+// 'difficulty': 1,
+// 'challenge_id': 92837
+//}
 app.get('/challengesreceived', function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
