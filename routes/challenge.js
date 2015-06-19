@@ -128,7 +128,7 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, funct
 });
 
 //Takes parameter 'challenge_id' and 'time_taken'
-app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.postauth, function(request, repsonse){
+app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.postauth, function(request, response){
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = $1 ' +
                         'WHERE challenge_id = $2', ['completed', request.body.challenge_id]);
