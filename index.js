@@ -5,6 +5,7 @@ var ConnectSdk = require('connectsdk');
 
 var passport = require('passport');
 var googleStrat = require('passport-google-oauth').OAuth2Strategy;
+var bodyParser = require('body-parser');
 
 passport.use(new googleStrat({
   clientID: "431848180596-4n65gocm2d8k71elvq3a6vchtka9cqgv.apps.googleusercontent.com",
@@ -28,6 +29,8 @@ app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 app.use(cors());
 app.use(passport.initialize());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json());
 
 //add header information for all routes
 app.use(function(req, res, next) {
@@ -88,15 +91,6 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
-app.get('/', function(request, response) {
-  apiCall(function(err,res){
-    if(err) response.send(err);
-    else{ 
-      response.header('Content-Length',res.length);
-      response.send(request.user ? request.user.displayName + " logged in" : "Log in.");
-    }
-  });
-});
 
 app.get('/account', getauth, function(request,response){
   if(!request.isAuthenticated()){
@@ -127,7 +121,7 @@ app.get('/authredir',
       if (token==null){
         insertOrUpdate = client.query('INSERT INTO users (user_id,display_name,difficulty,token) VALUES ' +
                                                         '($1,     $2,          $3,        $4)',
-                                                     [req.user.id, req.user.displayName, 1, req.user.access_token]);
+                                            [req.user.id, req.user.displayName, 1, req.user.access_token]);
       }
       else{
         insertOrUpdate = client.query('UPDATE users SET token=$1 WHERE user_id=$2',[req.user.access_token,req.user.user_id]);
@@ -139,6 +133,10 @@ app.get('/authredir',
     });
   }
 );
+
+app.post('/stupidity', function(req,res){
+  res.send(req.query);
+});
 
 function postauth(req,res,next){
   return auth(req.body,req,res,next);
@@ -195,10 +193,6 @@ app.get('/play', function(request, response) {
     query.on('row',function(w){words[w.word] = w.nounorverb;});
     query.on('end',function(){
 
-      images.forEach(function(img){
-        img.nouns = img.title.filter(function(w){return words[w] == 'n';});
-      });
-
       images = images.filter(function(img){return img.nouns.length > 0;});
 
       image_mapper = function(img){
@@ -216,7 +210,73 @@ app.get('/play', function(request, response) {
 //Takes parameters 'user_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
 //Possible expansion: images completed, time taken for each, etc etc.
 //Returns 'true' or 'false'
-app.post('/challenge', function(request, response) {
+app.post('/challenge', postauth, function(request, res) {
+  var game = [];
+
+  try{
+    console.log(request.body.game);
+    game = JSON.parse(request.body.game);
+    console.log(game);
+    for(puz in game){
+      for(key in puz){
+        console.log(typeof puz[key]);
+        if(typeof puz[key] != 'string') throw "err";
+      }
+    }
+  }catch(err){
+    res.statusCode = 400;
+    res.send("Could not parse game");
+    return;
+  }
+ 
+  var rowIndex = 0;
+  var wordParams = game.map(function(d,i){return '$'+(i+1);});
+  wordQuery = client.query('SELECT word_id FROM words WHERE word IN (' + wordParams.join(',') + ')',
+                           game.map(function(d){return d.word;}));
+  wordQuery.on('row', function(d){
+    game[rowIndex++].word_id = d.word_id;
+  });
+
+  wordQuery.on('end', function(){
+    if(rowIndex != game.length){
+      res.statusCode = 400;
+      res.send("I don't know those words - can only challenge with generated game");
+      return;
+    }
+
+    challenge_id = null;
+    query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status) VALUES ' +
+                                                  '($1,$2,$3,\'issued\') RETURNING challenge_id',
+                                   [request.user.user_id, request.body.user_id, request.body.time]);
+    query.on('row', function(d){challenge_id = d.challenge_id;});
+    query.on('end', function(){
+
+      rowIndex = 0;
+      var imgParams = game.map(function(d,i){return "($" + (i+1) + ")";}),
+      imageQuery = client.query('INSERT INTO images (url) VALUES ' + imgParams.join(',') + ' RETURNING image_id',
+                                game.map(function(d){return d.img;}));
+      imageQuery.on('row', function(d){
+        game[rowIndex++].image_id = d.image_id;
+      });
+
+      imageQuery.on('end', function(){
+
+        var cimVals = [];
+        var cimParams = game.map(function(d,i){
+          cimVals.push(d.image_id);
+          cimVals.push(d.word_id);
+          return '(' + challenge_id + ', $' + ((i*2)+1) + ', $' + ((i*2)+2) + ')';
+        });
+
+        cimQuery = client.query('INSERT INTO challenge_image_word (challenge_id, image_id, word_id) ' + 
+                                             'VALUES ' + cimParams.join(', '), cimVals);
+        cimQuery.on('end', function(){
+          res.statusCode = 200;
+          res.send("Entered");
+        });
+      });
+    });
+  });
 });
 
 //Returns all challenges made by other users TO this user
@@ -234,12 +294,6 @@ app.get('/challengessent', function(request, response) {
 app.get('/updatescore', function(request, response){
 	
 });
-
-
-
-
-
-
 
 /* ----------------end routes -------------------*/
 
