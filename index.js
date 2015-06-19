@@ -280,18 +280,45 @@ app.post('/challenge', postauth, function(request, res) {
 });
 
 //Returns all challenges made by other users TO this user
+//{'challenged': Display Name,
+// 'completed': true/false,
+// 'timeTaken': 512 (seconds),
+// 'difficulty': 1,
+// 'challenge_id': 92837
+//}
 app.get('/challengesreceived', function(request, response) {
 	//First task is just returning all challenges.
 });
 
+//Take parameter 'challenge_id'
+//returns {'data': [{img:img, word:word}]}
+app.post('/acceptchallenge', function(request, response){
+
+});
+
+//Takes parameter 'challenge_id' and 'timeTaken'
+app.post('/completechallenge', function(request, repsonse){
+
+});
+
 //Returns all challenges made to other users BY this user.
+//{'challenged': Display Name,
+// 'completed': true/false,
+// 'timeTaken': 512 (seconds),
+// 'difficulty': 1
+//}
 app.get('/challengessent', function(request, response) {
 	//First task is just returning all challenges.
 });
 
 //Takes parameters 'user_id', 'score' where score is some number
 //calculated based on difficulty, time taken etc.
-app.get('/updatescore', function(request, response){
+app.post('/updatescore', function(request, response){
+	
+});
+
+//Takes no parameters
+app.get('/friends', function(request,response){
 	
 });
 

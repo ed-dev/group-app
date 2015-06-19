@@ -5,11 +5,8 @@
   :host{
     position: relative;
     display: block;
-    background: yellow;
-    height: 60%;
-    overflow: hidden;
   }
-  :host ::content picture-element{
+  ::content picture-element{
     position: absolute !important;
     left: 0;
     top: 0;
@@ -150,7 +147,7 @@ Polymer({
       var angle = $this._cycleAngle(-2 * Math.PI * i / pictureElements.length + $this._angle);
       var scale = 1 - 0.5 * Math.abs(Math.sin(0.5*angle));
       var x = 0.5 * (angle > Math.PI ? -1 : 1) * $this.offsetWidth * Math.sin(angle/2);
-      var y = ($this.offsetHeight - e.offsetHeight * scale) * 0.80;
+      var y = ($this.offsetHeight - e.offsetHeight * scale);
        
       e.transform('scale('+scale+') translate('+x+'px, '+y+'px)');
       e.style.left = 'calc(50% - ' + (e.offsetWidth / 2) + 'px)';

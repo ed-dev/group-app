@@ -1,0 +1,113 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+
+<dom-module id="challenge-received">
+  <style>
+    :host{
+      margin: 16px 0;
+      height: 56px;
+      position: relative;
+      display: block;
+    }
+    #frame{
+      margin: 0 28px;
+      border: solid 4px #ffffff;
+      color: var(--primary-text-color);
+      padding: 8px;
+      font-size: 24px;
+      font-weight: bold;
+      box-sizing: border-box;
+      height: 100%;
+      position: relative;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-justified);
+    }
+    #frame paper-ripple.easy{
+      color: var(--easy-color);
+    }
+    #frame paper-ripple.medium{
+      color: var(--medium-color);
+    }
+    #frame paper-ripple.hard{
+      color: var(--hard-color);
+    }
+    #from{
+      max-width: calc(100% - 80px);
+    }
+    .bar{
+      position: absolute;
+      top: 8px;
+      width: 28px;
+      height: 40px;
+      color: var(--primary-text-color);
+      font-size: 18px;
+      font-weight: bold;
+      @apply(--layout-vertical);
+      @apply(--layout-center-justified);
+      @apply(--layout-center);
+    }
+    .bar .border{
+      @apply(--layout-fit);
+      border: solid rgba(0,0,0,0.33) 2px;
+      box-sizing: border-box;
+    }
+    #left-bar{
+      left: 0;
+    }
+    #right-bar{
+      right: 0;
+    }
+    .bar.easy{
+      background-color: var(--easy-color);
+    }
+    .bar.medium{
+      background-color: var(--medium-color);
+    }
+    .bar.hard{
+      background-color: var(--hard-color);
+    }
+    #left-bar.easy:after{
+      content: 'E';
+    }
+    #left-bar.medium:after{
+      content: 'M';
+    }
+    #left-bar.hard:after{
+      content: 'H';
+    }
+    .ellipsis{
+	    white-space: nowrap;
+		  overflow: hidden;
+		  text-overflow: ellipsis;
+	  }
+  </style>
+  <template>
+    <div id="left-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
+    <div id="right-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
+	  <div id="frame">
+      <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2" class$="[[difficulty]]"></paper-ripple>
+	    <span id="from" class="ellipsis">[[from]]</span>
+	    <span id="time" class="ellipsis">[[time]]</span>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'challenge-received',
+  
+  properties: {
+    from: String,
+    
+    time: String,
+    
+    difficulty: String
+  },
+  
+  _getBarClasses: function(difficulty){
+	  return 'bar ' + difficulty;
+  }
+});
+</script>

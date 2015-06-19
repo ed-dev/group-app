@@ -17,18 +17,18 @@
   <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
   <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
   <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
-  <link rel="import" href="bower_components/paper-button/paper-button.html">
   <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
   <link rel="import" href="bower_components/paper-menu/paper-menu.html">
   <link rel="import" href="bower_components/paper-item/paper-icon-item.html">
   
   <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
   
-  <link rel="import" href="bower_components/google-signin/google-signin.html">
-  
   <link rel="import" href="elements/game-space/game-space.html">
-  <link rel="import" href="elements/user-score/user-score.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
+  <link rel="import" href="elements/main-button/main-button.html">
+  <link rel="import" href="elements/challenges-received/challenges-received.html">
+  <link rel="import" href="elements/challenge-received/challenge-received.html">
+  <link rel="import" href="elements/challenge-key/challenge-key.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   
@@ -54,10 +54,11 @@
       --accent-color: #FF4081;
       
       --primary-background-color: #c5cae9;
-      --primary-text-color: #212121;
+      --primary-text-color: #ffffff;
       --secondary-text-color: #727272;
       --disabled-text-color: #bdbdbd;
       --divider-color: #B6B6B6;
+      --primary-border-color: #ffffff;
 
       --drawer-menu-color: #ffffff;
       --drawer-border-color: 1px solid #ccc;
@@ -65,17 +66,24 @@
       
       --paper-menu-background-color: #ffffff;
       --menu-link-color: #111111;
+      
+      --easy-color: #3cc800;
+      --medium-color: #3c96ff;
+      --hard-color: #c80000;
+      --accept-color: #ff6867;
+      
+      --selection-dialog-color: #000000;
+      --selection-dialog-header-color: #000000;
+      --selection-dialog-close-btn-color: #000000;
+      
+      --game-space-header-color: #e66355;
     }
     :host,
-    paper-button{
-      font-family: SketchetikLight;
+    main-button{
+      /*font-family: SketchetikLight;*/
+      font-family: Arial, san-serif;
       font-weight: normal;
       font-style: normal;
-    }
-    paper-button{
-      font-size: 6vh;
-      line-height: 4vh;
-      letter-spacing: 2px;
     }
     neon-animated-pages{
       @apply(--layout-fit);
@@ -83,86 +91,121 @@
     paper-toolbar{
       padding: 0 8px;
     }
-    paper-button::shadow .paper-button.keyboard-focus{
-      font-weight: normal !important;
+    selection-dialog{
+      font-size: 2.5vh;
+      line-height: normal;
     }
-    selection-dialog paper-button{
+    selection-dialog main-button{
       width: 100%;
-      font-size: 6.5vh;
-      line-height: 3vh;
-    }
-    paper-button[noink]{
-      background-image: url('assets/images/main-btn.png');
-      background-size: 100% 200%;
-      background-position: 0 0;
-      color: #ffcc00;
-    }
-    paper-button[noink][pressed]{
-      background-position: 0 -100%;
-    }
-    /*paper-button[noink][focused]{
-      background-position: 0 -200%;
-    }
-    paper-button[noink][pressed][focused]{
-      background-position: 0 -300%;
-    }*/
-    #home{
-      background: url('assets/images/home-background.jpg');
-      background-size: 100vw 100vh;
-      @apply(--layout-vertical);
-    }
-    #home > paper-button{
-      margin: 1.5vh 3vh;
-    }
-    #home > .padder{
-      height: 1.5vh;
-    }
-    #ingame user-score{
-      font-size: 3vh;
+      line-height: 0;
     }
     selection-dialog.large{
       @apply(--layout-fit);
+    }
+    selection-dialog.large main-button{
+      font-size: 5vh;
     }
     selection-dialog.small{
       width: 100vw;
       height: 75vw;
     }
-    selection-dialog.small paper-button{
+    selection-dialog.small main-button{
       font-size: 4vh;
-      line-height: 3vh;
+    }
+    selection-dialog .text-content{
+      @apply(--layout-self-start);
+    }
+    selection-dialog .text-content p:last-of-type{
+      margin: 0;
+    }
+    selection-dialog .action-btns{
+      @apply(--layout-horizontal);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    selection-dialog .action-btns main-button{
+      font-size: 5.5vw; 
+    }
+    #pages > section{
+      background: -webkit-linear-gradient(160deg, #711740, #bf4337);
+      background: -o-linear-gradient(160deg, #711740, #bf4337);
+      background: -moz-linear-gradient(160deg, #711740, #bf4337);
+      background: linear-gradient(160deg, #711740, #bf4337);
+    }
+    main-button.large{
+      width: calc(100% - 6vh);
+      margin: 1vh 3vh;
+      font-size: 6vh;
+      line-height: 0;
+      --max-height: 15vh;
+    }
+    main-button.small-text{
+      font-size: 3.5vh;
+    }
+    #home{
+      @apply(--layout-vertical);
+    }
+    #home > .padder{
+      height: 2vh;
+    }
+    #challenge{
+      @apply(--layout-vertical);
+    }
+    #challenge challenges-received{
+      @apply(--layout-flex);
+    }
+    #ingame user-score{
+      font-size: 3vh;
     }
     #game-space{
       @apply(--layout-fit);
     }
+    #game-space [paper-drawer-toggle]{
+      --iron-icon-width: 32px;
+      --iron-icon-height: 32px;
+    }
     </style>
     <template>
-      <neon-animated-pages selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
+      <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
-          <paper-button raised noink on-tap="_btnPlayAction">Play</paper-button>
-          <paper-button raised noink hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</paper-button>
-          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</paper-button>
-          <paper-button raised noink hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</paper-button>
+          <main-button class="large" on-tap="_btnPlayAction">Play</main-button>
+          <main-button class="large" hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</main-button>
+          <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
+          <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</main-button>
           <div class="padder"></div>
           <selection-dialog id="difficulty-dialog" class="large">
             <h1>Select Difficulty</h1>
-            <div></div>
-            <paper-button raised noink data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</paper-button>
-            <paper-button raised noink data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</paper-button>
-            <paper-button raised noink data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</paper-button>
-            <div></div>
+            <div style="width: 100%;"></div>
+            <main-button data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</main-button>
+            <main-button data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</main-button>
+            <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
+            <div style="width: 100%;"></div>
           </selection-dialog>
-          <selection-dialog id="signin-dialog" class="small">
-            <h1>Sign In</h1>
-            <google-signin
-              id="google-signin"
-              width="wide"
-              height="tall"
-              signed-in="{{signedin}}"
-              client-id="666174339050-2n7h1on7neg4vvb011qluo29dq1hnnat.apps.googleusercontent.com"
-              scopes="email"
-              on-google-signin-success="_googleSignInAction"
-              on-google-signed-out="_googleSignOutAction"></google-signin>
+        </section>
+        <section id="challenge">
+          <div style="height: 110px;">Heading</div>
+          <challenges-received>
+            <span>Challenges Received:</span>
+            <template is="dom-repeat" items="[[challengesReceived]]">
+              <challenge-received from="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_challengeSelect"></challenge-received>
+            </template>
+          </challenges-received>
+          <main-button class="large small-text">Challenge Someone</main-button>
+          <challenges-key></challenges-key>
+          <selection-dialog id="challenge-dialog" class="small">
+            <h1>Challenge</h1>
+            <div class="text-content">
+              <p><span>[[_challengeSender]]</span> has callenged you.</p>
+		          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in <span>[[_challengeTime]]</span>.</p>
+	            <p>Think you can do better?</p>
+	          </div>
+            <div class="action-btns">
+              <main-button on-tap="_btnChallengeReject">Reject</main-button>
+	            <main-button on-tap="_btnChallengeAccept">Accept</main-button>
+            </div>
           </selection-dialog>
         </section>
         <section id="ingame">
@@ -179,11 +222,6 @@
               </paper-menu>
             </paper-header-panel>
             <paper-header-panel main>
-              <paper-toolbar justify="center">
-                <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-                <div class="flex"></div>
-                <user-score score="{{score}}"></user-score>
-              </paper-toolbar>
               <game-space id="game-space"
               url-data-path="[[dataPath]]"
               score="{{score}}"
@@ -191,18 +229,20 @@
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
               on-level-complete="_onLevelComplete"
-              on-level-load-fail="_onLevelLoadFail"></game-space>
+              on-level-load-fail="_onLevelLoadFail">
+                <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+              </game-space>
             </paper-header-panel>
           </paper-drawer-panel>
           <selection-dialog id="level-win-dialog" class="small">
             <h1>Well Done</h1>
             Continue to the next level?
-            <paper-button raised noink on-tap="_btnNextLevelAction">Next Level</paper-button>
+            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
           </selection-dialog>
           <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
             <h1>Error</h1>
             An error has occured while trying to load the level.
-            <paper-button raised noink on-tap="_btnLevelLoadErrorOkAction">OK</paper-button>
+            <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
           </selection-dialog>
         </section>
       </neon-animated-pages>
@@ -228,13 +268,27 @@
          */
         dataPath: {
           type: String,
-          value: 'http://still-waters-3351.herokuapp.com/play'
+          value: 'data.json'//'http://still-waters-3351.herokuapp.com/play'
         },
         
         /**
          * Whether or not the user is signed in
          */
-        signedin: Boolean
+        signedin: {
+        	type: Boolean,
+        	value: false
+        },
+        
+        challengesReceived: {
+        	type: Array,
+        	value: [
+        	  { from: "Tom T.", time: "2:13", difficulty: "hard" },
+        	  { from: "Jim P.", time: "1:09", difficulty: "easy" },
+            { from: "Very Long Name", time: "23:54:12", difficulty: "medium" },
+            { from: "Bob R.", time: "13:12", difficulty: "easy" },
+            { from: "Simon A.", time: "1:07:52", difficulty: "hard" }
+        	]
+        }
       },
       
       /**
@@ -273,14 +327,14 @@
        * Called on-tap of the challenge button.
        */
       _btnChallengeAction: function(){
-        
+        this.page = 'challenge';
       },
 
       /**
        * Called on-tap of the sign in button.
        */
       _btnSignInAction: function(){
-        this.$['signin-dialog'].open();
+        this.signedin = true;
       },
 
       /**
@@ -288,30 +342,16 @@
        */
       _btnSignOutAction: function(){
         this.signedin = false;
-        this.$['google-signin'].signOut();
-      },
-      
-      /**
-       * Called upon sign in with google
-       */
-       _googleSignInAction: function(e){
-        this.$['signin-dialog'].close();
-      },
-      
-      /**
-       * Called upon sign out of google
-       */
-      _googleSignOutAction: function(e){
-        console.log(e)
-        //todo
       },
       
       /**
        * Called on-tap of the difficulty selection buttons.
        */
       _btnSetDifficultyAction: function(e, detail){
-        var btn = e.target.parentElement;
-        
+        var btn = e.target;
+        while(btn && !btn.dataset.difficulty){
+        	btn = btn.parentElement;
+        }
         // set difficulty before change to the game page
         this.difficulty = parseInt(btn.dataset.difficulty); // make sure the difficulty is a number, not a string
         this.$['difficulty-dialog'].close();                // close the dialog
@@ -332,6 +372,29 @@
       _btnLevelLoadErrorOkAction: function(){
         this.$['level-loading-error-dialog'].close();
         this.page = 'home';
+      },
+      
+      _challengeSelect: function(e){
+    	  var challenge = e.target;
+    	  while(challenge && challenge.tagName != 'CHALLENGE-RECEIVED'){
+    		  challenge = challenge.parentNode;
+    	        console.log(challenge);
+    	  }
+    	  if(!challenge){
+    		  return;
+    	  }
+    	  this._challengeSender = challenge.from;
+        this._challengeTime = challenge.time;
+        this._challengeDifficulty = challenge.difficulty;
+    	  this.$['challenge-dialog'].open();
+      },
+      
+      _btnChallengeAccept: function(){
+    	  
+      },
+      
+      _btnChallengeReject: function(){
+          
       },
       
       /**

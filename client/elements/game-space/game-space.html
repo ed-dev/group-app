@@ -6,24 +6,50 @@
 <link rel="import" href="../picture-element/picture-element.html">
 <link rel="import" href="../letter-tile/letter-tile.html">
 <link rel="import" href="../user-level/user-level.html">
+<link rel="import" href="../user-score/user-score.html">
   
 <dom-module id="game-space">
   <style>
+  :host{
+    @apply(--layout-vertical);
+    color: var(--game-space-header-color);
+  }
   #loading{
     background: rgba(0,0,0,0.25);
   }
-  :host > picture-space letter-tile{
+  #titlebar{
+    height: 48px;
+  }
+  .flex{
+    @apply(--layout-flex);
+    min-height: 8px;
+  }
+  picture-space{
+    height: 50%;
+  }
+  tile-space{
+    height: calc(50% - 64px);
+    max-height: 250px;
+  }
+  picture-space letter-tile{
     width: 32px;
     margin: 1px;
   }
-  :host > tile-space letter-tile{
+  tile-space letter-tile{
     width: 64px;
     height: 64px;
     margin: 4px;
   }
-  :host > letter-tile{
+  letter-tile{
     width: 64px;
     z-index: 101;
+  }
+  user-score{
+    font-size: 3.5vh;
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-family: "Arial Black", Gadget, sans-serif;
   }
   #loading{
     @apply(--layout-horizontal);
@@ -43,14 +69,20 @@
       last-response="{{ajaxResponse}}"
       on-response="_ajaxSuccessHandler"
       on-error="_ajaxErrorHandler"></iron-ajax>
+    <div id="titlebar">
+      <content></content>
+      <user-score score="[[score]]"></user-score>
+      <!-- <user-level level="[[difficulty]]"></user-level> -->
+    </div>
+    <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
-      <user-level level="[[difficulty]]"></user-level>
       <template is="dom-repeat" items="[[ajaxResponse.data]]">
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone">
           <img src="{{item.img}}">
         </picture-element>
       </template>
     </picture-space>
+    <div class="flex"></div>
     <tile-space loading="[[loading]]" class="letter-tile-drop-zone redisplay-letter-tiles">
       <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
         <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
