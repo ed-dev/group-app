@@ -125,13 +125,11 @@ app.get('/authredir',
       }
       else{
         insertOrUpdate = client.query('UPDATE users SET token=$1 WHERE user_id=$2 RETURNING token',
-                                       [req.user.access_token,req.user.user_id]);
+                                       [req.user.access_token,req.user.id]);
       }
 
-      results = [];
-      insertOrUpdate.on('row', function(d){results.push(d.token);});
       insertOrUpdate.on('end', function(){
-        res.send({'access_token': req.user.access_token, 'name': req.user.displayName, 'dbres': results});
+        res.send({'access_token': req.user.access_token, 'name': req.user.displayName});
       });
     });
   }
