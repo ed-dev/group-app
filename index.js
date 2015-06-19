@@ -186,7 +186,7 @@ app.get('/play', function(request, response) {
     var params = titleWords.map(function(w,i){return '$'+(i+1);});
     var words = {};
 
-    var query = client.query('SELECT word,nounorverb FROM words2 WHERE word IN (' + params.join(',') + ')',titleWords);
+    var query = client.query('SELECT word,nounorverb FROM words WHERE word IN (' + params.join(',') + ')',titleWords);
     query.on('row',function(w){words[w.word] = w.nounorverb;});
     query.on('end',function(){
 
