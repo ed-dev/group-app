@@ -16,7 +16,8 @@
     "cors": "2.6.x",
     "pg": "^3.0.3",
     "passport-google-oauth": "0.2.x",
-    "passport": "0.2.x"
+    "passport": "0.2.x",
+    "body-parser": "1.x"
   },
  "author": "",
   "license": "ISC",

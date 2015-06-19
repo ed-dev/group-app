@@ -134,10 +134,6 @@ app.get('/authredir',
   }
 );
 
-app.post('/stupidity', function(req,res){
-  res.send(req.query);
-});
-
 function postauth(req,res,next){
   return auth(req.body,req,res,next);
 }
@@ -192,6 +188,10 @@ app.get('/play', function(request, response) {
     var query = client.query('SELECT word,nounorverb FROM words2 WHERE word IN (' + params.join(',') + ')',titleWords);
     query.on('row',function(w){words[w.word] = w.nounorverb;});
     query.on('end',function(){
+
+      images.forEach(function(img){
+        img.nouns = img.title.filter(function(w){return words[w] == 'n';});
+      });
 
       images = images.filter(function(img){return img.nouns.length > 0;});
 
