@@ -45,8 +45,8 @@ module.exports = function(app, client){
       }
   
       challenge_id = null;
-      query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status) VALUES ' +
-                                                    '($1,$2,$3,\'issued\') RETURNING challenge_id',
+      query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status, difficulty) VALUES ' +
+                                                    '($1,$2,$3,\'issued\',1) RETURNING challenge_id',
                                      [request.user.user_id, request.body.user_id, request.body.time]);
       query.on('row', function(d){challenge_id = d.challenge_id;});
       query.on('end', function(){
