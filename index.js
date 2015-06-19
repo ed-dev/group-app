@@ -120,15 +120,18 @@ app.get('/authredir',
       insertOrUpdate = null;
       if (token==null){
         insertOrUpdate = client.query('INSERT INTO users (user_id,display_name,difficulty,token) VALUES ' +
-                                                        '($1,     $2,          $3,        $4)',
+                                                        '($1,     $2,          $3,        $4) RETURNING token',
                                             [req.user.id, req.user.displayName, 1, req.user.access_token]);
       }
       else{
-        insertOrUpdate = client.query('UPDATE users SET token=$1 WHERE user_id=$2',[req.user.access_token,req.user.user_id]);
+        insertOrUpdate = client.query('UPDATE users SET token=$1 WHERE user_id=$2 RETURNING token',
+                                       [req.user.access_token,req.user.user_id]);
       }
 
+      results = [];
+      insertOrUpdate.on('row', function(d){results.push(d.token);});
       insertOrUpdate.on('end', function(){
-        res.send({'access_token': req.user.access_token, 'name': req.user.displayName});
+        res.send({'access_token': req.user.access_token, 'name': req.user.displayName, 'dbres': results});
       });
     });
   }
