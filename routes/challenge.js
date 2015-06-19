@@ -86,7 +86,7 @@ module.exports = function(app, client){
 // 'difficulty': 1,
 // 'challenge_id': 92837
 //}
-app.get('/challengesreceived', getauth, function(request, response) {
+app.get('/challengesreceived', app.getauth, function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT challenges.challenge_id,' +
@@ -107,7 +107,7 @@ app.get('/challengesreceived', getauth, function(request, response) {
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.post('/acceptchallenge', postauth, function(request, response){
+app.post('/acceptchallenge', app.postauth, function(request, response){
   var data_to_send = [];
   var query = client.query('SELECT images.url AS img,' +
                        'words.word AS word ' +
@@ -126,7 +126,7 @@ app.post('/acceptchallenge', postauth, function(request, response){
 });
 
 //Takes parameter 'challenge_id' and 'timeTaken'
-app.post('/completechallenge', postauth, function(request, repsonse){
+app.post('/completechallenge', app.postauth, function(request, repsonse){
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = $1 ' +
                         'WHERE challenge_id = $2', ['completed', request.challnge_id]);
@@ -142,7 +142,7 @@ app.post('/completechallenge', postauth, function(request, repsonse){
 // 'timeTaken': 512 (seconds),
 // 'difficulty': 1
 //}
-app.get('/challengessent', getauth, function(request, response) {
+app.get('/challengessent', app.getauth, function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT users.display_name,'+
