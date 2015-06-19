@@ -1,4 +1,3 @@
-drop table if exists words;create table words (id SERIAL, word varchar(40), frequency integer, nounorverb char(1));
 insert into words (word,frequency,nounorverb) values ('be',12545825,'v');
 insert into words (word,frequency,nounorverb) values ('have',4303955,'v');
 insert into words (word,frequency,nounorverb) values ('say',1915138,'v');
