@@ -1,9 +1,11 @@
+var check_params = require('./check_params');
+
 module.exports = function(app, client){
 
   //Takes parameters 'user_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
   //Possible expansion: images completed, time taken for each, etc etc.
   //Returns 'true' or 'false'
-  app.post('/challenge', app.postauth, function(request, res) {
+  app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.postauth, function(request, res) {
     var game = [];
   
     try{
@@ -107,7 +109,7 @@ app.get('/challengesreceived', app.getauth, function(request, response) {
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.post('/acceptchallenge', app.postauth, function(request, response){
+app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, function(request, response){
   var data_to_send = [];
   var query = client.query('SELECT images.url AS img,' +
                        'words.word AS word ' +
@@ -115,7 +117,7 @@ app.post('/acceptchallenge', app.postauth, function(request, response){
                        'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
                        'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
                        'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
-                       'WHERE challenges.challenge_id = $1', [request.challenge_id]);
+                       'WHERE challenges.challenge_id = $1', [request.body.challenge_id]);
   query.on('row', function(row) {
     data_to_send.push(row);
   });
@@ -125,11 +127,11 @@ app.post('/acceptchallenge', app.postauth, function(request, response){
   });
 });
 
-//Takes parameter 'challenge_id' and 'timeTaken'
-app.post('/completechallenge', app.postauth, function(request, repsonse){
+//Takes parameter 'challenge_id' and 'time_taken'
+app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.postauth, function(request, repsonse){
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = $1 ' +
-                        'WHERE challenge_id = $2', ['completed', request.challnge_id]);
+                        'WHERE challenge_id = $2', ['completed', request.body.challenge_id]);
   query.on('end', function(result){
     if(result.rowCount===1){response.send(true);}
     else{response.send(false);}

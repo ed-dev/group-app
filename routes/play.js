@@ -1,3 +1,4 @@
+var check_params = require('./check_params');
 var ConnectSdk = require('connectsdk');
 
 module.exports = function(app, client){
@@ -85,7 +86,7 @@ module.exports = function(app, client){
 //Takes parameter 'score' where score equals the number to increase the users score by
 //calculated based on difficulty, time taken etc.
 //Returns the updated score
-app.post('/updatescore', function(request, response){
+app.post('/updatescore', check_params(['score']), function(request, response){
 	var newScore;	
 	var query = client.query('UPDATE users '+
                       'SET score = score + $1 '+
