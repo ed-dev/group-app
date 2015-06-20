@@ -68,6 +68,10 @@ module.exports = function(app, client){
       query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status, difficulty) VALUES ' +
                                                     '($1,$2,$3,\'issued\',1) RETURNING challenge_id',
                                      [request.user.user_id, request.query.user_id, request.query.time]);
+      query.on('error', function(d){
+        res.statusCode = 400;
+        res.send("You can't challenge a user that doesn't exist");
+      });
       query.on('row', function(d){challenge_id = d.challenge_id;});
       query.on('end', function(){
   
