@@ -9,7 +9,13 @@ module.exports = function(app, client){
     var game = [];
     console.log("Game is: ");
     console.log(request.query.game);
-  
+
+    //A user can't challenge themselves.
+    if(req.user.user_id == req.query.user_id){
+      res.statusCode = 400;
+      res.send("You can't challenge yourself.");
+    }
+
     //First, try to parse the game.  Run the game through the JSON parser then check
     //that each element is a string so we don't accidentally execute something.
     try{
