@@ -17,19 +17,21 @@ module.exports = function(app, client){
   
   //The auth helper function called by the other two.  Checks the token exists and saves the user if so.
   function auth(params,req,res,next){
-    if(!params.hasOwnProperty('token')){
+    var token = req.body.token;
+    if(token == undefined){token = req.query.token;}
+    if(token == undefined){
       res.statusCode = 400;
       res.send('Error 400: Token not provided');
       return false;
     }
   
     user = null;
-    query = client.query('SELECT user_id,display_name,token,difficulty FROM users WHERE token=$1', [params.token]);
+    query = client.query('SELECT user_id,display_name,token,difficulty FROM users WHERE token=$1', [token]);
     query.on('row', function(d){user=d;});
     query.on('end', function(){
       if(user==null){
         res.statusCode = 401;
-        res.send("Token " + params.token + " does not exist");
+        res.send("Token " + token + " does not exist");
       }else{
         req.user = user;
         next()
