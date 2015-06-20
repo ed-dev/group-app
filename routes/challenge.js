@@ -5,7 +5,7 @@ module.exports = function(app, client){
   //Takes parameters 'user_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
   //Possible expansion: images completed, time taken for each, etc etc.
   //Returns 'true' or 'false'
-  app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.postauth, function(request, res) {
+  app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.auth, function(request, res) {
     var game = [];
     console.log("Game is: ");
     console.log(request.query.game);
@@ -115,7 +115,7 @@ module.exports = function(app, client){
 // 'difficulty': 1,
 // 'challenge_id': 92837
 //}
-app.get('/challengesreceived', app.getauth, function(request, response) {
+app.get('/challengesreceived', app.auth, function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT challenges.challenge_id,' +
@@ -136,7 +136,7 @@ app.get('/challengesreceived', app.getauth, function(request, response) {
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, function(request, response){
+app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
   var data_to_send = [];
   var query = client.query('SELECT images.url AS img,' +
                        'words.word AS word ' +
@@ -155,7 +155,7 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, funct
 });
 
 //Takes parameter 'challenge_id' and 'time_taken'
-app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.postauth, function(request, response){
+app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(request, response){
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = $1 ' +
                         'WHERE challenge_id = $2', ['completed', request.query.challenge_id]);
@@ -171,7 +171,7 @@ app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app
 // 'timeTaken': 512 (seconds),
 // 'difficulty': 1
 //}
-app.get('/challengessent', app.getauth, function(request, response) {
+app.get('/challengessent', app.auth, function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT users.display_name,'+

@@ -1,22 +1,9 @@
 module.exports = function(app, client){
  
-  //We need two authentication functions, one for POST and one for GET
-  //The authentication functions will check that the token exists
+  //This authentication function will check that the token exists
   //and if it does, save the user associated with the token to the
   //request object.
-
-  //POST - Expects the token to be in the body of the request.
-  app.postauth = function(req,res,next){
-    return auth(req.body,req,res,next);
-  }
-  
-  //GET - Expects the token to be in the query of the request.
-  app.getauth = function(req,res,next){
-    return auth(req.query,req,res,next);
-  }
-  
-  //The auth helper function called by the other two.  Checks the token exists and saves the user if so.
-  function auth(params,req,res,next){
+  app.auth = function(req,res,next){
     var token = req.body.token;
     if(token == undefined){token = req.query.token;}
     if(token == undefined){
