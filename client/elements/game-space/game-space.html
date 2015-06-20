@@ -61,14 +61,30 @@
   </style>
   <template>
     <iron-ajax
-      id="ajax"
+      id="ajax-game-data"
       handle-as="json"
-      url="[[urlDataPath]]"
-      params='[[_getAjaxParams(difficulty)]]'
+      url="[[urlGameDataPath]]"
+      params='[[_getAjaxGameDataParams(difficulty)]]'
       method="GET"
-      last-response="{{ajaxResponse}}"
-      on-response="_ajaxSuccessHandler"
-      on-error="_ajaxErrorHandler"></iron-ajax>
+      last-response="{{ajaxGameDataResponse}}"
+      on-response="_ajaxGameDataSuccessHandler"
+      on-error="_ajaxGameDataErrorHandler"></iron-ajax>
+    <iron-ajax
+      id="ajax-challenge-someone"
+      handle-as="json"
+      url="[[urlChallengeSomeonePath]]"
+      params='[[_getAjaxChallengeSomeoneParams(userId, difficulty, time, ajaxGameDataResponse.data, userToken)]]'
+      method="POST"
+      on-response="_ajaxChallengeSomeoneSuccessHandler"
+      on-error="_ajaxChallengeSomeoneErrorHandler"></iron-ajax>
+    <iron-ajax
+      id="ajax-update-score"
+      handle-as="json"
+      url="[[urlUpdateScorePath]]"
+      params='[[_getAjaxUpdateScoreParams(userId, score, userToken)]]'
+      method="POST"
+      on-response="_ajaxUpdateScoreSuccessHandler"
+      on-error="_ajaxUpdateScoreErrorHandler"></iron-ajax>
     <div id="titlebar">
       <content></content>
       <user-score score="[[score]]"></user-score>
@@ -76,7 +92,7 @@
     </div>
     <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
-      <template is="dom-repeat" items="[[ajaxResponse.data]]">
+      <template is="dom-repeat" items="[[ajaxGameDataResponse.data]]">
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone">
           <img src="{{item.img}}">
         </picture-element>
@@ -84,7 +100,7 @@
     </picture-space>
     <div class="flex"></div>
     <tile-space loading="[[loading]]" class="letter-tile-drop-zone redisplay-letter-tiles">
-      <template is="dom-repeat" items=[[_getAllLetters(ajaxResponse.data)]]">
+      <template is="dom-repeat" items=[[_getAllLetters(ajaxGameDataResponse.data)]]">
         <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
       </template>
     </tile-space>
@@ -97,6 +113,11 @@ Polymer({
   is: 'game-space',
   
   properties: {
+	    
+		userId: Number,
+		
+		userToken: String,
+		
     /**
      * The difficulty the user is on
      * 0 - Easy
@@ -119,6 +140,15 @@ Polymer({
     },
     
     /**
+     * The user's time
+     */
+    time: {
+    	type: Number,
+    	value: 0,
+    	notify: true
+    },
+    
+    /**
      * True if the game is waiting for images from the server
      */
     loading:{
@@ -128,9 +158,14 @@ Polymer({
     },
     
     /**
-     * The path to the server to get the image json data
+     * The path to the server to get the game json data
      */
-    urlDataPath: String,
+    urlGameDataPath: String,
+    
+    /**
+     * The path to send challenges to
+     */
+    urlChallengeSomeonePath: String,
     
     /**
      * the path to the tile images
@@ -167,11 +202,11 @@ Polymer({
    */
   newLevel: function(){
     this.loading = true;
-    // clear the old ajaxResponse object - so that the arn't tiles hanging around for the last level
-    if(this.ajaxResponse){
-      this.ajaxResponse = { data: [] };
+    // clear the old ajaxGameDataResponse object - so that the arn't tiles hanging around for the last level
+    if(this.ajaxGameDataResponse){
+      this.ajaxGameDataResponse = { data: [] };
     }
-    this.$.ajax.generateRequest();
+    this.$['ajax-game-data'].generateRequest();
     this.$['picture-space'].reset();
   },
 
@@ -207,11 +242,11 @@ Polymer({
   },
   
   /**
-   * Handeler for when the ajax request succeed
+   * Handeler for when the game data ajax request succeed
    */
-  _ajaxSuccessHandler: function (event, detail, sender) {
+  _ajaxGameDataSuccessHandler: function (event, detail, sender) {
     if(detail.xhr.status === 0){
-      this._ajaxErrorHandler(event, detail, sender);
+      this._ajaxGameDataErrorHandler(event, detail, sender);
     }
     else{
       this.loading = false;
@@ -220,24 +255,85 @@ Polymer({
   },
   
   /**
-   * Handeler for when the ajax request fails
+   * Handeler for when the game data ajax request fails
    */
-  _ajaxErrorHandler: function (event, detail, sender) {
+  _ajaxGameDataErrorHandler: function (event, detail, sender) {
     this.loading = false;
     this.fire('level-load-fail');
   },
   
   /**
-   * Get the params to send to the server
+   * Get the params from the game data request to send to the server
    */
-  _getAjaxParams: function(difficulty_level){
+  _getAjaxGameDataParams: function(difficulty_level){
     return {
       difficulty: difficulty_level
     };
   },
   
+  sendChallenge: function(){
+    this.$['ajax-challenge-someone'].generateRequest();
+  },
+  
+  /**
+   * Handeler for when the challenge someone ajax request succeed
+   */
+  _ajaxChallengeSomeoneSuccessHandler: function(event, detail, sender){
+    console.log(detail);
+    this.fire('challenge-someone-success');
+  },
+  
+  /**
+   * Handeler for when the challenge someone ajax request fails
+   */
+  _ajaxGameDataErrorHandler: function (event, detail, sender) {
+    console.error('coundn\'t send challenge.');
+    this.fire('challenge-someone-failed');
+  },
+  
+  /**
+   * Get the params from the challenge someone request to send to the server
+   */
+  _getAjaxChallengeSomeoneParams: function(_userid, _difficulty, _time, _gameData, _token){
+    return {
+      user_id: _userid,
+      difficulty: _difficulty,
+      time: _time,
+      token: _token,
+      game: JSON.stringify(_gameData)
+    };
+  },
+  
+  /**
+   * Handeler for when the update score ajax request succeed
+   */
+  _ajaxUpdateScoreSuccessHandler: function(event, detail, sender){
+    console.log(detail);
+  },
+  
+  /**
+   * Handeler for when the update score ajax request fails
+   */
+  _ajaxUpdateScoreErrorHandler: function (event, detail, sender) {
+    console.error('coundn\'t update user score.');
+  },
+  
+  /**
+   * Get the params from the update score request to send to the server
+   */
+  _getAjaxUpdateScoreParams: function(_userid, _score, _token){
+    return {
+      user_id: _userid,
+      score: _score,
+      token: _token
+    };
+  },
+  
+  /**
+   * return the picture elements within this element
+   */
   _getPictureElements: function(){
-	  return this.querySelectorAll('picture-element');
+	  return Polymer.dom(this.root).querySelectorAll('picture-element');
   },
   
   /**
@@ -256,6 +352,7 @@ Polymer({
 	  
 	  if(allCorrect){
 		  this.fire('level-complete');
+      this.$['ajax-update-score'].generateRequest();
 	  }
   },
   

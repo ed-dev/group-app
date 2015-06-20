@@ -60,6 +60,7 @@
       --divider-color: #B6B6B6;
       --primary-border-color: #ffffff;
 
+      --menu-text-color: #000000;
       --drawer-menu-color: #ffffff;
       --drawer-border-color: 1px solid #ccc;
       --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
@@ -105,6 +106,10 @@
     selection-dialog.large main-button{
       font-size: 5vh;
     }
+    selection-dialog.medium{
+      width: 100vw;
+      height: 100vw;
+    }
     selection-dialog.small{
       width: 100vw;
       height: 75vw;
@@ -141,8 +146,12 @@
       line-height: 0;
       --max-height: 15vh;
     }
+    main-button.multiline{
+      font-size: 2.5vh !important;
+      line-height: normal !important;
+    }
     main-button.small-text{
-      font-size: 3.5vh;
+      font-size: 3.5vh !important;
     }
     #home{
       @apply(--layout-vertical);
@@ -168,6 +177,38 @@
     }
     </style>
     <template>
+      <iron-ajax
+        id="ajax-friends-list"
+        handle-as="json"
+        url="[[friendsListDataPath]]"
+        params='[[_getAjaxTokenParams(_userToken)]]'
+        method="GET"
+        on-response="_ajaxChallengesSentSuccessHandler"
+        on-error="_ajaxFriendsListErrorHandler"></iron-ajax>
+	    <iron-ajax
+	      id="ajax-challenges-received"
+	      handle-as="json"
+	      url="[[challengesReceivedDataPath]]"
+	      params='[[_getAjaxTokenParams(_userToken)]]'
+	      method="GET"
+	      on-response="_ajaxChallengesReceivedSuccessHandler"
+	      on-error="_ajaxChallengesReceivedErrorHandler"></iron-ajax>
+      <iron-ajax
+        id="ajax-challenges-sent"
+        handle-as="json"
+        url="[[challengesSentDataPath]]"
+        params='[[_getAjaxTokenParams(_userToken)]]'
+        method="GET"
+        on-response="_ajaxChallengesSentSuccessHandler"
+        on-error="_ajaxChallengesSentErrorHandler"></iron-ajax>
+      <iron-ajax
+        id="ajax-challenge-responce"
+        handle-as="json"
+        url="[[challengeResponcePath]]"
+        params='[[_getAjaxChallengeResponceParams(_challengeId, _challengeResponce, _userToken)]]'
+        method="POST"
+        on-response="_ajaxChallengeResponceSuccessHandler"
+        on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
       <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
@@ -223,8 +264,13 @@
             </paper-header-panel>
             <paper-header-panel main>
               <game-space id="game-space"
-              url-data-path="[[dataPath]]"
+              url-game-data-path="[[gameDataPath]]"
+              url-challenge-someone-path="[[sendChallengePath]]"
+              url-update-score-path="[[updateScorePath]]"
+              user-id="[[_userId]]"
+              user-token="[[_userToken]]"
               score="{{score}}"
+              time="{{time}}"
               difficulty="{{difficulty}}"
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
@@ -234,10 +280,13 @@
               </game-space>
             </paper-header-panel>
           </paper-drawer-panel>
-          <selection-dialog id="level-win-dialog" class="small">
+          <selection-dialog id="level-win-dialog" class="medium">
             <h1>Well Done</h1>
             Continue to the next level?
-            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
+            <div style="width: 100%;">
+	            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
+	            <main-button class="multiline" on-tap="_btnChallengeCompleteAction">Challenge Someone<br>to this Level</main-button>
+	          </div>
           </selection-dialog>
           <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
             <h1>Error</h1>
@@ -263,12 +312,68 @@
           observer: '_pageChangeEvent'
         },
         
-        /**
-         * The path to the json data.
-         */
-        dataPath: {
+        _userId: {
+          type: Number,
+          value: 124
+        },
+        
+        _userToken: {
           type: String,
-          value: 'data.json'//'http://still-waters-3351.herokuapp.com/play'
+          value: '52'
+        },
+        
+        /**
+         * The path to the server
+         */
+        _serverPath:{
+        	type: String,
+        	value: 'http://still-waters-3351.herokuapp.com/',
+        	readOnly: true
+        },
+        
+        /**
+         * The path to the json data for the game data.
+         */
+        gameDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "play")'
+        },
+        
+        /**
+         * updatescore(score, token)
+         */
+        updateScorePath: {
+          type: String,
+          computed: '_join(_serverPath, "updatescore")'
+        },
+        
+        // friends(token)
+        friendsListDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "friends")'
+        },
+        
+        // challengesreceived(token)
+        challengesReceivedDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "challengesreceived")'
+        },
+        
+        // challengessent(token)
+        challengesSentDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "challengessent")'
+        },
+        
+        // acceptchallenge(challengeid, responce, token)
+        challengeResponcePath: {
+          type: String,
+          computed: '_join(_serverPath, "acceptchallenge")'
+        },
+        
+        sendChallengePath: {
+          type: String,
+          computed: '_join(_serverPath, "challenge")'
         },
         
         /**
@@ -282,13 +387,17 @@
         challengesReceived: {
         	type: Array,
         	value: [
-        	  { from: "Tom T.", time: "2:13", difficulty: "hard" },
-        	  { from: "Jim P.", time: "1:09", difficulty: "easy" },
-            { from: "Very Long Name", time: "23:54:12", difficulty: "medium" },
-            { from: "Bob R.", time: "13:12", difficulty: "easy" },
-            { from: "Simon A.", time: "1:07:52", difficulty: "hard" }
+        	  { challenge_id: 1, from: "Tom T.", time: "2:13", difficulty: "hard" },
+        	  { challenge_id: 2, from: "Jim P.", time: "1:09", difficulty: "easy" },
+            { challenge_id: 3, from: "Very Long Name", time: "23:54:12", difficulty: "medium" },
+            { challenge_id: 4, from: "Bob R.", time: "13:12", difficulty: "easy" },
+            { challenge_id: 5, from: "Simon A.", time: "1:07:52", difficulty: "hard" }
         	]
         }
+      },
+      
+      _join: function(a, b){
+    	  return a + b;
       },
       
       /**
@@ -312,6 +421,10 @@
             
             $this.$['game-space'].newLevel();
             break;
+          
+          case 'challenge':
+        	  $this.$['ajax-challenges-received'].generateRequest();
+        	  break;
           }
         }, 0);
       },
@@ -334,6 +447,7 @@
        * Called on-tap of the sign in button.
        */
       _btnSignInAction: function(){
+    	  //window.open(this._serverPath + 'auth/google');
         this.signedin = true;
       },
 
@@ -378,11 +492,11 @@
     	  var challenge = e.target;
     	  while(challenge && challenge.tagName != 'CHALLENGE-RECEIVED'){
     		  challenge = challenge.parentNode;
-    	        console.log(challenge);
     	  }
     	  if(!challenge){
     		  return;
     	  }
+        this._challengeId = challenge.challenge_id;
     	  this._challengeSender = challenge.from;
         this._challengeTime = challenge.time;
         this._challengeDifficulty = challenge.difficulty;
@@ -433,6 +547,56 @@
         Polymer.dom(e.target).querySelector('.iron-selected').blur(); // unfocuse the item
         e.target.selected = -1; // deselect the item
         Polymer.dom(this.$.ingame).querySelector('paper-drawer-panel').closeDrawer(); // close the drawer
+      },
+      
+      /**
+       * Get the token as a paramater for a request to send to the server
+       */
+      _getAjaxTokenParams: function(_token){
+    	  return { token: _token };
+      },
+      
+      /**
+       * Get the params from the challenge responce request to send to the server
+       */
+      _getAjaxChallengeResponceParams: function(_id, _responce, _token){
+    	  return {
+    		  challenge_id: _id,
+    		  responce: _responce,
+    		  token: _token
+    	  };
+      },
+      
+      _ajaxChallengesReceivedSuccessHandler: function(event, detail, sender){
+    	  console.log(detail.response);
+      },
+      
+      _ajaxChallengesReceivedErrorHandler: function(event, detail, sender){
+        console.error('failed to get challenges received.');
+      },
+      
+      _ajaxChallengesSentSuccessHandler: function(event, detail, sender){
+        console.log(detail.response);
+      },
+      
+      _ajaxChallengesSentErrorHandler: function(event, detail, sender){
+        console.error('failed to get challenges sent.');
+      },
+      
+      _ajaxChallengeResponceSuccessHandler: function(event, detail, sender){
+        console.log(detail.response);
+      },
+      
+      _ajaxChallengeResponceErrorHandler: function(event, detail, sender){
+        console.error('failed to send challenge responce.');
+      },
+      
+      _ajaxFriendsListSuccessHandler: function(event, detail, sender){
+        console.log(detail.response);
+      },
+      
+      _ajaxFriendsListErrorHandler: function(event, detail, sender){
+        console.error('failed to get friends list.');
       }
     });
   });
