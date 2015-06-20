@@ -11,7 +11,7 @@ module.exports = function(app, client){
     console.log(request.query.game);
 
     //A user can't challenge themselves.
-    if(req.user.user_id == req.query.user_id){
+    if(request.user.user_id == request.query.user_id){
       res.statusCode = 400;
       res.send("You can't challenge yourself.");
     }
