@@ -7,11 +7,15 @@ module.exports = function(app, client){
   //Returns 'true' or 'false'
   app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.postauth, function(request, res) {
     var game = [];
+    console.log("Game is: ");
+    console.log(request.query.game);
   
     //First, try to parse the game.  Run the game through the JSON parser then check
     //that each element is a string so we don't accidentally execute something.
     try{
-      game = JSON.parse(request.body.game);
+      game = JSON.parse(request.query.game);
+      console.log("Game after parsing: ");
+      console.log(game);
       for(puz in game){
         for(key in game[puz]){
           if(typeof game[puz][key] != 'string') throw "err";
@@ -63,7 +67,7 @@ module.exports = function(app, client){
       challenge_id = null;
       query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status, difficulty) VALUES ' +
                                                     '($1,$2,$3,\'issued\',1) RETURNING challenge_id',
-                                     [request.user.user_id, request.body.user_id, request.body.time]);
+                                     [request.user.user_id, request.query.user_id, request.query.time]);
       query.on('row', function(d){challenge_id = d.challenge_id;});
       query.on('end', function(){
   
@@ -140,7 +144,7 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, funct
                        'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
                        'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
                        'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
-                       'WHERE challenges.challenge_id = $1', [request.body.challenge_id]);
+                       'WHERE challenges.challenge_id = $1', [request.query.challenge_id]);
   query.on('row', function(row) {
     data_to_send.push(row);
   });
@@ -154,7 +158,7 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.postauth, funct
 app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.postauth, function(request, response){
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = $1 ' +
-                        'WHERE challenge_id = $2', ['completed', request.body.challenge_id]);
+                        'WHERE challenge_id = $2', ['completed', request.query.challenge_id]);
   query.on('end', function(result){
     if(result.rowCount===1){response.send(true);}
     else{response.send(false);}
