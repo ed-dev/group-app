@@ -97,7 +97,7 @@ module.exports = function(app, client){
                                                'VALUES ' + cimParams.join(', '), cimVals);
           cimQuery.on('end', function(){
             res.statusCode = 200;
-            res.send("Entered");
+            res.send({'challenge_id': challenge_id});
           });
         });
       });

@@ -1,13 +1,21 @@
 module.exports = function(app, client){
  
+  //We need two authentication functions, one for POST and one for GET
+  //The authentication functions will check that the token exists
+  //and if it does, save the user associated with the token to the
+  //request object.
+
+  //POST - Expects the token to be in the body of the request.
   app.postauth = function(req,res,next){
     return auth(req.body,req,res,next);
   }
   
+  //GET - Expects the token to be in the query of the request.
   app.getauth = function(req,res,next){
     return auth(req.query,req,res,next);
   }
   
+  //The auth helper function called by the other two.  Checks the token exists and saves the user if so.
   function auth(params,req,res,next){
     if(!params.hasOwnProperty('token')){
       res.statusCode = 400;
@@ -29,6 +37,9 @@ module.exports = function(app, client){
     });
   }
 
+  //Use passport with google oauth strategy for initial authentication.
+  //We don't use sessions to persist auth, we just save the token at the end
+  //of the session and users must include the token with each request.
   var passport = require('passport');
   var googleStrat = require('passport-google-oauth').OAuth2Strategy;
   
@@ -53,6 +64,8 @@ module.exports = function(app, client){
     done(null, user);
   });
   
+  //Endpoint for checking that a token is valid.  Simply return the user's
+  //id and display name.
   app.get('/account', app.getauth, function(request,response){
     if(!request.isAuthenticated()){
       response.redirect('/login');
@@ -62,16 +75,27 @@ module.exports = function(app, client){
     response.send("ID: " + request.user.user_id + "\nName: " + request.user.display_name);
   }); 
   
+  //Login link to auth/google
   app.get('/login', function(req, res){
     res.header('content-type', 'text/html');
     res.send("<a href=\"/auth/google\">Login with Google</a>");
   });
   
+  //Auth endpoint to redirect the user to google with our client id and callback url.
   app.get('/auth/google',passport.authenticate('google', {scope: ['email']}));
   
+  //Google does a GET request to this endpoint with the code.  The passport.authenticate function
+  //takes the google and sends it back to google, getting an access token and a user profile in return.
+  //We save the user's ID, display name, and new access token to the database.
+  //The user must use that token when attempting to access any endpoint.
   app.get('/authredir',
     passport.authenticate('google', {failureRedirect: '/login', session:false}),
     function(req,res){
+      //There are three possibilities we need to account for here.
+      //1. The user does not exist yet.
+      //2. The user exists but doesn't have a current token.
+      //3. The user exists and already has a token.
+
       query = client.query('SELECT token FROM users WHERE user_id=$1',[req.user.id]);
       token = null;
       query.on('row', function(d){token = d.token;});
