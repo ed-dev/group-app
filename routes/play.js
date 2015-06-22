@@ -90,7 +90,7 @@ app.post('/updatescore', check_params(['score']), app.auth, function(request, re
 	var newScore;	
 	var query = client.query('UPDATE users '+
                       'SET score = score + $1 '+
-                      'WHERE user_id = $2 RETURNING score', [request.score, request.user.user_id]);
+                      'WHERE user_id = $2 RETURNING score', [request.query.score, request.user.user_id]);
 	query.on('row', function(row) {
 		newScore = row.score;
 	});
