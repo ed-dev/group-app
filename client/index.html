@@ -237,14 +237,6 @@
           <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
           <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnSignOutAction">Sign Out</main-button>
           <div class="padder"></div>
-          <selection-dialog id="difficulty-dialog" class="large">
-            <h1>Select Difficulty</h1>
-            <div style="width: 100%;"></div>
-            <main-button data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</main-button>
-            <main-button data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</main-button>
-            <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
-            <div style="width: 100%;"></div>
-          </selection-dialog>
         </section>
         <section id="challenge">
           <div style="height: 110px;">Heading</div>
@@ -256,18 +248,6 @@
           </challenges-received>
           <main-button class="large small-text">Challenge Someone</main-button>
           <challenges-key></challenges-key>
-          <selection-dialog id="challenge-dialog" class="small">
-            <h1>Challenge</h1>
-            <div class="text-content">
-              <p><span>[[_challengeSender]]</span> has callenged you.</p>
-		          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in <span>[[_challengeTime]]</span>.</p>
-	            <p>Think you can do better?</p>
-	          </div>
-            <div class="action-btns">
-              <main-button on-tap="_btnChallengeReject">Reject</main-button>
-	            <main-button on-tap="_btnChallengeAccept">Accept</main-button>
-            </div>
-          </selection-dialog>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>
@@ -275,13 +255,17 @@
               <paper-toolbar justify="start">Menu</paper-toolbar>
               <paper-menu on-iron-select="_menuSelectAction">
                 <paper-icon-item id="menu-item-skip">
-                  <iron-icon icon="icons:redo" item-icon></iron-icon>Skip this Level
+                  <iron-icon icon="icons:redo" item-icon></iron-icon>
+                  <span hidden$="[[_levelComplete]]">Skip this Level</span>
+                  <span hidden$="[[!_levelComplete]]">Next Level</span>
                 </paper-icon-item>
                 <paper-icon-item id="menu-item-change-difficulty">
-                  <iron-icon icon="icons:extension" item-icon></iron-icon>Change Difficulty
+                  <iron-icon icon="icons:extension" item-icon></iron-icon>
+                  Change Difficulty
                 </paper-icon-item>
                 <paper-icon-item id="menu-item-exit" class="new-section">
-                  <iron-icon icon="icons:cancel" item-icon></iron-icon>Exit
+                  <iron-icon icon="icons:cancel" item-icon></iron-icon>
+                  Exit
                 </paper-icon-item>
               </paper-menu>
             </paper-header-panel>
@@ -294,6 +278,7 @@
               score="{{score}}"
               time="{{time}}"
               difficulty="{{difficulty}}"
+              level-complete="{{_levelComplete}}"
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
               on-level-complete="_onLevelComplete"
@@ -302,24 +287,44 @@
               </game-space>
             </paper-header-panel>
           </paper-drawer-panel>
-          <selection-dialog id="level-win-dialog" class="medium">
-            <h1>Well Done</h1>
-            <div>
-	            Level Score: <span>[[levelScore]]</span><br>
-	            Time Taken: <span>[[levelTime]]</span><br>
-	          </div>
-            <div style="width: 100%;">
-	            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
-	            <main-button class="multiline" on-tap="_btnChallengeCompleteAction">Challenge Someone<br>to this Level</main-button>
-	          </div>
-          </selection-dialog>
-          <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
-            <h1>Error</h1>
-            An error has occured while trying to load the level.
-            <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
-          </selection-dialog>
         </section>
       </neon-animated-pages>
+      <selection-dialog id="difficulty-dialog" class="large">
+        <h1>Select Difficulty</h1>
+        <div style="width: 100%;"></div>
+        <main-button data-difficulty="0" on-tap="_btnSetDifficultyAction">Easy</main-button>
+        <main-button data-difficulty="1" on-tap="_btnSetDifficultyAction">Medium</main-button>
+        <main-button data-difficulty="2" on-tap="_btnSetDifficultyAction">Hard</main-button>
+        <div style="width: 100%;"></div>
+      </selection-dialog>
+      <selection-dialog id="challenge-dialog" class="small">
+        <h1>Challenge</h1>
+        <div class="text-content">
+          <p><span>[[_challengeSender]]</span> has callenged you.</p>
+          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in <span>[[_challengeTime]]</span>.</p>
+          <p>Think you can do better?</p>
+        </div>
+        <div class="action-btns">
+          <main-button on-tap="_btnChallengeReject">Reject</main-button>
+          <main-button on-tap="_btnChallengeAccept">Accept</main-button>
+        </div>
+      </selection-dialog>
+      <selection-dialog id="level-win-dialog" class="medium">
+        <h1>Well Done</h1>
+        <div>
+          Level Score: <span>[[levelScore]]</span><br>
+          Time Taken: <span>[[levelTime]]</span><br>
+        </div>
+        <div style="width: 100%;">
+          <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
+          <main-button class="multiline" on-tap="_btnChallengeCompleteAction">Challenge Someone<br>to this Level</main-button>
+        </div>
+      </selection-dialog>
+      <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
+        <h1>Error</h1>
+        An error has occured while trying to load the level.
+        <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
+      </selection-dialog>
     </template>
   </dom-module>
   <script>
@@ -406,6 +411,11 @@
           computed: '_join(_serverPath, "auth/google/getlink/")'
         },
         
+        _levelComplete: {
+          type: Boolean,
+          value: false
+        },
+          
         /**
          * Whether or not the user is signed in
          */
@@ -502,7 +512,13 @@
         // set difficulty before change to the game page
         this.difficulty = parseInt(btn.dataset.difficulty); // make sure the difficulty is a number, not a string
         this.$['difficulty-dialog'].close();                // close the dialog
-        this.page = 'ingame';
+        
+        if(this.page == 'ingame'){
+          this.$['game-space'].newLevel();
+        }
+        else{
+          this.page = 'ingame';
+        }
       },
       
       /**
@@ -573,6 +589,7 @@
           break;
         
         case 'menu-item-change-difficulty':
+        	this.$['difficulty-dialog'].open();
         	break;
         
         case 'menu-item-exit':
