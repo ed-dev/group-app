@@ -87,18 +87,15 @@ module.exports = function(app, client){
 //calculated based on difficulty, time taken etc.
 //Returns the updated score
 app.post('/updatescore', check_params(['score']), app.auth, function(request, response){
-	var newScore;
-    console.log("request query score is ##############: " + request.query.score);
 	var query = client.query('UPDATE users '+
-                      'SET score = score + $1 '+
-                      'WHERE user_id = $2 RETURNING score', [request.query.score, request.user.user_id]);
-	query.on('row', function(row) {
-        console.log("Setting newscore to " + row.score);
-		newScore = row.score;
-	});
+                      'SET score = $1 '+
+                      'WHERE user_id = $2', [request.query.score, request.user.user_id]);
+    query.on('error', function(){
+      response.statusCode = 500;
+      response.send(false);
+    });
 	query.on('end', function() {
-        console.log("sending " + newScore);
-		response.send(newScore);
+      response.send(true);
 	});
 });
 
