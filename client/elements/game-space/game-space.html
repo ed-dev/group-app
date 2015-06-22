@@ -392,8 +392,8 @@ Polymer({
 	  };
 	  
 	  if(allCorrect){
+      this.levelComplete = true;
 		  this.fire('level-complete');
-		  this.levelComplete = true;
       this.$['ajax-update-score'].generateRequest();
 	  }
   },
