@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../helpers/time-formatter/time-formatter.html">
 
-<dom-module id="user-score">
+<dom-module id="user-time">
   <style>
   :host{
     display: inline-block;
@@ -8,23 +9,27 @@
   }
   </style>
   <template>
-    <span>[[score]]</span>
+    <span>[[_format(time)]]</span>
   </template>
 </dom-module>
 
 <script>
 Polymer({
-  is: 'user-score',
+  is: 'user-time',
   
   properties: {
 	  /**
 	   * The score value.
 	   */
-	  score: {
+	  time: {
 		  type: Number,
 		  value: 0,
 		  reflect: true
 	  }
+  },
+  
+  _format: function(time){
+	  return formatTime(time);
   }
 });
 </script>

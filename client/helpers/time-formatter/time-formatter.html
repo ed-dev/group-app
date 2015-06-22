@@ -1,0 +1,22 @@
+<script>
+function formatTime(seconds){
+  var sec = parseInt(seconds) % 60;
+  var min = parseInt(seconds / 60) % 60;
+  var hrs = parseInt(seconds / 60 / 60);
+  
+  var pad = function(num, size) {
+    var s = num + "";
+    while (s.length < size) s = "0" + s;
+    return s;
+	};
+	
+  var time;
+  if(hrs > 0){
+    time = hrs + ':' + pad(min, 2) + ':' + pad(sec, 2);
+  }
+  else{
+    time = min + ':' + pad(sec, 2);
+  }
+  return time;
+}
+</script>
