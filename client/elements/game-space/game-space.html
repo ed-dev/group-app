@@ -7,6 +7,7 @@
 <link rel="import" href="../letter-tile/letter-tile.html">
 <link rel="import" href="../user-level/user-level.html">
 <link rel="import" href="../user-score/user-score.html">
+<link rel="import" href="../user-time/user-time.html">
   
 <dom-module id="game-space">
   <style>
@@ -44,12 +45,23 @@
     width: 64px;
     z-index: 101;
   }
+  user-time,
   user-score{
     font-size: 3.5vh;
+    font-family: "Arial Black", Gadget, sans-serif;
+  }
+  user-time{
     position: absolute;
     top: 0;
     right: 0;
-    font-family: "Arial Black", Gadget, sans-serif;
+    left: 0;
+    text-align: center;
+    z-index: -1;
+  }
+  user-score{
+    position: absolute;
+    top: 0;
+    right: 0;
   }
   #loading{
     @apply(--layout-horizontal);
@@ -77,16 +89,9 @@
       method="POST"
       on-response="_ajaxChallengeSomeoneSuccessHandler"
       on-error="_ajaxChallengeSomeoneErrorHandler"></iron-ajax>
-    <iron-ajax
-      id="ajax-update-score"
-      handle-as="json"
-      url="[[urlUpdateScorePath]]"
-      params='[[_getAjaxUpdateScoreParams(userId, score, userToken)]]'
-      method="POST"
-      on-response="_ajaxUpdateScoreSuccessHandler"
-      on-error="_ajaxUpdateScoreErrorHandler"></iron-ajax>
     <div id="titlebar">
       <content></content>
+      <user-time time="[[time]]"></user-time>
       <user-score score="[[score]]"></user-score>
       <!-- <user-level level="[[difficulty]]"></user-level> -->
     </div>
@@ -146,6 +151,27 @@ Polymer({
     	type: Number,
     	value: 0,
     	notify: true
+    },
+    
+    _startTimeStamp: {
+      type: Number,
+      value: 0,
+      notify: true
+    },
+    
+    _toleranceTime: {
+      type: Number,
+      value: 60 // 1 minute
+    },
+    
+    levelComplete: {
+    	type: Boolean,
+    	value: false
+    },
+    
+    levelStarted: {
+    	type: Boolean,
+    	value: false
     },
     
     /**
@@ -208,6 +234,41 @@ Polymer({
     }
     this.$['ajax-game-data'].generateRequest();
     this.$['picture-space'].reset();
+    this.levelComplete = false;
+    this.levelStarted = false;
+    this.time = 0;
+  },
+  
+  _updateTime: function(){
+	  var $this = this;
+	  var update = function(){
+		  if($this.levelStarted){
+	      $this.time = parseInt((new Date().getTime() - $this._startTimeStamp) / 1000);
+		  }
+		  if(!$this.levelComplete){
+        setTimeout(update, 1000);
+      }
+    }
+	  setTimeout(update, 0);
+  },
+  
+  getScore: function(){
+	  if(!this.levelComplete){
+		  return 0;
+	  }
+	  var score = 0;
+	  this._getPictureElements().forEach(function(e, i, a){
+		  score += e.getScore();
+	  });
+	  if(this.time < this._toleranceTime){
+		  score = score + Math.pow((this._toleranceTime - (Math.max(this.time, 1))) / this._toleranceTime, 2) * 100;
+	  }
+	  else{
+	    score = score * this._toleranceTime / (Math.max(this.time, 1));
+	  }
+	  score = score * (this.difficulty + 1);
+	  score = parseInt(score);
+	  return score;
   },
 
   /**
@@ -251,6 +312,9 @@ Polymer({
     else{
       this.loading = false;
       this.fire('level-load-success');
+      this.levelStarted = true;
+      this._startTimeStamp = new Date().getTime();
+      this._updateTime();
     }
   },
   
@@ -305,31 +369,6 @@ Polymer({
   },
   
   /**
-   * Handeler for when the update score ajax request succeed
-   */
-  _ajaxUpdateScoreSuccessHandler: function(event, detail, sender){
-    console.log(detail);
-  },
-  
-  /**
-   * Handeler for when the update score ajax request fails
-   */
-  _ajaxUpdateScoreErrorHandler: function (event, detail, sender) {
-    console.error('coundn\'t update user score.');
-  },
-  
-  /**
-   * Get the params from the update score request to send to the server
-   */
-  _getAjaxUpdateScoreParams: function(_userid, _score, _token){
-    return {
-      user_id: _userid,
-      score: _score,
-      token: _token
-    };
-  },
-  
-  /**
    * return the picture elements within this element
    */
   _getPictureElements: function(){
@@ -352,6 +391,7 @@ Polymer({
 	  
 	  if(allCorrect){
 		  this.fire('level-complete');
+		  this.levelComplete = true;
       this.$['ajax-update-score'].generateRequest();
 	  }
   },

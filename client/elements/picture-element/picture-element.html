@@ -190,6 +190,10 @@ Polymer({
 	  return this._getUserWord() == this.word;
   },
   
+  getScore: function(){
+	  return score = 100 + this.word.length * 10;
+  },
+  
   _getUserWord: function(){
 	  var word = '';
 	  var letters = this._getLetterTiles();

@@ -31,6 +31,7 @@
   <link rel="import" href="elements/challenge-key/challenge-key.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
+  <link rel="import" href="helpers/time-formatter/time-formatter.html">
   
   <link rel="stylesheet" type="text/css" href="assets/css/fonts-sketchetik-light.css">
   
@@ -220,6 +221,14 @@
         method="GET"
         on-response="_ajaxAuthGoogleLinkSuccessHandler"
         on-error="_ajaxAuthGoogleLinkErrorHandler"></iron-ajax>
+      <iron-ajax
+	      id="ajax-update-score"
+	      handle-as="json"
+	      url="[[updateScorePath]]"
+	      params='[[_getAjaxUpdateScoreParams(_userId, score, _userToken)]]'
+	      method="POST"
+	      on-response="_ajaxUpdateScoreSuccessHandler"
+	      on-error="_ajaxUpdateScoreErrorHandler"></iron-ajax>
       <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
           <div class="flex"></div>
@@ -277,7 +286,6 @@
               <game-space id="game-space"
               url-game-data-path="[[gameDataPath]]"
               url-challenge-someone-path="[[sendChallengePath]]"
-              url-update-score-path="[[updateScorePath]]"
               user-id="[[_userId]]"
               user-token="[[_userToken]]"
               score="{{score}}"
@@ -293,7 +301,10 @@
           </paper-drawer-panel>
           <selection-dialog id="level-win-dialog" class="medium">
             <h1>Well Done</h1>
-            Continue to the next level?
+            <div>
+	            Level Score: <span>[[levelScore]]</span><br>
+	            Time Taken: <span>[[levelTime]]</span><br>
+	          </div>
             <div style="width: 100%;">
 	            <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
 	            <main-button class="multiline" on-tap="_btnChallengeCompleteAction">Challenge Someone<br>to this Level</main-button>
@@ -469,7 +480,7 @@
           window.location.href = this._auth_google_link;
         }
       },
-
+     
       /**
        * Called on-tap of the sign out button.
        */
@@ -541,6 +552,10 @@
        * Called when a level is complete
        */
       _onLevelComplete: function(){
+    	  this.levelScore = this.$['game-space'].getScore();
+    	  this.levelTime = formatTime(this.$['game-space'].time);
+    	  this.score += this.levelScore;
+    	  this.$['ajax-update-score'].generateRequest();
     	  this.$['level-win-dialog'].open();
       },
 
@@ -616,6 +631,31 @@
       
       _ajaxFriendsListErrorHandler: function(event, detail, sender){
         console.error('failed to get friends list.');
+      },
+      
+      /**
+       * Handeler for when the update score ajax request succeed
+       */
+      _ajaxUpdateScoreSuccessHandler: function(event, detail, sender){
+        console.log(detail.response);
+      },
+      
+      /**
+       * Handeler for when the update score ajax request fails
+       */
+      _ajaxUpdateScoreErrorHandler: function (event, detail, sender) {
+        console.error('coundn\'t update user score.');
+      },
+      
+      /**
+       * Get the params from the update score request to send to the server
+       */
+      _getAjaxUpdateScoreParams: function(_userid, _score, _token){
+        return {
+          user_id: _userid,
+          score: _score,
+          token: _token
+        };
       },
       
       _ajaxAuthGoogleLinkSuccessHandler: function(event, detail, sender){
