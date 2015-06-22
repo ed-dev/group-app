@@ -274,11 +274,14 @@
             <paper-header-panel drawer>
               <paper-toolbar justify="start">Menu</paper-toolbar>
               <paper-menu on-iron-select="_menuSelectAction">
-                <paper-icon-item id="menu-item-new">
-                  <iron-icon icon="icons:refresh" item-icon></iron-icon>New Level
+                <paper-icon-item id="menu-item-skip">
+                  <iron-icon icon="icons:redo" item-icon></iron-icon>Skip this Level
+                </paper-icon-item>
+                <paper-icon-item id="menu-item-change-difficulty">
+                  <iron-icon icon="icons:extension" item-icon></iron-icon>Change Difficulty
                 </paper-icon-item>
                 <paper-icon-item id="menu-item-exit" class="new-section">
-                  <iron-icon icon="cancel" item-icon></iron-icon>Exit
+                  <iron-icon icon="icons:cancel" item-icon></iron-icon>Exit
                 </paper-icon-item>
               </paper-menu>
             </paper-header-panel>
@@ -555,7 +558,6 @@
     	  this.levelScore = this.$['game-space'].getScore();
     	  this.levelTime = formatTime(this.$['game-space'].time);
     	  this.score += this.levelScore;
-    	  this.score = 1000;
     	  this.$['ajax-update-score'].generateRequest();
     	  this.$['level-win-dialog'].open();
       },
@@ -566,9 +568,12 @@
       _menuSelectAction: function(e, detail){
         var id = detail.item.id;
         switch(id){
-        case 'menu-item-new':
+        case 'menu-item-skip':
           this.$['game-space'].newLevel();
-        break;
+          break;
+        
+        case 'menu-item-change-difficulty':
+        	break;
         
         case 'menu-item-exit':
           this.page = 'home';
