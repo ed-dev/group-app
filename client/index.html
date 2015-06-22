@@ -336,7 +336,7 @@
         
         _userId: {
           type: Number,
-          value: 124
+          value: 123
         },
         
         _userToken: {
@@ -555,6 +555,7 @@
     	  this.levelScore = this.$['game-space'].getScore();
     	  this.levelTime = formatTime(this.$['game-space'].time);
     	  this.score += this.levelScore;
+    	  this.score = 1000;
     	  this.$['ajax-update-score'].generateRequest();
     	  this.$['level-win-dialog'].open();
       },
