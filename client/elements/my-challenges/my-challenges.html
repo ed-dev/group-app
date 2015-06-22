@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
-<dom-module id="challenges-received">
+<dom-module id="my-challenges">
   <style>
     :host{
       display: block;
@@ -18,15 +18,14 @@
     }
   </style>
   <template>
-    <content select=":not(challenge-received)"></content>
     <div id="challenges">
-      <content select="challenge-received"></content>
+      <content></content>
     </div>
   </template>
 </dom-module>
 
 <script>
 Polymer({
-  is: 'challenges-received'
+  is: 'my-challenges'
 });
 </script>

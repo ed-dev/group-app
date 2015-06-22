@@ -26,8 +26,8 @@
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
   <link rel="import" href="elements/main-button/main-button.html">
-  <link rel="import" href="elements/challenges-received/challenges-received.html">
-  <link rel="import" href="elements/challenge-received/challenge-received.html">
+  <link rel="import" href="elements/my-challenges/my-challenges.html">
+  <link rel="import" href="elements/challenge-entry/challenge-entry.html">
   <link rel="import" href="elements/challenge-key/challenge-key.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
@@ -144,18 +144,18 @@
       background: linear-gradient(160deg, #711740, #bf4337);
     }
     main-button.large{
-      width: calc(100% - 6vh);
-      margin: 1vh 3vh;
-      font-size: 6vh;
+      width: calc(100% - 20vw);
+      margin: 1vh 10vw;
+      font-size: 8vw;
       line-height: 0;
       --max-height: 15vh;
     }
     main-button.multiline{
-      font-size: 2.5vh !important;
+      font-size: 4vw !important;
       line-height: normal !important;
     }
     main-button.small-text{
-      font-size: 3.5vh !important;
+      font-size: 5vw !important;
     }
     #home{
       @apply(--layout-vertical);
@@ -166,7 +166,7 @@
     #challenge{
       @apply(--layout-vertical);
     }
-    #challenge challenges-received{
+    #challenge my-challenges{
       @apply(--layout-flex);
     }
     #ingame user-score{
@@ -240,14 +240,31 @@
         </section>
         <section id="challenge">
           <div style="height: 110px;">Heading</div>
-          <challenges-received>
-            <span>Challenges Received:</span>
-            <template is="dom-repeat" items="[[challengesReceived]]">
-              <challenge-received from="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_challengeSelect"></challenge-received>
+          <my-challenges>
+            <span hidden$="[[_noChallenges(newChallengesReceived, challengesSent, completedChallenges)]]">You haven't sent or received any challenges yet.<br></span>
+            <span hidden$="[[_noNewChallenges(newChallengesReceived)]]">New Challenges Received:<br></span>
+            <template is="dom-repeat" items="[[newChallengesReceived]]">
+              <challenge-entry name="[[item.display_name]]" time="[[item.timetaken]]" difficulty="[[item.difficulty]]" on-tap="_newChallengeSelect"></challenge-entry>
             </template>
-          </challenges-received>
-          <main-button class="large small-text">Challenge Someone</main-button>
+            <span hidden$="[[_noChallengesSent(challengesSent)]]">Challenges Sent:<br></span>
+            <template is="dom-repeat" items="[[challengesSent]]">
+              <challenge-entry name="[[item.display_name]]" time="[[item.timetaken]]" difficulty="[[item.difficulty]]"></challenge-entry>
+            </template>
+            <span hidden$="[[_noChallengesCompleted(completedChallenges)]]">Completed Challenges:<br></span>
+            <template is="dom-repeat" items="[[completedChallenges]]">
+              <challenge-entry name="[[item.display_name]]" won="[[item.won]]" difficulty="[[item.difficulty]]"></challenge-entry>
+            </template>
+          </my-challenges>
+          <main-button on-tap="_btnChallengeSomeoneAction" class="large small-text">Challenge Someone</main-button>
           <challenges-key></challenges-key>
+        </section>
+        <section id="create-challenge">
+          <div style="height: 110px;">Heading</div>
+          <span>Who do you want to challenge?</span><br>
+          <main-select-field selected="[[_challengeFriend]]" large-popup></main-select-field>
+          <span>Difficulty:</span><br>
+          <main-select-field selected="[[_challengeDifficulty]]"></main-select-field>
+          <main-button class="large">Send</main-button>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>
@@ -424,15 +441,19 @@
         	value: false
         },
         
-        challengesReceived: {
+        newChallengesReceived: {
         	type: Array,
-        	value: [
-        	  { challenge_id: 1, from: "Tom T.", time: "2:13", difficulty: "hard" },
-        	  { challenge_id: 2, from: "Jim P.", time: "1:09", difficulty: "easy" },
-            { challenge_id: 3, from: "Very Long Name", time: "23:54:12", difficulty: "medium" },
-            { challenge_id: 4, from: "Bob R.", time: "13:12", difficulty: "easy" },
-            { challenge_id: 5, from: "Simon A.", time: "1:07:52", difficulty: "hard" }
-        	]
+        	value: []
+        },
+        
+        challengesSent: {
+          type: Array,
+          value: []
+        },
+        
+        completedChallenges: {
+          type: Array,
+          value: []
         }
       },
       
@@ -488,10 +509,10 @@
        */
       _btnSignInAction: function(){
     	  //window.open(this._serverPath + 'auth/google');
-        //this.signedin = true;
-        if(this._auth_google_link){
-          window.location.href = this._auth_google_link;
-        }
+        this.signedin = true;
+        //if(this._auth_google_link){
+        //  window.location.href = this._auth_google_link;
+        //}
       },
      
       /**
@@ -537,16 +558,16 @@
         this.page = 'home';
       },
       
-      _challengeSelect: function(e){
+      _newChallengeSelect: function(e){
     	  var challenge = e.target;
-    	  while(challenge && challenge.tagName != 'CHALLENGE-RECEIVED'){
+    	  while(challenge && challenge.tagName != 'CHALLENGE-ENTRY'){
     		  challenge = challenge.parentNode;
     	  }
     	  if(!challenge){
     		  return;
     	  }
         this._challengeId = challenge.challenge_id;
-    	  this._challengeSender = challenge.from;
+    	  this._challengeSender = challenge.display_name;
         this._challengeTime = challenge.time;
         this._challengeDifficulty = challenge.difficulty;
     	  this.$['challenge-dialog'].open();
@@ -558,6 +579,10 @@
       
       _btnChallengeReject: function(){
           
+      },
+      
+      _btnChallengeSomeoneAction: function(){
+    	  this.page = 'create-challenge';
       },
       
       /**
@@ -606,6 +631,22 @@
         Polymer.dom(this.$.ingame).querySelector('paper-drawer-panel').closeDrawer(); // close the drawer
       },
       
+      _noChallenges: function(a, b, c){
+    	  return !(a.length == 0 && b.length == 0 && c.length == 0);
+      },
+      
+      _noNewChallenges: function(a){
+    	  return a.length == 0;
+      },
+      
+      _noChallengesSent: function(b){
+    	  return b.length == 0;
+      },
+      
+      _noChallengesCompleted: function(c){
+    	  return c.length == 0;
+      },
+      
       /**
        * Get the token as a paramater for a request to send to the server
        */
@@ -625,7 +666,28 @@
       },
       
       _ajaxChallengesReceivedSuccessHandler: function(event, detail, sender){
-    	  console.log(detail.response);
+    	  var issued = [];
+    	  var completed = [];
+    	  
+    	  for(var i=0; i<detail.response.length; i++){
+    		  detail.response[i].won = false;
+    		  switch (detail.response[i].completed){
+    		  case 'issued':
+    			  issued.push(detail.response[i]);
+    	      break;
+    	      
+    	    case 'completed':
+    	    	completed.push(detail.response[i]);
+    			  break;
+    	          
+          default:
+            console.log(detail.response[i]);
+            break;
+    		  }
+    	  }
+
+        this.newChallengesReceived = issued;
+        this.completedChallenges = completed;
       },
       
       _ajaxChallengesReceivedErrorHandler: function(event, detail, sender){

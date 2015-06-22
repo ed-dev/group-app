@@ -1,8 +1,9 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../helpers/time-formatter/time-formatter.html">
 
-<dom-module id="challenge-received">
+<dom-module id="challenge-entry">
   <style>
     :host{
       margin: 16px 0;
@@ -33,7 +34,7 @@
     #frame paper-ripple.hard{
       color: var(--hard-color);
     }
-    #from{
+    #name{
       max-width: calc(100% - 80px);
     }
     .bar{
@@ -87,27 +88,57 @@
     <div id="left-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
     <div id="right-bar" class$="[[_getBarClasses(difficulty)]]"><div class="border"></div></div>
 	  <div id="frame">
-      <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2" class$="[[difficulty]]"></paper-ripple>
-	    <span id="from" class="ellipsis">[[from]]</span>
-	    <span id="time" class="ellipsis">[[time]]</span>
+      <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2" class$="[[_difficultyIntToString(difficulty)]]"></paper-ripple>
+	    <span id="name" class="ellipsis">[[name]]</span>
+      <span id="won" hidden$="[[!_hideTime(time)]]">[[_formatWon(won)]]</span>
+	    <span id="time" hidden$="[[_hideTime(time)]]" class="ellipsis">[[_formatTime(time)]]</span>
     </div>
   </template>
 </dom-module>
 
 <script>
 Polymer({
-  is: 'challenge-received',
+  is: 'challenge-entry',
   
   properties: {
-    from: String,
+    name: String,
     
-    time: String,
+    time: {
+    	type: Number,
+    	value: 0
+    },
+    
+    won: Boolean,
     
     difficulty: String
   },
   
   _getBarClasses: function(difficulty){
-	  return 'bar ' + difficulty;
+	  return 'bar ' + this._difficultyIntToString(difficulty);
+  },
+  
+  _formatTime: function(time){
+	  return formatTime(time);
+  },
+  
+  _formatWon: function(won){
+	  console.log(won);
+	  if(won){
+		  return 'Won';
+	  }
+	  return 'Lost';
+  },
+  
+  _difficultyIntToString: function(difficulty){
+	  switch (difficulty){
+	  case 0: return 'easy';
+	  case 1: return 'medium';
+	  case 2: return 'hard';
+	  }
+  },
+  
+  _hideTime: function(time){
+	  return !time;
   }
 });
 </script>
