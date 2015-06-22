@@ -567,9 +567,9 @@
     		  return;
     	  }
         this._challengeId = challenge.challenge_id;
-    	  this._challengeSender = challenge.display_name;
-        this._challengeTime = challenge.time;
-        this._challengeDifficulty = challenge.difficulty;
+    	  this._challengeSender = challenge.name;
+        this._challengeTime = formatTime(challenge.time);
+        this._challengeDifficulty = this._difficultyIntToString(challenge.difficulty);
     	  this.$['challenge-dialog'].open();
       },
       
@@ -646,6 +646,14 @@
       _noChallengesCompleted: function(c){
     	  return c.length == 0;
       },
+      
+      _difficultyIntToString: function(difficulty){
+   	    switch (difficulty){
+   	    case 0: return 'easy';
+   	    case 1: return 'medium';
+   	    case 2: return 'hard';
+   	    }
+   	  },
       
       /**
        * Get the token as a paramater for a request to send to the server
