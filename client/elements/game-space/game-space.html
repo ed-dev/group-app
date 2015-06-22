@@ -350,7 +350,7 @@ Polymer({
   /**
    * Handeler for when the challenge someone ajax request fails
    */
-  _ajaxGameDataErrorHandler: function (event, detail, sender) {
+  _ajaxChallengeSomeoneErrorHandler: function (event, detail, sender) {
     console.error('coundn\'t send challenge.');
     this.fire('challenge-someone-failed');
   },
