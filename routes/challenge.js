@@ -186,7 +186,7 @@ app.get('/challengessent', app.auth, function(request, response) {
   var data_to_send = [];
   var query = client.query('SELECT users.display_name,'+
                         'challenges.cur_status AS completed,'+
-                        'challenges.challenged_seconds AS timeTaken,'+
+                        'challenges.challenged_seconds AS timetaken,'+
                         'challenges.difficulty '+
                         'FROM challenges INNER JOIN users ON (users.user_id = challenges.challenged_id) '+
                         'WHERE owner_id = $1', [request.user.user_id]);
@@ -197,6 +197,10 @@ app.get('/challengessent', app.auth, function(request, response) {
     response.header('Content-Length', data_to_send.length);
     response.send(data_to_send);
   });
+});
+
+app.get('/testfortests', app.auth, function(request, response){
+  response.send("hi");
 });
   
 } 

@@ -56,11 +56,6 @@ module.exports = function(app, client){
   //Endpoint for checking that a token is valid.  Simply return the user's
   //id and display name.
   app.get('/account', app.auth, function(request,response){
-    if(!request.isAuthenticated()){
-      response.redirect('/login');
-      return;
-    } 
-    
     response.send("ID: " + request.user.user_id + "\nName: " + request.user.display_name);
   }); 
   
