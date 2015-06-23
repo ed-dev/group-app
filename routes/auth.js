@@ -98,7 +98,8 @@ module.exports = function(app, client){
         }
   
         insertOrUpdate.on('end', function(){
-          res.send({'access_token': req.user.access_token, 'name': req.user.displayName});
+          //res.send({'access_token': req.user.access_token, 'name': req.user.displayName});
+          res.redirect('http://mddn352.local/?token=' + req.user.access_token);
         });
       });
     }
