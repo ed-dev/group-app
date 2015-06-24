@@ -37,6 +37,9 @@
     #name{
       max-width: calc(100% - 80px);
     }
+    #result{
+      text-transform: capitalize;
+    }
     .bar{
       position: absolute;
       top: 8px;
@@ -90,7 +93,7 @@
 	  <div id="frame">
       <paper-ripple initial-opacity="1" opacity-decay-velocity="1.2" class$="[[_difficultyIntToString(difficulty)]]"></paper-ripple>
 	    <span id="name" class="ellipsis">[[name]]</span>
-      <span id="won" hidden$="[[!_hideTime(time)]]">[[_formatWon(won)]]</span>
+      <span id="result" hidden$="[[!_hideTime(time)]]">[[result]]</span>
 	    <span id="time" hidden$="[[_hideTime(time)]]" class="ellipsis">[[_formatTime(time)]]</span>
     </div>
   </template>
@@ -108,7 +111,7 @@ Polymer({
     	value: 0
     },
     
-    won: Boolean,
+    result: String,
     
     difficulty: String
   },
@@ -119,14 +122,6 @@ Polymer({
   
   _formatTime: function(time){
 	  return formatTime(time);
-  },
-  
-  _formatWon: function(won){
-	  console.log(won);
-	  if(won){
-		  return 'Won';
-	  }
-	  return 'Lost';
   },
   
   _difficultyIntToString: function(difficulty){

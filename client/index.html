@@ -230,15 +230,15 @@
               <span hidden$="[[_hasChallenges(newChallengesReceived, challengesSent, completedChallenges)]]">You haven't sent or received any challenges yet.<br></span>
               <span hidden$="[[_noNewChallenges(newChallengesReceived)]]">New Challenges Received:<br></span>
               <template is="dom-repeat" items="[[newChallengesReceived]]">
-                <challenge-entry name="[[item.display_name]]" time="[[item.timetaken]]" difficulty="[[item.difficulty]]" on-tap="_newChallengeSelect"></challenge-entry>
+                <challenge-entry name="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_newChallengeSelect"></challenge-entry>
               </template>
               <span hidden$="[[_noChallengesSent(challengesSent)]]">Challenges Sent:<br></span>
               <template is="dom-repeat" items="[[challengesSent]]">
-                <challenge-entry name="[[item.display_name]]" time="[[item.timetaken]]" difficulty="[[item.difficulty]]"></challenge-entry>
+                <challenge-entry name="[[item.to]]" time="[[item.time]]" difficulty="[[item.difficulty]]"></challenge-entry>
               </template>
               <span hidden$="[[_noChallengesCompleted(completedChallenges)]]">Completed Challenges:<br></span>
               <template is="dom-repeat" items="[[completedChallenges]]">
-                <challenge-entry name="[[item.display_name]]" won="[[item.won]]" difficulty="[[item.difficulty]]"></challenge-entry>
+                <challenge-entry name="[[item.player]]" result="[[item.result]]" difficulty="[[item.difficulty]]"></challenge-entry>
               </template>
             </div>
           </my-challenges>
