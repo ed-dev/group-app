@@ -190,21 +190,13 @@
         on-response="_ajaxChallengesSentSuccessHandler"
         on-error="_ajaxFriendsListErrorHandler"></iron-ajax>
 	    <iron-ajax
-	      id="ajax-challenges-received"
+	      id="ajax-challenges-sent-and-received"
 	      handle-as="json"
-	      url="[[challengesReceivedDataPath]]"
+	      url="[[challengesSentAndReceivedDataPath]]"
 	      params='[[_getAjaxTokenParam(_userToken)]]'
 	      method="GET"
-	      on-response="_ajaxChallengesReceivedSuccessHandler"
-	      on-error="_ajaxChallengesReceivedErrorHandler"></iron-ajax>
-      <iron-ajax
-        id="ajax-challenges-sent"
-        handle-as="json"
-        url="[[challengesSentDataPath]]"
-        params='[[_getAjaxTokenParam(_userToken)]]'
-        method="GET"
-        on-response="_ajaxChallengesSentSuccessHandler"
-        on-error="_ajaxChallengesSentErrorHandler"></iron-ajax>
+	      on-response="_ajaxChallengesSentAndReceivedSuccessHandler"
+	      on-error="_ajaxChallengesSentAndReceivedErrorHandler"></iron-ajax>
       <iron-ajax
         id="ajax-challenge-responce"
         handle-as="json"
@@ -414,9 +406,9 @@
         },
         
         // challengesreceived(token)
-        challengesReceivedDataPath: {
+        challengesSentAndReceivedDataPath: {
           type: String,
-          computed: '_join(_serverPath, "challengesreceived/")'
+          computed: '_join(_serverPath, "challengesreceivedandsent/")'
         },
         
         // challengessent(token)
@@ -582,7 +574,7 @@
           
           case 'challenge':
             $this._loadingChallenges = true;
-        	  $this.$['ajax-challenges-received'].generateRequest();
+        	  $this.$['ajax-challenges-sent-and-received'].generateRequest();
         	  break;
           }
         }, 0);
@@ -829,39 +821,53 @@
       /**
        * Handeler for when the challenges received ajax request succeed
        */
-      _ajaxChallengesReceivedSuccessHandler: function(event, detail, sender){
-    	  var issued = [];
-    	  var completed = [];
+      _ajaxChallengesSentAndReceivedSuccessHandler: function(event, detail, sender){
+    	  var ncr = [];
+    	  var cs = [];
+    	  var cc = [];
     	  
     	  if(detail.response){
       	  for(var i=0; i<detail.response.length; i++){
-      		  detail.response[i].won = false;
-      		  switch (detail.response[i].completed){
-      		  case 'issued':
-      			  issued.push(detail.response[i]);
-      	      break;
-      	      
-      	    case 'completed':
-      	    	completed.push(detail.response[i]);
-      			  break;
+      		  switch (detail.response[i].result){
+      		  case 'incomplete':
+      		    if(detail.response[i].sent){
+      		      cs.push({
+                  to: detail.response[i].challengee,
+                  time: detail.response[i].challenger_time_taken,
+                  difficulty: detail.response[i].difficulty
+                }); 
+      		    }
+      		    else{
+      		      ncr.push({
+                  from: detail.response[i].challenger,
+                  time: detail.response[i].challenger_time_taken,
+                  difficulty: detail.response[i].difficulty
+                });
+      		    }
+      		    break;
       	          
             default:
-              console.log(detail.response[i]);
+              cc.push({
+                player: detail.response[i].sent ? detail.response[i].challengee : detail.response[i].challenger,
+                result: detail.response[i].result,
+                difficulty: detail.response[i].difficulty
+              });
               break;
       		  }
       	  }
     	  }
 
-        this.newChallengesReceived = issued;
-        this.completedChallenges = completed;
+        this.newChallengesReceived = ncr;
+        this.challengesSent = cs;
+        this.completedChallenges = cc;
         this._loadingChallenges = false;
       },
       
       /**
        * Handeler for when the challenges received ajax request fails
        */
-      _ajaxChallengesReceivedErrorHandler: function(event, detail, sender){
-        console.error('failed to get challenges received.');
+      _ajaxChallengesSentAndReceivedErrorHandler: function(event, detail, sender){
+        console.error('failed to get challenges sent and received.');
       },
       
       /**

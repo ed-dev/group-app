@@ -150,6 +150,10 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
   "SELECT c.challenge_id,"+
   "u1.display_name AS challenger,"+
   "u2.display_name AS challengee,"+
+  "CASE WHEN u2.user_id = $1 "+
+    "THEN FALSE "+
+    "ELSE TRUE "+
+  "END AS sent,"+
   "CASE WHEN c.challenged_seconds IS NULL "+
     "THEN 'incomplete' "+
     "ELSE CASE WHEN c.owner_seconds > c.challenged_seconds "+
