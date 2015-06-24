@@ -150,26 +150,26 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
   "SELECT c.challenge_id,"+
   "u1.display_name AS challenger,"+
   "u2.display_name AS challengee,"+
-  "CASE WHEN u2.user_id = $1 "+
-    "THEN FALSE "+
-    "ELSE TRUE "+
+  "CASE WHEN u2.user_id = $1"+
+    "THEN FALSE"+
+    "ELSE TRUE"+
   "END AS sent,"+
-  "CASE WHEN c.challenged_seconds IS NULL "+
-    "THEN 'incomplete' "+
-    "ELSE CASE WHEN c.owner_seconds > c.challenged_seconds "+
-      "THEN 'won' "+
-      "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds "+
-        "THEN 'drew' "+
-        "ELSE 'lost' "+
-      "END "+
-    "END "+
+  "CASE WHEN c.challenged_seconds IS NULL"+
+    "THEN 'incomplete'"+
+    "ELSE CASE WHEN (NOT sent AND c.owner_seconds > c.challenged_seconds) OR (sent AND c.owner_seconds < c.challenged_seconds)"+
+      "THEN 'won'"+
+      "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds"+
+        "THEN 'drew'"+
+        "ELSE 'lost'"+
+      "END"+
+    "END"+
   "END AS result,"+
   "c.owner_seconds AS challenger_time_taken,"+
   "c.challenged_seconds AS challengee_time_taken,"+
-  "c.difficulty "+
-  "FROM challenges c "+
-  "INNER JOIN users u1 ON (u1.user_id = c.owner_id) "+
-  "INNER JOIN users u2 ON (u2.user_id = c.challenged_id) "+
+  "c.difficulty"+
+  "FROM challenges c"+
+  "INNER JOIN users u1 ON (u1.user_id = c.owner_id)"+
+  "INNER JOIN users u2 ON (u2.user_id = c.challenged_id)"+
   "WHERE c.owner_id = $1 OR c.challenged_id = $1";
   
   var query = client.query(sql, [request.user.user_id]);
@@ -205,9 +205,8 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(
 //Takes parameter 'challenge_id' and 'time_taken'
 app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(request, response){
   var query = client.query('UPDATE challenges ' +
-                        'SET cur_status = $1,challenged_seconds=$2 ' +
-                        'WHERE challenge_id = $3 AND cur_status=\'issued\'', 
-                        ['completed', request.query.time_taken, request.query.challenge_id]);
+                        'SET cur_status = $1 ' +
+                        'WHERE challenge_id = $2', ['completed', request.query.challenge_id]);
   query.on('end', function(result){
     if(result.rowCount===1){response.send(true);}
     else{response.send(false);}
