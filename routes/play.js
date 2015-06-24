@@ -3,7 +3,7 @@ var ConnectSdk = require('connectsdk');
 
 module.exports = function(app, client){
 
-  function apiCall(cb){
+  function apiCall(page,cb){
     //On the vuw lab machines, node can't make external calls for some reason...
     //I emailed Aaron Chen about it.  Until it's fixed...
     //Set to true to use hardcoded image list instead of calling the API
@@ -21,7 +21,7 @@ module.exports = function(app, client){
               .images()
               .creative()
               .withExcludeNudity()
-              .withPage(1)
+              .withPage(page)
               .withPageSize(100)
               .withPhrase('single object')
               .execute(cb);
@@ -41,13 +41,16 @@ module.exports = function(app, client){
     }
     return random_indices.map(function(i){return list[i];});
   }
-  //Takes parameters 'difficulty' and 'num_images'.
+  //Takes parameters 'difficulty'.
   //Returns {'data': [{'img':url,'word':word}]}
-  app.get('/play', function(request, response) {
-    apiCall(function(err,res){
+  app.get('/play', check_params(['difficulty']), function(request, response) {
+    
+    var images_so_far = [];
+
+    cb = function(err,res){
       if(err) response.send(err);
   
-      images = randomChoices(res.images, 10);
+      var images = randomChoices(res.images, 10);
   
       var titleWords = [];
       images.forEach(function(img){
@@ -61,15 +64,31 @@ module.exports = function(app, client){
       var params = titleWords.map(function(w,i){return '$'+(i+1);});
       var words = {};
   
-      var query = client.query('SELECT word,nounorverb FROM words WHERE word IN (' + params.join(',') + ')',titleWords);
-      query.on('row',function(w){words[w.word] = w.nounorverb;});
+      var query = client.query('SELECT word,difficulty FROM words WHERE word IN (' + params.join(',') + ')',titleWords);
+      query.on('row',function(w){words[w.word] = w;});
       query.on('end',function(){
   
         images.forEach(function(img){
-          img.nouns = img.title.filter(function(w){return words[w] == 'n';});
+          img.nouns = img.title.filter(function(w){
+            return (w in words) && words[w].difficulty == request.query.difficulty;
+          });
         });
   
-        images = images.filter(function(img){return img.nouns.length > 0;});
+        images = images_so_far.concat(
+                    images.filter(function(img){return img.nouns.length > 0;})
+                 );
+
+        if(images.length < 3){
+          if(i > 10){
+            response.statusCode = 500;
+            response.send("Failed to find images with tags of that difficulty.");
+            return;
+          }
+          images_so_far = images;
+          apiCall(++i,cb);
+          console.log(i);
+          return;
+        }
   
         image_mapper = function(img){
           return {'img':img.display_sizes[0].uri, 'word':img.nouns[0]};
@@ -80,7 +99,9 @@ module.exports = function(app, client){
         response.send(data_to_send);
   
       });
-    });
+    };
+    
+    apiCall(i, cb);
   });
   
 //Takes parameter 'score' where score equals the number to increase the users score by
