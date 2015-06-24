@@ -119,19 +119,19 @@ module.exports = function(app, client){
   });
   
 //Returns all challenges made by other users TO this user
-//{'display_ame': Display Name,
+//{'challenge_id': 92837
+// 'display_name': Display Name,
 // 'completed': true/false,
 // 'timeTaken': 512 (seconds),
-// 'difficulty': 1,
-// 'challenge_id': 92837
+// 'difficulty': 1
 //}
 app.get('/challengesreceived', app.auth, function(request, response) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT challenges.challenge_id,' +
-                        'challenges.owner_seconds AS timeTaken,' +
-                        'challenges.cur_status AS completed,' +
                         'users.display_name,' +
+                        'challenges.cur_status AS completed,' +
+                        'challenges.owner_seconds AS timeTaken,' +
                         'challenges.difficulty ' +
                     'FROM challenges INNER JOIN users ON (users.user_id = challenges.owner_id)' +
                     'WHERE challenged_id = $1', [request.user.user_id]);
