@@ -6,6 +6,16 @@ module.exports = function(app, client){
   //Possible expansion: images completed, time taken for each, etc etc.
   //Returns 'true' or 'false'
   app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.auth, function(request, res) {
+    if(request.query.difficulty < 1 || request.query.difficulty > 3){
+      res.statusCode = 400;
+      res.send("Difficulty must be between 1 and 3");
+      return;
+    }
+    if(request.query.time < 1){
+      res.statusCode = 400;
+      res.send("Cannot complete a puzzle in less than a second");
+      return;
+    }
     var game = [];
     console.log("Game is: ");
     console.log(request.query.game);
@@ -204,6 +214,11 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(
 
 //Takes parameter 'challenge_id' and 'time_taken'
 app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(request, response){
+  if(request.query.time_taken < 1){
+    response.statusCode = 400;
+    response.send("Cannot complete a puzzle in less than a second");
+    return;
+  }
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = \'completed\',challenged_seconds = $1 ' +
                         'WHERE challenge_id = $2 AND cur_status=\'issued\' AND challenged_id=$3',
