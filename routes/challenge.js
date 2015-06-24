@@ -156,7 +156,7 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
   "END AS sent, "+
   "CASE WHEN c.challenged_seconds IS NULL "+
     "THEN 'incomplete' "+
-    "ELSE CASE WHEN (u1.user_id = $1 AND c.owner_seconds > c.challenged_seconds) OR (u2.user_id = $1 AND c.owner_seconds < c.challenged_seconds) "+
+    "ELSE CASE WHEN (u2.user_id = $1 AND c.owner_seconds > c.challenged_seconds) OR (u1.user_id = $1 AND c.owner_seconds < c.challenged_seconds) "+
       "THEN 'won' "+
       "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds "+
         "THEN 'drew' "+
