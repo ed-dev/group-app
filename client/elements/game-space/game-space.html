@@ -242,9 +242,10 @@ Polymer({
   _updateTime: function(){
 	  var $this = this;
 	  var update = function(){
-		  if($this.levelStarted){
-	      $this.time = parseInt((new Date().getTime() - $this._startTimeStamp) / 1000);
+		  if(!$this.levelStarted){
+		    return;
 		  }
+	    $this.time = parseInt((new Date().getTime() - $this._startTimeStamp) / 1000);
 		  if(!$this.levelComplete){
         setTimeout(update, 1000);
       }
