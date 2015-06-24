@@ -104,11 +104,13 @@ Polymer({
   is: 'challenge-entry',
   
   properties: {
+    challengeId: Number,
+    
     name: String,
     
     time: {
     	type: Number,
-    	value: 0
+    	value: -1
     },
     
     result: String,
@@ -133,7 +135,7 @@ Polymer({
   },
   
   _hideTime: function(time){
-	  return !time;
+	  return time == -1;
   }
 });
 </script>

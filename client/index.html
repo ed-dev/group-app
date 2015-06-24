@@ -230,15 +230,15 @@
               <span hidden$="[[_hasChallenges(newChallengesReceived, challengesSent, completedChallenges)]]">You haven't sent or received any challenges yet.<br></span>
               <span hidden$="[[_noNewChallenges(newChallengesReceived)]]">New Challenges Received:<br></span>
               <template is="dom-repeat" items="[[newChallengesReceived]]">
-                <challenge-entry name="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_newChallengeSelect"></challenge-entry>
+                <challenge-entry challenge-id="[[item.id]]" name="[[item.from]]" time="[[item.time]]" difficulty="[[item.difficulty]]" on-tap="_newChallengeSelect"></challenge-entry>
               </template>
               <span hidden$="[[_noChallengesSent(challengesSent)]]">Challenges Sent:<br></span>
               <template is="dom-repeat" items="[[challengesSent]]">
-                <challenge-entry name="[[item.to]]" time="[[item.time]]" difficulty="[[item.difficulty]]"></challenge-entry>
+                <challenge-entry challenge-id="[[item.id]]" name="[[item.to]]" time="[[item.time]]" difficulty="[[item.difficulty]]"></challenge-entry>
               </template>
               <span hidden$="[[_noChallengesCompleted(completedChallenges)]]">Completed Challenges:<br></span>
               <template is="dom-repeat" items="[[completedChallenges]]">
-                <challenge-entry name="[[item.player]]" result="[[item.result]]" difficulty="[[item.difficulty]]"></challenge-entry>
+                <challenge-entry challenge-id="[[item.id]]" name="[[item.player]]" result="[[item.result]]" difficulty="[[item.difficulty]]"></challenge-entry>
               </template>
             </div>
           </my-challenges>
@@ -657,7 +657,7 @@
     	  if(!challenge){
     		  return;
     	  }
-        this._challengeId = challenge.challenge_id;
+        this._challengeId = challenge.id;
     	  this._challengeSender = challenge.name;
         this._challengeTime = formatTime(challenge.time);
         this._challengeDifficulty = this._difficultyIntToString(challenge.difficulty);
@@ -832,6 +832,7 @@
       		  case 'incomplete':
       		    if(detail.response[i].sent){
       		      cs.push({
+      		        id: detail.response[i].challenge_id,
                   to: detail.response[i].challengee,
                   time: detail.response[i].challenger_time_taken,
                   difficulty: detail.response[i].difficulty
@@ -839,6 +840,7 @@
       		    }
       		    else{
       		      ncr.push({
+      		        id: detail.response[i].challenge_id,
                   from: detail.response[i].challenger,
                   time: detail.response[i].challenger_time_taken,
                   difficulty: detail.response[i].difficulty
@@ -848,6 +850,7 @@
       	          
             default:
               cc.push({
+                id: detail.response[i].challenge_id,
                 player: detail.response[i].sent ? detail.response[i].challengee : detail.response[i].challenger,
                 result: detail.response[i].result,
                 difficulty: detail.response[i].difficulty
