@@ -64,7 +64,21 @@ tests = {'/testfortests': {'description': 'returns hi', 'expectVal': 'hi'},
                                                           'cur_status': 'issued'}},
                                'expectVal': true,
                                'postdata': {'challenges': {'challenge_id': 5,
-                                                           'cur_status': 'completed'}}}
+                                                           'cur_status': 'completed'}}
+                            },
+        '/challengesreceived': {'description': 'returns all challenges received',
+                             'predata': {'challenges': {'challenge_id': 9
+                                                        'owner_id': 124,
+                                                        'challenged_id': 123,
+                                                        'owner_seconds': 10,
+                                                        'cur_status': 'issued',
+                                                        'difficulty': 1}},
+                             'expectVal': [{'challenge_id': 9,
+                                            'display_name': 'test2',
+                                            'completed': 'issued',
+                                            'timetaken': 10,
+                                            'difficulty': 1}]
+                            }
         };
 
 
