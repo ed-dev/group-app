@@ -24,6 +24,7 @@
   
   <link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
   
+  <link rel="import" href="elements/app-icons/app-icons.html">
   <link rel="import" href="elements/game-space/game-space.html">
   <link rel="import" href="elements/selection-dialog/selection-dialog.html">
   <link rel="import" href="elements/main-button/main-button.html">
@@ -49,7 +50,7 @@
     <style is="custom-style">
     :root {
       --dark-primary-color: #711740;
-      --light-primary-color: #bf4337;
+      --light-primary-color: #952E3F; /*#bf4337;*/
       --accent-color: #FF4081;
       
       --primary-background-color: #c5cae9;
@@ -75,9 +76,9 @@
       --hard-color: #c80000;
       --accept-color: #ff6867;
       
-      --selection-dialog-color: #000000;
-      --selection-dialog-header-color: #000000;
-      --selection-dialog-close-btn-color: #000000;
+      --selection-dialog-color: #cccccc;
+      --selection-dialog-header-color: #ffffff;
+      --selection-dialog-close-btn-color: var(--light-primary-color);
       
       --game-space-header-color: #e66355;
     }
@@ -113,19 +114,16 @@
     selection-dialog.large main-button{
       font-size: 5vh;
     }
-    selection-dialog.medium{
-      width: 100vw;
-      height: 100vw;
-    }
     selection-dialog.small{
       width: 100vw;
-      height: 75vw;
+      height: 350px;
     }
     selection-dialog.small main-button{
       font-size: 4vh;
     }
     selection-dialog .text-content{
       @apply(--layout-self-start);
+      padding: 0 24px;
     }
     selection-dialog .text-content p:last-of-type{
       margin: 0;
@@ -314,7 +312,7 @@
         <h1>Challenge</h1>
         <div class="text-content">
           <p><span>[[_challengeSender]]</span> has callenged you.</p>
-          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in <span>[[_challengeTime]]</span>.</p>
+          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in a time of <span>[[_challengeTime]]</span>.</p>
           <p>Think you can do better?</p>
         </div>
         <div class="action-btns">
@@ -322,7 +320,7 @@
           <main-button on-tap="_btnChallengeAccept">Accept</main-button>
         </div>
       </selection-dialog>
-      <selection-dialog id="level-win-dialog" class="medium">
+      <selection-dialog id="level-win-dialog" class="small">
         <h1>Well Done</h1>
         <div>
           Level Score: <span>[[levelScore]]</span><br>

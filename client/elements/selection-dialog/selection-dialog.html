@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../app-icons/app-icons.html">
 
 <dom-module id="selection-dialog">
   <link rel="import" type="css" href="../../bower_components/paper-dialog-behavior/paper-dialog-common.css">
@@ -11,31 +12,36 @@
     :host{
       position: relative;
       margin: 4vw;
-      background: #e5e5e5 !important;
-      border-radius: 16px;
-      border: solid 1px #000;
+      background: transparent !important;
+    }
+    #outer{
+      @apply(--layout-fit);
+      background: var(--dark-primary-color);
+      padding: 0;
+      margin: 0;
+      -webkit-clip-path: polygon(0% 35px, 105px 0%, 100% 0%, 100% 100%, 0% 100%);
+      -moz-clip-path: polygon(0% 35px, 105px 0%, 100% 0%, 100% 100%, 0% 100%);
+      clip-path: polygon(0% 35px, 105px 0%, 100% 0%, 100% 100%, 0% 100%);
     }
     #btn-close{
       display: block;
       position: absolute;
-      top: 0;
+      top: 8px;
       right: 0;
-      width: 40px;
-      height: 40px;
-      margin: 8px;
+      width: 36px;
+      height: 36px;
+      margin: 16px;
       padding: 0;
-    }
-    #btn-close{
-      --iron-icon-width: 40px;
-      --iron-icon-height: 40px;
       color: var(--selection-dialog-close-btn-color);
+      --iron-icon-width: 36px;
+      --iron-icon-height: 36px;
     }
     #header{
       @apply(--layout-horizontal);
       @apply(--layout-center);
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 16px;
+      left: 4px;
       right: 56px;
       padding: 0;
       margin: 10px 8px 6px 8px;
@@ -44,6 +50,8 @@
     }
     #header ::content h1{
       font-size: 26px;
+      font-weight: normal;
+      text-transform: uppercase;
       margin-left: 8px;
     }
     #content{
@@ -52,22 +60,35 @@
       @apply(--layout-center-justified);
       @apply(--layout-center);
       @apply(--layout-wrap);
-      top: 56px !important;
-      border: solid 1px #000;
-      border-radius: 8px;
-      margin: 0 8px 8px 8px;
-      background: #c0c0c0;
+      top: 64px !important;
+      margin: 0 16px 16px 16px;
       color: var(--selection-dialog-color);
+      background: var(--light-primary-color);
+    }
+    #corner{
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      fill: #ffffff;
+      width: 105px;
+      height: 35px;
     }
   </style>
 
   <template>
-    <paper-icon-button id="btn-close" icon="cancel" hidden$="[[noCloseBtn]]" on-tap="_btnCancelAction"></paper-icon-button>
-    <div id="header" class="horizontal layout center">
-      <content select="h1"></content>
-    </div>
-    <div id="content">
-      <content></content>
+    <svg id="corner" version="1.1" x="0px" y="0px" viewBox="0 0 105 35">
+      <polygon points="0,0 105,0 93,4 4,4 4,33.667 0,35 "/>
+    </svg>
+    <div id="outer">
+      <paper-icon-button id="btn-close" icon="app-icons:close" hidden$="[[noCloseBtn]]" on-tap="_btnCancelAction"></paper-icon-button>
+      <div id="header" class="horizontal layout center">
+        <content select="h1"></content>
+      </div>
+      <div id="content">
+        <content></content>
+      </div>
     </div>
   </template>
 </dom-module>
