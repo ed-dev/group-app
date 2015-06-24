@@ -67,7 +67,7 @@ tests = {'/testfortests': {'description': 'returns hi', 'expectVal': 'hi'},
                                                            'cur_status': 'completed'}}
                             },
         '/challengesreceived': {'description': 'returns all challenges received',
-                             'predata': {'challenges': {'challenge_id': 9
+                             'predata': {'challenges': {'challenge_id': 9,
                                                         'owner_id': 124,
                                                         'challenged_id': 123,
                                                         'owner_seconds': 10,
