@@ -194,7 +194,7 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
+app.get('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
   var data_to_send = [];
   var query = client.query('SELECT images.url AS img,' +
                        'words.word AS word ' +
@@ -202,13 +202,18 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(
                        'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
                        'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
                        'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
-                       'WHERE challenges.challenge_id = $1', [request.query.challenge_id]);
+                       'WHERE challenges.challenge_id = $1 AND challenges.challenged_id = $2',
+                       [request.query.challenge_id, request.user.user_id]);
   query.on('row', function(row) {
     data_to_send.push(row);
   });
-  query.on('end', function() {
-    response.header('Content-Length', data_to_send.length);
-    response.send(data_to_send);
+  query.on('end', function(result) {
+    if(result.rowCount==0){
+      response.statusCode = 400;
+      response.send("Challenge not found or access denied");
+    }else{
+      response.send(data_to_send);
+    }
   });
 });
 
