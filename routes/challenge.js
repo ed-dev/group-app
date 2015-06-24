@@ -205,8 +205,9 @@ app.post('/acceptchallenge', check_params(['challenge_id']), app.auth, function(
 //Takes parameter 'challenge_id' and 'time_taken'
 app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(request, response){
   var query = client.query('UPDATE challenges ' +
-                        'SET cur_status = $1 ' +
-                        'WHERE challenge_id = $2', ['completed', request.query.challenge_id]);
+                        'SET cur_status = \'completed\',challenged_seconds = $1 ' +
+                        'WHERE challenge_id = $2 AND cur_status=\'issued\' AND challenged_id=$3',
+                        [request.query.time_taken, request.query.challenge_id, request.user.user_id]);
   query.on('end', function(result){
     if(result.rowCount===1){response.send(true);}
     else{response.send(false);}
