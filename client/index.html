@@ -14,6 +14,7 @@
   <link rel="import" href="bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
   
+  <link rel="import" href="bower_components/paper-styles/paper-styles.html">
   <link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
   <link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
   <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
@@ -29,6 +30,7 @@
   <link rel="import" href="elements/my-challenges/my-challenges.html">
   <link rel="import" href="elements/challenge-entry/challenge-entry.html">
   <link rel="import" href="elements/challenge-key/challenge-key.html">
+  <link rel="import" href="elements/user-level/user-level.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   <link rel="import" href="helpers/time-formatter/time-formatter.html">
@@ -46,12 +48,10 @@
 </head>
 <body>
   <dom-module id="page-element">
-    <style>
+    <style is="custom-style">
     :root {
-      --dark-primary-color: #303F9F;
-      --default-primary-color:#3F51B5;
-      --light-primary-color: #C5CAE9;
-      --text-primary-color: #ffffff;
+      --dark-primary-color: #711740;
+      --light-primary-color: #bf4337;
       --accent-color: #FF4081;
       
       --primary-background-color: #c5cae9;
@@ -60,13 +60,16 @@
       --disabled-text-color: #bdbdbd;
       --divider-color: #B6B6B6;
       --primary-border-color: #ffffff;
+      
+      --default-primary-color: var(--dark-primary-color);
 
-      --menu-text-color: #000000;
       --drawer-menu-color: #000000;
       --drawer-border-color: 1px solid #ccc;
       --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
       
-      --paper-menu-background-color: #ffffff;
+      --text-primary-color: #e66355;
+      --paper-menu-background-color: var(--light-primary-color);
+      --paper-menu-color: var(--primary-text-color);
       --menu-link-color: #111111;
       
       --easy-color: #3cc800;
@@ -82,19 +85,21 @@
     }
     :host,
     main-button{
-      /*font-family: SketchetikLight;*/
-      font-family: Arial, san-serif;
-      font-weight: normal;
-      font-style: normal;
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      @apply(--paper-font-common-base);
     }
     neon-animated-pages{
       @apply(--layout-fit);
     }
     paper-toolbar{
-      padding: 0 8px;
+      --paper-toolbar: {
+        font-size: 19px;
+        padding: 0 8px;
+      };
     }
     paper-menu{
-      color: var(--menu-text-color);
+      @apply(--layout-fit);
     }
     selection-dialog{
       font-size: 2.5vh;
@@ -149,13 +154,16 @@
       font-size: 8vw;
       line-height: 0;
       --max-height: 15vh;
+      letter-spacing: 2px;
     }
     main-button.multiline{
       font-size: 4vw !important;
       line-height: normal !important;
+      letter-spacing: normal;
     }
     main-button.small-text{
       font-size: 5vw !important;
+      letter-spacing: normal;
     }
     #home{
       @apply(--layout-vertical);
@@ -178,6 +186,9 @@
     #game-space [paper-drawer-toggle]{
       --iron-icon-width: 32px;
       --iron-icon-height: 32px;
+    }
+    .flex{
+      @apply(--layout-flex);
     }
     </style>
     <template>
@@ -256,7 +267,7 @@
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>
             <paper-header-panel drawer>
-              <paper-toolbar justify="start">Menu</paper-toolbar>
+              <paper-toolbar><span>Menu</span><span class="flex"></span><user-level level="[[difficulty]]"></user-level></paper-toolbar>
               <paper-menu on-iron-select="_menuSelectAction">
                 <paper-icon-item id="menu-item-skip">
                   <iron-icon icon="icons:redo" item-icon></iron-icon>
