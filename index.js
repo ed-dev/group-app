@@ -1,4 +1,5 @@
 var express = require('express');
+var mlu = require('mime');
 var path = require('path');
 var cors = require('cors');
 var app = express();
@@ -43,7 +44,7 @@ app.get('/friends', function(request,response){
 });
 
 app.get('/assets/images/:img', function(req,res){
-//  res.header('content-type', 'image');
+  res.header('content-type', mlu.lookup(req.params.img));
   res.sendFile(path.join(__dirname, 'client/assets/images', req.params.img));
 });
 
