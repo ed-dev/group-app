@@ -49,7 +49,8 @@ module.exports = function(app, client){
       res.send("Difficulty must be between 0 and 2");
       return;
     }
-
+    
+    var num_puzzles = 2 + parseInt(req.query.difficulty);
     var images_so_far = [];
 
     cb = function(err,apires){
@@ -83,7 +84,7 @@ module.exports = function(app, client){
                     images.filter(function(img){return img.nouns.length > 0;})
                  );
 
-        if(images.length < 3){
+        if(images.length < num_puzzles){
           if(i > 10){
             res.statusCode = 500;
             res.send("Failed to find images with tags of that difficulty.");
@@ -98,7 +99,7 @@ module.exports = function(app, client){
         image_mapper = function(img){
           return {'img':img.display_sizes[0].uri, 'word':img.nouns[0]};
         }
-        data_to_send = {'data': randomChoices(images,3).map(image_mapper)};
+        data_to_send = {'data': randomChoices(images,num_puzzles).map(image_mapper)};
   
         res.header('Content-Length',data_to_send.data.length);
         res.send(data_to_send);
