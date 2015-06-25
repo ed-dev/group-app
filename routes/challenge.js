@@ -5,23 +5,23 @@ module.exports = function(app, client){
   //Takes parameters 'user_id', 'difficulty', 'time', {'data': [{'img':img, 'word':word}]}
   //Possible expansion: images completed, time taken for each, etc etc.
   //Returns 'true' or 'false'
-  app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.auth, function(request, res) {
-    if(request.query.difficulty < 0 || request.query.difficulty > 2){
+  app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.auth, function(res, res) {
+    if(res.query.difficulty < 0 || res.query.difficulty > 2){
       res.statusCode = 400;
       res.send("Difficulty must be between 0 and 2");
       return;
     }
-    if(request.query.time < 1){
+    if(res.query.time < 1){
       res.statusCode = 400;
       res.send("Cannot complete a puzzle in less than a second");
       return;
     }
     var game = [];
     console.log("Game is: ");
-    console.log(request.query.game);
+    console.log(res.query.game);
 
     //A user can't challenge themselves.
-    if(request.user.user_id == request.query.user_id){
+    if(res.user.user_id == res.query.user_id){
       res.statusCode = 400;
       res.send("You can't challenge yourself.");
     }
@@ -29,7 +29,7 @@ module.exports = function(app, client){
     //First, try to parse the game.  Run the game through the JSON parser then check
     //that each element is a string so we don't accidentally execute something.
     try{
-      game = JSON.parse(request.query.game);
+      game = JSON.parse(res.query.game);
       console.log("Game after parsing: ");
       console.log(game);
       for(puz in game){
@@ -83,7 +83,7 @@ module.exports = function(app, client){
       challenge_id = null;
       query = client.query('INSERT INTO challenges (owner_id, challenged_id, owner_seconds, cur_status, difficulty) VALUES ' +
                                                     '($1,$2,$3,\'issued\',$4) RETURNING challenge_id',
-                                 [request.user.user_id, request.query.user_id, request.query.time, request.query.difficulty]);
+                                 [res.user.user_id, res.query.user_id, res.query.time, res.query.difficulty]);
       query.on('error', function(d){
         res.statusCode = 400;
         res.send("You can't challenge a user that doesn't exist");
@@ -135,7 +135,7 @@ module.exports = function(app, client){
 // 'timeTaken': 512 (seconds),
 // 'difficulty': 1
 //}
-app.get('/challengesreceived', app.auth, function(request, response) {
+app.get('/challengesreceived', app.auth, function(res, res) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT challenges.challenge_id,' +
@@ -144,17 +144,17 @@ app.get('/challengesreceived', app.auth, function(request, response) {
                         'challenges.owner_seconds AS timeTaken,' +
                         'challenges.difficulty ' +
                     'FROM challenges INNER JOIN users ON (users.user_id = challenges.owner_id)' +
-                    'WHERE challenged_id = $1', [request.user.user_id]);
+                    'WHERE challenged_id = $1', [res.user.user_id]);
   query.on('row', function(row){
     data_to_send.push(row);
   });
   query.on('end', function(){
-    response.header('Content-Length', data_to_send.length);
-    response.send(data_to_send);
+    res.header('Content-Length', data_to_send.length);
+    res.send(data_to_send);
   });
 });
 
-app.get('/challengesreceivedandsent', app.auth, function(request, response) {
+app.get('/challengesreceivedandsent', app.auth, function(res, res) {
   var data_to_send = [];
   var sql = 
   "SELECT c.challenge_id,"+
@@ -182,19 +182,19 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
   "INNER JOIN users u2 ON (u2.user_id = c.challenged_id) "+
   "WHERE c.owner_id = $1 OR c.challenged_id = $1 ";
   
-  var query = client.query(sql, [request.user.user_id]);
+  var query = client.query(sql, [res.user.user_id]);
   query.on('row', function(row){
     data_to_send.push(row);
   });
   query.on('end', function(){
-    response.header('Content-Length', data_to_send.length);
-    response.send(data_to_send);
+    res.header('Content-Length', data_to_send.length);
+    res.send(data_to_send);
   });
 });
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.get('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
+app.get('/acceptchallenge', check_params(['challenge_id']), app.auth, function(res, res){
   var data_to_send = [];
   var query = client.query('SELECT images.url AS img,' +
                        'words.word AS word ' +
@@ -203,34 +203,34 @@ app.get('/acceptchallenge', check_params(['challenge_id']), app.auth, function(r
                        'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
                        'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
                        'WHERE challenges.challenge_id = $1 AND challenges.challenged_id = $2',
-                       [request.query.challenge_id, request.user.user_id]);
+                       [res.query.challenge_id, res.user.user_id]);
   query.on('row', function(row) {
     data_to_send.push(row);
   });
   query.on('end', function(result) {
     if(result.rowCount==0){
-      response.statusCode = 400;
-      response.send("Challenge not found or access denied");
+      res.statusCode = 400;
+      res.send("Challenge not found or access denied");
     }else{
-      response.send(data_to_send);
+      res.send(data_to_send);
     }
   });
 });
 
 //Takes parameter 'challenge_id' and 'time_taken'
-app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(request, response){
-  if(request.query.time_taken < 1){
-    response.statusCode = 400;
-    response.send("Cannot complete a puzzle in less than a second");
+app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app.auth, function(res, res){
+  if(res.query.time_taken < 1){
+    res.statusCode = 400;
+    res.send("Cannot complete a puzzle in less than a second");
     return;
   }
   var query = client.query('UPDATE challenges ' +
                         'SET cur_status = \'completed\',challenged_seconds = $1 ' +
                         'WHERE challenge_id = $2 AND cur_status=\'issued\' AND challenged_id=$3',
-                        [request.query.time_taken, request.query.challenge_id, request.user.user_id]);
+                        [res.query.time_taken, res.query.challenge_id, res.user.user_id]);
   query.on('end', function(result){
-    if(result.rowCount===1){response.send(true);}
-    else{response.send(false);}
+    if(result.rowCount===1){res.send(true);}
+    else{res.send(false);}
   }); 
 });
 
@@ -240,7 +240,7 @@ app.post('/completechallenge', check_params(['challenge_id', 'time_taken']), app
 // 'timeTaken': 512 (seconds),
 // 'difficulty': 1
 //}
-app.get('/challengessent', app.auth, function(request, response) {
+app.get('/challengessent', app.auth, function(res, res) {
   //First task is just returning all challenges.
   var data_to_send = [];
   var query = client.query('SELECT users.display_name,'+
@@ -248,18 +248,18 @@ app.get('/challengessent', app.auth, function(request, response) {
                         'challenges.challenged_seconds AS timetaken,'+
                         'challenges.difficulty '+
                         'FROM challenges INNER JOIN users ON (users.user_id = challenges.challenged_id) '+
-                        'WHERE owner_id = $1', [request.user.user_id]);
+                        'WHERE owner_id = $1', [res.user.user_id]);
   query.on('row', function(row){
     data_to_send.push(row);
   });
   query.on('end', function(){
-    response.header('Content-Length', data_to_send.length);
-    response.send(data_to_send);
+    res.header('Content-Length', data_to_send.length);
+    res.send(data_to_send);
   });
 });
 
-app.get('/testfortests', app.auth, function(request, response){
-  response.send("hi");
+app.get('/testfortests', app.auth, function(res, res){
+  res.send("hi");
 });
   
 } 
