@@ -125,4 +125,13 @@ app.post('/updatescore', check_params(['score']), app.auth, function(req, res){
 	});
 });
 
+app.get('/getscore', app.auth, function(req,res){
+  var query = client.query('SELECT score FROM users WHERE user_id=$1', [req.user.user_id]);
+  var score = 0;
+  query.on('row',function(r){score = r.score;});
+  query.on('end',function(){
+    res.send({'score': score});
+  });
+});
+
 }
