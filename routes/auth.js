@@ -114,9 +114,12 @@ module.exports = function(app, client){
       host:"www.googleapis.com",
       path:"/oauth2/v1/userinfo?alt=json&token=" + req.query.parameters
     };
-    https.get(goptions, function(res){
-      console.log(res);
+    https.get(goptions, function(getres){
+      var body = '';
+      getres.on('data', function(chunk){body += chunk;});
+      getres.on('end', function(){
+        res.send(JSON.parse(body));
+      })
     });
-
   });
  };
