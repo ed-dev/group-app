@@ -168,7 +168,7 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
     "THEN 'incomplete' "+
     "ELSE CASE WHEN (u2.user_id = $1 AND c.owner_seconds > c.challenged_seconds) OR (u1.user_id = $1 AND c.owner_seconds < c.challenged_seconds) "+
       "THEN 'won' "+
-      "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds "+
+      "ELSE CASE WHEN c.owner_seconds = c.challenged_seconds AND c.challenged_seconds != -1 "+
         "THEN 'drew' "+
         "ELSE 'lost' "+
       "END "+
@@ -220,30 +220,15 @@ app.get('/acceptchallenge', check_params(['challenge_id', 'response']), app.auth
 
   else{
     var exists = false;
-    var query = client.query('SELECT * FROM challenges WHERE ' +
+    var query = client.query('UPDATE challenges SET ' +
+                                 'challenged_seconds = -1, cur_status = \'completed\' WHERE ' +
                                'challenge_id = $1 AND ' +
-                               'challenged_id = $2',
+                               'challenged_id = $2 RETURNING challenge_id',
                                [request.query.challenge_id, request.user.user_id]);
     query.on('row', function(row){exists=true;});
     query.on('end', function(){
       if(exists){
-        delCIMQuery = client.query('DELETE FROM challenge_image_word WHERE challenge_id=$1',
-                                   [request.query.challenge_id]);
-        delCIMQuery.on('error',function(){});//If there's no CIM, no one cares.
-        delCIMQuery.on('end',function(){
-          delChalQuery = client.query('DELETE FROM challenges WHERE ' +
-                                      'challenge_id = $1 AND ' +
-                                      'challenged_id = $2 RETURNING challenge_id',
-                                      [request.query.challenge_id, request.user.user_id]);
-          delChalQuery.on('end', function(result){
-            if(result.rowCount == 0){
-              response.statusCode = 500;
-              response.send("Crazy internal server error");
-            }else{
-              response.send(true);
-            }
-          });
-        });
+        response.send(true);
       }else{
         response.statusCode = 400;
         response.send("Challenge not found or access denied");
