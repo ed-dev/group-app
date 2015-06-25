@@ -52,10 +52,10 @@ module.exports = function(app, client){
 
     var images_so_far = [];
 
-    cb = function(err,res){
+    cb = function(err,apires){
       if(err) res.send(err);
   
-      var images = randomChoices(res.images, 10);
+      var images = randomChoices(apires.images, 10);
   
       var title_words = [];
       images.forEach(function(img){
