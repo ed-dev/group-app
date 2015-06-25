@@ -16,7 +16,7 @@ module.exports = function(app, client){
       cb(null,{"images":imgs});
   
     } else{
-      sdk = new ConnectSdk("56bdt8yjqf64774m5a2yfuz4","a34kr22MJEDem4edRSqwfzpJfq8UXUx296yBWgcr5u9RA")
+      sdk = new ConnectSdk("eynztbtbygspbr2wyyr9zh2b","DhF6QAJuPFbBDn6TgDD2aSxAh6eEswwGajU6tGT6mFxVm")
               .search()
               .images()
               .creative()
