@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="332px" height="332px" viewBox="0 0 332 332" enable-background="new 0 0 332 332" xml:space="preserve">
+<g>
+	<g>
+		<polygon fill="#772248" points="280.943,0 332,49.5 332,332 54.443,332 0,276 0,0 		"/>
+	</g>
+	<g>
+		<polygon fill="#60173C" points="267.668,18 314,63.012 314,312 68.014,312 20,262.666 20,18 		"/>
+	</g>
+	<polygon fill="#470E33" points="0,0 20,18 20,262.666 68.014,312 314,312 332,332 54.443,332 0,276 	"/>
+</g>
+<g>
+	<g>
+		<path fill="none" stroke="#FFFFFF" stroke-width="2" stroke-miterlimit="10" d="M137.438,97.46H70.973V50.716h189.168V97.46
+			h-67.195v199.395h-55.508V97.46z"/>
+	</g>
+	<g>
+		<defs>
+			
+				<rect id="SVGID_1_" x="81.695" y="63.178" transform="matrix(0.9446 -0.3282 0.3282 0.9446 -41.8503 70.3274)" width="211.496" height="191.962"/>
+		</defs>
+		<clipPath id="SVGID_2_">
+			<use xlink:href="#SVGID_1_"  overflow="visible"/>
+		</clipPath>
+		<g clip-path="url(#SVGID_2_)">
+			<g>
+				<path fill="#EBAB34" stroke="#EBAB34" stroke-width="2" stroke-miterlimit="10" d="M137.438,97.46H70.973V50.716h189.168V97.46
+					h-67.195v199.395h-55.508V97.46z"/>
+			</g>
+			<g>
+				<path fill="#FECC30" d="M143.086,92.792H77.557V55.438h176v37.354h-66.112v197.477h-44.358V92.792z"/>
+			</g>
+		</g>
+	</g>
+</g>
+</svg>
