@@ -43,7 +43,7 @@ app.get('/friends', function(request,response){
 });
 
 app.get('/assets/images/:img', function(req,res){
-  res.header('content-type', 'image');
+//  res.header('content-type', 'image');
   res.sendFile(path.join(__dirname, 'client/assets/images', req.params.img));
 });
 
