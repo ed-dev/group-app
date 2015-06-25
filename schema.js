@@ -22,7 +22,7 @@ client.query(
     'CREATE TABLE friends (user_id integer references users(user_id), friend_id integer references users(user_id),PRIMARY KEY(user_id,friend_id));' +
     'CREATE TABLE words (word_id serial PRIMARY KEY, word varchar(40) NOT NULL, frequency integer, difficulty smallint DEFAULT 1);'  +
     'CREATE TABLE images (image_id serial PRIMARY KEY, url varchar NOT NULL);' +
-    'CREATE TABLE challenges (challenge_id serial PRIMARY KEY, owner_id integer references users(user_id), challenged_id integer references users(user_id),owner_seconds real NOT NULL,challenged_seconds real,cur_status status NOT NULL,difficulty smallint NOT NULL);' +
+    'CREATE TABLE challenges (challenge_id serial PRIMARY KEY, owner_id numeric references users(user_id), challenged_id numeric references users(user_id),owner_seconds real NOT NULL,challenged_seconds real,cur_status status NOT NULL,difficulty smallint NOT NULL);' +
     'CREATE TABLE challenge_image_word (challenge_id integer references challenges, image_id integer references images, word_id integer references words, PRIMARY KEY(challenge_id,image_id,word_id) );'
 );
 
