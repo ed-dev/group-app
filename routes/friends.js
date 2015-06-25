@@ -7,11 +7,15 @@ module.exports = function(app, client){
 //{'data': [display_Name:display_name, score:score, user_id:user_id]}
 app.get('/friends', app.auth, function(req,res){
 	var data_to_send = [];
-	var query = client.query('SELECT users.display_name,'+
+	//var query = client.query('SELECT users.display_name,'+
+    //                    'users.score,'+
+    //                    'friends.friend_id AS user_id '+
+    //                    'FROM friends INNER JOIN users ON (users.user_id = friends.friend_id) '+
+    var query = client.query('SELECT users.display_name,'+
                         'users.score,'+
-                        'friends.friend_id AS user_id '+
-                        'FROM friends INNER JOIN users ON (users.user_id = friends.friend_id) '+
-                        'WHERE friends.user_id = $1', [req.user.user_id]);
+                        'users.user_id '+
+                        'FROM users ' +
+	                    'WHERE users.user_id != $1', [req.user.user_id]);
 	query.on('row', function(row) {
 		data_to_send.push(row);
 	});
