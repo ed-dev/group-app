@@ -1,3 +1,6 @@
+var https = require('https');
+var check_params = require('./check_params');
+
 module.exports = function(app, client){
  
   //This authentication function will check that the token exists
@@ -104,4 +107,16 @@ module.exports = function(app, client){
       });
     }
   );
+
+  app.get('/login2', check_params(['token']), function(req,res){
+    
+    var goptions = {
+      host:"www.googleapis.com",
+      path:"oauth2/v1/userinfo?alt=json&token=" + request.query.parameters
+    };
+    https.get(goptions, function(res){
+      console.log(res);
+    });
+
+  });
  };
