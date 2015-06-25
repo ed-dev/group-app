@@ -194,27 +194,62 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
 
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
-app.get('/acceptchallenge', check_params(['challenge_id']), app.auth, function(request, response){
-  var data_to_send = [];
-  var query = client.query('SELECT images.url AS img,' +
-                       'words.word AS word ' +
-                       'FROM challenges '+
-                       'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
-                       'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
-                       'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
-                       'WHERE challenges.challenge_id = $1 AND challenges.challenged_id = $2',
-                       [request.query.challenge_id, request.user.user_id]);
-  query.on('row', function(row) {
-    data_to_send.push(row);
-  });
-  query.on('end', function(result) {
-    if(result.rowCount==0){
-      response.statusCode = 400;
-      response.send("Challenge not found or access denied");
-    }else{
-      response.send(data_to_send);
-    }
-  });
+app.get('/acceptchallenge', check_params(['challenge_id', 'response']), app.auth, function(request, response){
+  if(response == 'true'){
+    var data_to_send = [];
+    var query = client.query('SELECT images.url AS img,' +
+                         'words.word AS word ' +
+                         'FROM challenges '+
+                         'INNER JOIN challenge_image_word ON (challenges.challenge_id = challenge_image_word.challenge_id) '+
+                         'INNER JOIN words ON (words.word_id = challenge_image_word.word_id) '+
+                         'INNER JOIN images ON (challenge_image_word.image_id = images.image_id) '+
+                         'WHERE challenges.challenge_id = $1 AND challenges.challenged_id = $2',
+                         [request.query.challenge_id, request.user.user_id]);
+    query.on('row', function(row) {
+      data_to_send.push(row);
+    });
+    query.on('end', function(result) {
+      if(result.rowCount==0){
+        response.statusCode = 400;
+        response.send("Challenge not found or access denied");
+      }else{
+        response.send(data_to_send);
+      }
+    });
+  }
+
+  else{
+    var exists = false;
+    var query = client.query('SELECT * FROM challenges WHERE ' +
+                               'challenge_id = $1 AND ' +
+                               'challenged_id = $2',
+                               [request.query.challenge_id, request.user.user_id]);
+    query.on('row', function(row){exists=true;});
+    query.on('end', function(){
+      if(exists){
+        delCIMQuery = client.query('DELETE FROM challenge_image_word WHERE challenge_id=$1',
+                                   [request.query.challenge_id]);
+        delCIMQuery.on('error',function(){});//If there's no CIM, no one cares.
+        delCIMQuery.on('end',function(){
+          delChalQuery = client.query('DELETE FROM challenges WHERE ' +
+                                      'challenge_id = $1 AND ' +
+                                      'challenged_id = $2 RETURNING challenge_id',
+                                      [request.query.challenge_id, request.user.user_id]);
+          delChalQuery.on('end', function(result){
+            if(result.rowCount == 0){
+              response.statusCode = 500;
+              response.send("Crazy internal server error");
+            }else{
+              response.send(true);
+            }
+          });
+        });
+      }else{
+        response.statusCode = 400;
+        response.send("Challenge not found or access denied");
+      }
+    });
+  }
 });
 
 //Takes parameter 'challenge_id' and 'time_taken'
