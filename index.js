@@ -1,4 +1,5 @@
 var express = require('express');
+var path = require('path');
 var cors = require('cors');
 var app = express();
 
@@ -38,12 +39,18 @@ app.post('/updatescore', function(request, response){
 
 //Takes no parameters
 app.get('/friends', function(request,response){
-	
+
+});
+
+app.get('/assets/images/:img', function(req,res){
+  res.header('content-type', 'image');
+  res.sendFile(path.join(__dirname, 'client/assets/images', req.params.img));
 });
 
 var server = app.listen(app.get('port'), function() {
-var host = server.address().address;
-var port = server.address().port;
+  var host = server.address().address;
+  var port = server.address().port;
 
- console.log('Node app is running at :http://%s:%s',host,port);
+  console.log('Node app is running at :http://%s:%s',host,port);
 });
+
