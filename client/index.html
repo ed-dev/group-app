@@ -537,6 +537,9 @@
        */
       ready: function(){
         app = this;
+      },
+      
+      attached: function(){
         this.$['ajax-get-score'].generateRequest();
       },
       
@@ -992,7 +995,7 @@
        * Handeler for when the get score ajax request succeed
        */
       _ajaxGetScoreSuccessHandler: function(event, detail, sender){
-        this.score = parseInt(detail.response);
+        this.score = parseInt(detail.response.score);
       },
       
       /**
