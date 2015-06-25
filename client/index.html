@@ -629,6 +629,7 @@
           }
           
           this._levelStarted = false;
+          history.pushState({page: newPage, token: this._userToken}, newPage, "?page="+newPage);
         }, 0);
       },
       
@@ -1003,6 +1004,11 @@
     });
   });
   
+  window.onpopstate = function(event) {
+    app._userToken = event.state.token;
+    app.page = event.state.page;
+  };
+	  
   document.addEventListener('deviceready', function(){
     /**
      * Handler for the back button
