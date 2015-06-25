@@ -195,7 +195,7 @@ app.get('/challengesreceivedandsent', app.auth, function(request, response) {
 //Take parameter 'challenge_id'
 //returns {'data': [{img:img, word:word}]}
 app.get('/acceptchallenge', check_params(['challenge_id', 'response']), app.auth, function(request, response){
-  if(response == 'true'){
+  if(request.query.response == 'true'){
     var data_to_send = [];
     var query = client.query('SELECT images.url AS img,' +
                          'words.word AS word ' +
