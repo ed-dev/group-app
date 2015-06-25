@@ -37,7 +37,7 @@
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   <link rel="import" href="helpers/time-formatter/time-formatter.html">
   
-  <title></title>
+  <title>Typo</title>
   
   <style>
   body{
@@ -174,6 +174,15 @@
     #home > .padder{
       height: 2vh;
     }
+    #home #title{
+      @apply(--layout-flex);
+      @apply(--layout-horizontal);
+      @apply(--layout-center-justified);
+      @apply(--layout-center);
+    }
+    #home #title img{
+      width: 80vw;
+    }
     #challenge{
       @apply(--layout-vertical);
     }
@@ -237,7 +246,9 @@
 	      on-error="_ajaxUpdateScoreErrorHandler"></iron-ajax>
       <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
         <section id="home">
-          <div class="flex"></div>
+          <div id="title">
+            <img src="assets/images/title.svg">
+          </div>
           <main-button class="large" on-tap="_btnPlayAction">Play</main-button>
           <main-button class="large" hidden$="[[signedin]]" on-tap="_btnSignInAction">Sign In</main-button>
           <main-button class="large" hidden$="[[!signedin]]" on-tap="_btnChallengeAction">Challenge</main-button>
@@ -740,7 +751,7 @@
       /**
        * Called on-tap of the no button in the exit prompt
        */
-      _btnExitYes: function(){
+      _btnNoYes: function(){
         this.$['exit-dialog'].close();
       },
       
