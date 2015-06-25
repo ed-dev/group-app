@@ -11,6 +11,7 @@
   <link rel="import" href="bower_components/polymer/polymer.html">
   
   <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+  <link rel="import" href="bower_components/iron-icon/iron-icon.html">
   <link rel="import" href="bower_components/iron-icons/iron-icons.html">
   <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
   
@@ -33,6 +34,7 @@
   <link rel="import" href="elements/challenge-key/challenge-key.html">
   <link rel="import" href="elements/user-level/user-level.html">
   <link rel="import" href="elements/page-heading/page-heading.html">
+  <link rel="import" href="elements/main-select-field/main-select-field.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   <link rel="import" href="helpers/time-formatter/time-formatter.html">
@@ -189,6 +191,9 @@
     #challenge my-challenges{
       @apply(--layout-flex);
     }
+    #create-challenge{
+      @apply(--layout-vertical);
+    }
     #ingame user-score{
       font-size: 3vh;
     }
@@ -281,11 +286,10 @@
         </section>
         <section id="create-challenge">
           <page-heading src="assets/images/heading-create-challenge.svg"></page-heading>
-          <span>Who do you want to challenge?</span><br>
-          <main-select-field selected="[[_challengeFriend]]" large-popup></main-select-field>
-          <span>Difficulty:</span><br>
-          <main-select-field selected="[[_challengeDifficulty]]"></main-select-field>
-          <main-button class="large">Send</main-button>
+          <main-select-field selected="[[_challengeFriend]]" label="Who do you want to challenge?" large-popup></main-select-field>
+          <main-select-field selected="[[_challengeDifficulty]]" label="Difficulty:"></main-select-field>
+          <div class="flex"></div>
+          <main-button class="large end">Send</main-button>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>

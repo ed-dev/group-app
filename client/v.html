@@ -21103,6 +21103,59 @@ Polymer({
   }
 });
 </script>
+<dom-module id="main-select-field" assetpath="elements/main-select-field/">
+  <style>
+    :host{
+      display: block;
+      margin: 8px 32px;
+      color: var(--primary-text-color);
+    }
+    #field{
+      display: block;
+      position: relative;
+      border: solid 4px #ffffff;
+      height: 1.5em;
+      font-size: 32px;
+      margin: 4px 0;
+      padding-right: 1.5em;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-center-justified);
+    }
+    #icon{
+      position: absolute;
+      top: 0;
+      right: 0;
+      --iron-icon-width: 1.5em;
+      --iron-icon-height: 1.5em;
+    }
+  </style>
+  <template>
+    <span id="label">[[label]]</span>
+    <div id="field">
+      <span>[[selected]]</span>
+      <iron-icon id="icon" icon="icons:arrow-drop-down" item-icon=""></iron-icon>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'main-select-field',
+  
+  properties: {
+    label: {
+      type: String,
+      value: ''
+    },
+    
+    selected: {
+      type: String,
+      value: ''
+    }
+  }
+});
+</script>
 </div>
   <dom-module id="page-element">
     <style is="custom-style">
@@ -21246,6 +21299,9 @@ Polymer({
     #challenge my-challenges{
       @apply(--layout-flex);
     }
+    #create-challenge{
+      @apply(--layout-vertical);
+    }
     #ingame user-score{
       font-size: 3vh;
     }
@@ -21303,11 +21359,10 @@ Polymer({
         </section>
         <section id="create-challenge">
           <page-heading src="assets/images/heading-create-challenge.svg"></page-heading>
-          <span>Who do you want to challenge?</span><br>
-          <main-select-field selected="[[_challengeFriend]]" large-popup=""></main-select-field>
-          <span>Difficulty:</span><br>
-          <main-select-field selected="[[_challengeDifficulty]]"></main-select-field>
-          <main-button class="large">Send</main-button>
+          <main-select-field selected="[[_challengeFriend]]" label="Who do you want to challenge?" large-popup=""></main-select-field>
+          <main-select-field selected="[[_challengeDifficulty]]" label="Difficulty:"></main-select-field>
+          <div class="flex"></div>
+          <main-button class="large end">Send</main-button>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow="" disable-edge-swipe="">
