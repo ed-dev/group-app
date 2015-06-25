@@ -112,7 +112,7 @@ module.exports = function(app, client){
     
     var goptions = {
       host:"www.googleapis.com",
-      path:"/plus/v1/people/me&access_token=" + req.query.parameters
+      path:"/plus/v1/people/me?access_token=" + req.query.token
     };
     https.get(goptions, function(getres){
       var body = '';
