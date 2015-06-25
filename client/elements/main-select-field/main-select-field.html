@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+  
+<dom-module id="main-select-field">
+  <style>
+    :host{
+      display: block;
+      margin: 8px 32px;
+      color: var(--primary-text-color);
+    }
+    #field{
+      display: block;
+      position: relative;
+      border: solid 4px #ffffff;
+      height: 1.5em;
+      font-size: 32px;
+      margin: 4px 0;
+      padding-right: 1.5em;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-center-justified);
+    }
+    #icon{
+      position: absolute;
+      top: 0;
+      right: 0;
+      --iron-icon-width: 1.5em;
+      --iron-icon-height: 1.5em;
+    }
+  </style>
+  <template>
+    <span id="label">[[label]]</span>
+    <div id="field">
+      <span>[[selected]]</span>
+      <iron-icon id="icon" icon="icons:arrow-drop-down" item-icon></iron-icon>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'main-select-field',
+  
+  properties: {
+    label: {
+      type: String,
+      value: ''
+    },
+    
+    selected: {
+      type: String,
+      value: ''
+    }
+  }
+});
+</script>

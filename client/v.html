@@ -10627,6 +10627,7 @@ if (!window.Promise) {
 
 </style>
 <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
+
 <style is="custom-style">
 
   :root {
@@ -20051,7 +20052,7 @@ Polymer({
     <div id="titlebar">
       <content></content>
       <user-time time="[[time]]"></user-time>
-      <user-score score="[[score]]"></user-score>
+      <user-score score="[[score]]" hidden$="[[challengeLevel]]"></user-score>
     </div>
     <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
@@ -20141,6 +20142,12 @@ Polymer({
       notify: true
     },
     
+    challengeLevel:{
+      type: Boolean,
+      value: false,
+      notify: true
+    },
+    
     /**
      * The path to the server to get the game json data
      */
@@ -20185,6 +20192,7 @@ Polymer({
    * Start a new Level
    */
   newLevel: function(){
+    this.challengeLevel = false;
     this.loading = true;
     // clear the old ajaxGameDataResponse object - so that the arn't tiles hanging around for the last level
     if(this.ajaxGameDataResponse){
@@ -20197,12 +20205,29 @@ Polymer({
     this.time = 0;
   },
   
+  loadLevel: function(gameData){
+    this.challengeLevel = true;
+    this.loading = true;
+    this.ajaxGameDataResponse = { data: [] };
+    this.$['picture-space'].reset();
+    this.levelComplete = false;
+    
+    var $this = this;
+    setTimeout(function(){
+      $this.ajaxGameDataResponse.data = gameData;
+      $this.notifyPath('ajaxGameDataResponse.data', $this.ajaxGameDataResponse.data);
+      $this.levelStarted = true;
+      $this.time = 0;
+      $this._startLevel();
+    }, 0);
+  },
+  
   _updateTime: function(){
 	  var $this = this;
 	  var update = function(){
-		  if(!$this.levelStarted){
-		    return;
-		  }
+	    if(!$this.levelStarted){
+	      return;
+	    }
 	    $this.time = parseInt((new Date().getTime() - $this._startTimeStamp) / 1000);
 		  if(!$this.levelComplete){
         setTimeout(update, 1000);
@@ -20261,6 +20286,14 @@ Polymer({
     return letters;
   },
   
+  _startLevel: function(){
+    this.loading = false;
+    this.fire('level-load-success');
+    this.levelStarted = true;
+    this._startTimeStamp = new Date().getTime();
+    this._updateTime();
+  },
+  
   /**
    * Handeler for when the game data ajax request succeed
    */
@@ -20269,11 +20302,7 @@ Polymer({
       this._ajaxGameDataErrorHandler(event, detail, sender);
     }
     else{
-      this.loading = false;
-      this.fire('level-load-success');
-      this.levelStarted = true;
-      this._startTimeStamp = new Date().getTime();
-      this._updateTime();
+      this._startLevel();
     }
   },
   
@@ -20350,7 +20379,9 @@ Polymer({
 	  if(allCorrect){
       this.levelComplete = true;
 		  this.fire('level-complete');
-      this.$['ajax-update-score'].generateRequest();
+		  if(!this.challengeLevel){
+		    this.$['ajax-update-score'].generateRequest();
+		  }
 	  }
   },
   
@@ -21072,6 +21103,59 @@ Polymer({
   }
 });
 </script>
+<dom-module id="main-select-field" assetpath="elements/main-select-field/">
+  <style>
+    :host{
+      display: block;
+      margin: 8px 32px;
+      color: var(--primary-text-color);
+    }
+    #field{
+      display: block;
+      position: relative;
+      border: solid 4px #ffffff;
+      height: 1.5em;
+      font-size: 32px;
+      margin: 4px 0;
+      padding-right: 1.5em;
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+      @apply(--layout-center-justified);
+    }
+    #icon{
+      position: absolute;
+      top: 0;
+      right: 0;
+      --iron-icon-width: 1.5em;
+      --iron-icon-height: 1.5em;
+    }
+  </style>
+  <template>
+    <span id="label">[[label]]</span>
+    <div id="field">
+      <span>[[selected]]</span>
+      <iron-icon id="icon" icon="icons:arrow-drop-down" item-icon=""></iron-icon>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'main-select-field',
+  
+  properties: {
+    label: {
+      type: String,
+      value: ''
+    },
+    
+    selected: {
+      type: String,
+      value: ''
+    }
+  }
+});
+</script>
 </div>
   <dom-module id="page-element">
     <style is="custom-style">
@@ -21215,6 +21299,9 @@ Polymer({
     #challenge my-challenges{
       @apply(--layout-flex);
     }
+    #create-challenge{
+      @apply(--layout-vertical);
+    }
     #ingame user-score{
       font-size: 3vh;
     }
@@ -21232,7 +21319,7 @@ Polymer({
     <template>
       <iron-ajax id="ajax-friends-list" handle-as="json" url="[[friendsListDataPath]]" params="[[_getAjaxTokenParam(_userToken)]]" method="GET" on-response="_ajaxChallengesSentSuccessHandler" on-error="_ajaxFriendsListErrorHandler"></iron-ajax>
 	    <iron-ajax id="ajax-challenges-sent-and-received" handle-as="json" url="[[challengesSentAndReceivedDataPath]]" params="[[_getAjaxTokenParam(_userToken)]]" method="GET" on-response="_ajaxChallengesSentAndReceivedSuccessHandler" on-error="_ajaxChallengesSentAndReceivedErrorHandler"></iron-ajax>
-      <iron-ajax id="ajax-challenge-responce" handle-as="json" url="[[challengeResponcePath]]" params="[[_getAjaxChallengeResponceParams(_challengeId, _challengeResponce, _userToken)]]" method="POST" on-response="_ajaxChallengeResponceSuccessHandler" on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
+      <iron-ajax id="ajax-challenge-responce" handle-as="json" url="[[challengeResponcePath]]" params="[[_getAjaxChallengeResponceParams(_challengeId, _challengeResponce, _userToken)]]" method="GET" on-response="_ajaxChallengeResponceSuccessHandler" on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
       <iron-ajax id="ajax-get-score" handle-as="json" url="[[getScoreDataPath]]" params="[[_getAjaxTokenParam(_userToken)]]" method="GET" on-response="_ajaxGetScoreSuccessHandler" on-error="_ajaxGetScoreErrorHandler"></iron-ajax>
       <iron-ajax id="ajax-update-score" handle-as="json" url="[[updateScorePath]]" params="[[_getAjaxUpdateScoreParams(score, _userToken)]]" method="POST" on-response="_ajaxUpdateScoreSuccessHandler" on-error="_ajaxUpdateScoreErrorHandler"></iron-ajax>
       <neon-animated-pages id="pages" selected="{{page}}" attr-for-selected="id" transitions="cross-fade-all">
@@ -21248,6 +21335,7 @@ Polymer({
         </section>
         <section id="challenge">
           <page-heading src="assets/images/heading-challenges.svg"></page-heading>
+          <button on-tap="_tempfun">tempfun</button>
           <my-challenges>
             <div hidden$="[[!_loadingChallenges]]">Loading...</div>
             <div hidden$="[[_loadingChallenges]]">
@@ -21271,34 +21359,34 @@ Polymer({
         </section>
         <section id="create-challenge">
           <page-heading src="assets/images/heading-create-challenge.svg"></page-heading>
-          <span>Who do you want to challenge?</span><br>
-          <main-select-field selected="[[_challengeFriend]]" large-popup=""></main-select-field>
-          <span>Difficulty:</span><br>
-          <main-select-field selected="[[_challengeDifficulty]]"></main-select-field>
-          <main-button class="large">Send</main-button>
+          <main-select-field selected="[[_challengeFriend]]" label="Who do you want to challenge?" large-popup=""></main-select-field>
+          <main-select-field selected="[[_challengeDifficulty]]" label="Difficulty:"></main-select-field>
+          <div class="flex"></div>
+          <main-button class="large end">Send</main-button>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow="" disable-edge-swipe="">
             <paper-header-panel drawer="">
               <paper-toolbar><span>Menu</span><span class="flex"></span><user-level level="[[difficulty]]"></user-level></paper-toolbar>
               <paper-menu on-iron-select="_menuSelectAction">
-                <paper-icon-item id="menu-item-skip">
+                <paper-icon-item id="menu-item-skip" hidden$="[[_challengeLevel]]">
                   <iron-icon icon="icons:redo" item-icon=""></iron-icon>
                   <span hidden$="[[_levelComplete]]">Skip this Level</span>
                   <span hidden$="[[!_levelComplete]]">Next Level</span>
                 </paper-icon-item>
-                <paper-icon-item id="menu-item-change-difficulty">
+                <paper-icon-item id="menu-item-change-difficulty" hidden$="[[_challengeLevel]]">
                   <iron-icon icon="icons:extension" item-icon=""></iron-icon>
                   Change Difficulty
                 </paper-icon-item>
                 <paper-icon-item id="menu-item-exit" class="new-section">
                   <iron-icon icon="icons:cancel" item-icon=""></iron-icon>
-                  Exit
+                  <span hidden$="[[_challengeLevel]]">Exit</span>
+                  <span hidden$="[[!_challengeLevel]]">Give Up</span>
                 </paper-icon-item>
               </paper-menu>
             </paper-header-panel>
             <paper-header-panel main="">
-              <game-space id="game-space" url-game-data-path="[[gameDataPath]]" url-challenge-someone-path="[[sendChallengePath]]" user-token="[[_userToken]]" score="{{score}}" time="{{time}}" difficulty="{{difficulty}}" level-started="{{_levelStarted}}" level-complete="{{_levelComplete}}" letter-tile-src="assets/images/tiles.png" tile-size="144" on-level-complete="_onLevelComplete" on-level-load-fail="_onLevelLoadFail">
+              <game-space id="game-space" url-game-data-path="[[gameDataPath]]" url-challenge-someone-path="[[sendChallengePath]]" user-token="[[_userToken]]" score="{{score}}" time="{{time}}" difficulty="{{difficulty}}" level-started="{{_levelStarted}}" level-complete="{{_levelComplete}}" challenge-level="{{_challengeLevel}}" letter-tile-src="assets/images/tiles.png" tile-size="144" on-level-complete="_onLevelComplete" on-level-load-fail="_onLevelLoadFail">
                 <paper-icon-button icon="menu" paper-drawer-toggle=""></paper-icon-button>
               </game-space>
             </paper-header-panel>
@@ -21325,6 +21413,18 @@ Polymer({
           <main-button on-tap="_btnChallengeAccept">Accept</main-button>
         </div>
       </selection-dialog>
+      <selection-dialog id="challenge-complete-dialog" class="small">
+        <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'won')]]">You Win</h1>
+        <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'lost')]]">You Lost</h1>
+        <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'drew')]]">It's a Draw</h1>
+        <div class="text-content">
+          Your Time: <span>[[levelTime]]</span><br>
+          Opponent's Time: <span>[[_formatTime(_challengeTime)]]</span><br>
+        </div>
+        <div style="width: 100%;">
+          <main-button on-tap="_btnChallengeCompleteAction">Exit</main-button>
+        </div>
+      </selection-dialog>
       <selection-dialog id="level-win-dialog" class="small">
         <h1>Well Done</h1>
         <div class="text-content">
@@ -21333,7 +21433,7 @@ Polymer({
         </div>
         <div style="width: 100%;">
           <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
-          <main-button class="multiline" on-tap="_btnChallengeCompleteAction">Challenge Someone<br>to this Level</main-button>
+          <main-button class="multiline" on-tap="_btnLevelCompleteStartChallengeAction">Challenge Someone<br>to this Level</main-button>
         </div>
       </selection-dialog>
       <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn="">
@@ -21508,6 +21608,16 @@ Polymer({
         _loadingChallenges: {
           type: Boolean,
           value: false
+        },
+        
+        _challengeResult:{
+          type: String,
+          value: ''
+        },
+        
+        _challengeTime:{
+          type: Number,
+          value: 0
         }
       },
       
@@ -21592,16 +21702,19 @@ Polymer({
         
         // wait until every else is done.
         setTimeout(function(){
+          $this._levelStarted = false;
+          
           switch(newPage){
           case 'home':
             break;
             
           case 'ingame':
-            // make sure the page is layed out right
-            //$this.$['picture-space'].redraw();
-            //$this.$['tile-space'].redraw();
-            
-            $this.$['game-space'].newLevel();
+            if($this._challengeGameData){
+              $this.$['game-space'].loadLevel($this._challengeGameData);
+            }
+            else{
+              $this.$['game-space'].newLevel();
+            }            
             break;
           
           case 'challenge':
@@ -21610,9 +21723,12 @@ Polymer({
         	  break;
           }
           
-          this._levelStarted = false;
-          history.pushState({page: newPage, token: this._userToken}, newPage, "?page="+newPage);
+          history.pushState({page: newPage, token: $this._userToken}, newPage, '?page='+newPage);
         }, 0);
+      },
+      
+      _challengeResultIs: function(challengeResult, input){
+        return challengeResult == input;
       },
       
       /**
@@ -21657,6 +21773,7 @@ Polymer({
         this.difficulty = parseInt(btn.dataset.difficulty); // make sure the difficulty is a number, not a string
         this.$['difficulty-dialog'].close();                // close the dialog
         
+        this._challengeGameData = null;
         if(this.page == 'ingame'){
           this.$['game-space'].newLevel();
         }
@@ -21703,14 +21820,35 @@ Polymer({
        * Called on-tap of the accept challenge button
        */
       _btnChallengeAccept: function(){
-    	  
+        this._challengeResponce = true;
+        this.$['ajax-challenge-responce'].generateRequest();
+        this.$['challenge-dialog'].close();
+      },
+      
+      _tempfun: function(){
+        var data = [
+            {
+              img: 'imgsrc1',
+              word: 'a'
+            },
+            {
+              img: 'imgsrc2',
+              word: 'b'
+            },
+            {
+              img: 'imgsrc3',
+              word: 'c'
+            }];
+        this._acceptChallenge(data);
       },
       
       /**
        * Called on-tap of the reject challenge button
        */
       _btnChallengeReject: function(){
-          
+        this._challengeResponce = false;
+        this.$['ajax-challenge-responce'].generateRequest();
+        this.$['challenge-dialog'].close();
       },
       
       /**
@@ -21720,8 +21858,13 @@ Polymer({
     	  this.page = 'create-challenge';
       },
       
-      _btnChallengeCompleteAction: function(){
+      _btnLevelCompleteStartChallengeAction: function(){
     	  
+      },
+      
+      _btnChallengeCompleteAction: function(){
+        this.$['challenge-complete-dialog'].close();
+        this.page = 'home';
       },
       
       /**
@@ -21756,13 +21899,31 @@ Polymer({
        * Called when a level is complete
        */
       _onLevelComplete: function(){
+        var time = this.$['game-space'].time;
+        
     	  this.levelScore = this.$['game-space'].getScore();
-    	  this.levelTime = formatTime(this.$['game-space'].time);
+    	  this.levelTime = formatTime(time);
     	  this.score += this.levelScore;
     	  if(this.signedin){
  	        this.$['ajax-update-score'].generateRequest();
     	  }
-    	  this.$['level-win-dialog'].open();
+    	  
+    	  if(this._challengeGameData){
+    	    if(time < this._challengeTime){
+    	      this._challengeResult = 'won';
+    	    }
+    	    else if(time > this._challengeTime){
+            this._challengeResult = 'lost';
+          }
+    	    else{
+    	      this._challengeResult = 'drew';
+    	    }
+    	    
+    	    this.$['challenge-complete-dialog'].open();
+    	  }
+    	  else{
+    	    this.$['level-win-dialog'].open();
+    	  }
       },
 
       /**
@@ -21829,6 +21990,10 @@ Polymer({
    	    case 1: return 'medium';
    	    case 2: return 'hard';
    	    }
+   	  },
+   	  
+   	  _formatTime: function(time){
+   	    return formatTime(time);
    	  },
       
       /**
@@ -21935,6 +22100,11 @@ Polymer({
         console.log(detail.response);
       },
       
+      _acceptChallenge: function(gamedata){
+        this._challengeGameData = gamedata;
+        this.page = 'ingame';
+      },
+      
       /**
        * Handeler for when the challenges responce ajax request fails
        */
@@ -21960,7 +22130,7 @@ Polymer({
        * Handeler for when the update score ajax request succeed
        */
       _ajaxUpdateScoreSuccessHandler: function(event, detail, sender){
-        console.log(detail.response);
+        
       },
       
       /**
