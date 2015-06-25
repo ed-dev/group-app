@@ -220,6 +220,14 @@
         on-response="_ajaxChallengeResponceSuccessHandler"
         on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
       <iron-ajax
+        id="ajax-get-score"
+        handle-as="json"
+        url="[[getScoreDataPath]]"
+        params='[[_getAjaxTokenParam(_userToken)]]'
+        method="GET"
+        on-response="_ajaxGetScoreSuccessHandler"
+        on-error="_ajaxGetScoreErrorHandler"></iron-ajax>
+      <iron-ajax
 	      id="ajax-update-score"
 	      handle-as="json"
 	      url="[[updateScorePath]]"
@@ -237,7 +245,7 @@
           <div class="padder"></div>
         </section>
         <section id="challenge">
-          <page-heading src="assets/images/header-challenges.svg"></page-heading>
+          <page-heading src="assets/images/heading-challenges.svg"></page-heading>
           <my-challenges>
             <div hidden$="[[!_loadingChallenges]]">Loading...</div>
             <div hidden$="[[_loadingChallenges]]">
@@ -260,7 +268,7 @@
           <challenges-key></challenges-key>
         </section>
         <section id="create-challenge">
-          <page-heading src="assets/images/heading-create-challenge.png"></page-heading>
+          <page-heading src="assets/images/heading-create-challenge.svg"></page-heading>
           <span>Who do you want to challenge?</span><br>
           <main-select-field selected="[[_challengeFriend]]" large-popup></main-select-field>
           <span>Difficulty:</span><br>
@@ -415,6 +423,11 @@
           type: String,
           computed: '_join(_serverPath, "updatescore/")'
         },
+
+        getScoreDataPath: {
+          type: String,
+          computed: '_join(_serverPath, "getscore/")'
+        },
         
         // friends(token)
         friendsListDataPath: {
@@ -513,6 +526,7 @@
        */
       ready: function(){
         app = this;
+        this.$['ajax-get-score'].generateRequest();
       },
       
       /**
@@ -751,7 +765,9 @@
     	  this.levelScore = this.$['game-space'].getScore();
     	  this.levelTime = formatTime(this.$['game-space'].time);
     	  this.score += this.levelScore;
-    	  this.$['ajax-update-score'].generateRequest();
+    	  if(this.signedin){
+ 	        this.$['ajax-update-score'].generateRequest();
+    	  }
     	  this.$['level-win-dialog'].open();
       },
 
@@ -958,6 +974,20 @@
        */
       _ajaxUpdateScoreErrorHandler: function (event, detail, sender) {
         console.error('coundn\'t update user score.');
+      },
+      
+      /**
+       * Handeler for when the get score ajax request succeed
+       */
+      _ajaxGetScoreSuccessHandler: function(event, detail, sender){
+        this.score = parseInt(detail.response);
+      },
+      
+      /**
+       * Handeler for when the get score ajax request fails
+       */
+      _ajaxGetScoreErrorHandler: function (event, detail, sender) {
+        console.error('coundn\'t get user score.');
       }
     });
   });
