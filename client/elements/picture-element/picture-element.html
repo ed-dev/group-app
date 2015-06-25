@@ -7,9 +7,7 @@
 	  position: relative;
 	  display: block;
 	  box-sizing: border-box;
-	  background: orange;
-	  border: solid #000000 1px;
-	  border-radius: 4px;
+	  background: #ffffff;
 	  height: 100%;
 	  max-width: 100vw;
 	  -ms-transform-origin: 50% 0;
@@ -21,36 +19,192 @@
 	  display: block;
 	  content: '';
 	}
-	:host #image-wrapper{
-	  width: calc(100% - 16px);
+	#image-wrapper{
+	  width: calc(100% - 8px);
 	  position: relative;
 	  box-sizing: border-box;
-	  border: solid 1px #000000;
-	  border-radius: 2px;
-	  margin: 8px;
+	  margin: 4px;
 	  overflow: hidden;
-	  background: #000000;
+	  background: var(--light-primary-color);
 	}
-	:host #image-wrapper:before{
+	#image-wrapper:before{
 	  padding-top: 100%;
 	  display: block;
 	  content: '';
 	}
-	:host #word-zone{
-	  margin: 8px 8px 5px 8px;
-	  border-bottom: dashed 3px #000000;
+	#word-zone{
+	  margin: 4px 4px 1px 4px;
 	  box-sizing: border-box;
+	  background: var(--dark-primary-color);
     @apply(--layout-horizontal);
     @apply(--layout-end);
     @apply(--layout-center-center);
 	}
-	:host ::content img{
+	::content img{
 	  position: absolute !important;
 	  top: 0;
 	  left: 0;
 	  width: auto;
 	  height: auto;
+	  margin: 12px;
 	}
+	#tri-box{
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  #tri-box:before{
+    padding-top: 100%;
+    display: block;
+    content: '';
+  }
+	.tri{
+    position: absolute;
+    width: 60px;
+    height: 60px;
+	}
+	#tri-top-left{
+	  top: 0;
+	  left: 0;
+	  fill: #64bebe;
+	}
+  #tri-top-right{
+    top: 0;
+    right: 0;
+    fill: #ffcd00;
+  }
+  #tri-bottom-left{
+    bottom: 0;
+    left: 0;
+    fill: #64bebe;
+  }
+  #tri-bottom-right{
+    bottom: 0;
+    right: 0;
+    fill: #ffcd00;
+  }
+  #line1{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    stroke: #64bebe;
+  }
+  #line2{
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 4px;
+    stroke: #e66355;
+  }
+  #line3{
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 4px;
+    stroke: #f16131;
+  }
+  #line4{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #ffcd00;
+  }
+  #line5{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #e66355;
+  }
+  #line6{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #64bebe;
+  }
+  #line7{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #ffcd00;
+  }
+  #line8{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #e66355;
+  }
+  #line9{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 4px;
+    stroke: #64bebe;
+  }
+  #line10{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 20px;
+    stroke: #ffcd00;
+  }
+  #line11{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 4px;
+    stroke: #ffcd00;
+  }
+  #line12{
+    position: absolute;
+    bottom: 40px;
+    right: 0;
+    width: 4px;
+    stroke: #e66355;
+  }
+  #line13{
+    position: absolute;
+    bottom: 45px;
+    left: 0;
+    width: 4px;
+    stroke: #e66355;
+  }
+  #line14{
+    position: absolute;
+    bottom: 130px;
+    right: 0;
+    width: 4px;
+    stroke: #64bebe;
+  }
+  #line15{
+    position: absolute;
+    bottom: 200px;
+    right: 0;
+    width: 4px;
+    stroke: #ffcd00;
+  }
+  #line16{
+    position: absolute;
+    bottom: 120px;
+    left: 0;
+    width: 4px;
+    stroke: #e66355;
+  }
+  #line17{
+    position: absolute;
+    bottom: 180px;
+    left: 0;
+    width: 4px;
+    stroke: #ffcd00;
+  }
 	</style>
   <template>
     <div id="image-wrapper">
@@ -59,6 +213,72 @@
     <div id="word-zone">
       <content id="tiles" select="letter-tile"></content>
     </div>
+    <svg id="line1" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 100 4">
+      <line stroke-width="4" x1="0" y1="2" x2="100" y2="2"/>
+    </svg>
+    <svg id="line2" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 130 4">
+      <line stroke-width="4" x1="0" y1="2" x2="130" y2="2"/>
+    </svg>
+    <svg id="line3" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 80 4">
+      <line stroke-width="4" x1="0" y1="2" x2="80" y2="2"/>
+    </svg>
+    <svg id="line11" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 20">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="20"/>
+    </svg>
+    <svg id="line12" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 100">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="100"/>
+    </svg>
+    <svg id="line13" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 20">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="20"/>
+    </svg>
+    <svg id="line14" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 80">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="80"/>
+    </svg>
+    <svg id="line15" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 30">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="30"/>
+    </svg>
+    <svg id="line16" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 60">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="60"/>
+    </svg>
+    <svg id="line17" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 4 70">
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="70"/>
+    </svg>
+    <svg id="line4" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 185 4">
+      <line stroke-width="4" x1="0" y1="2" x2="185" y2="2"/>
+    </svg>
+    <svg id="line5" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 160 4">
+      <line stroke-width="4" x1="0" y1="2" x2="160" y2="2"/>
+    </svg>
+    <svg id="line6" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 80 4">
+      <line stroke-width="4" x1="0" y1="2" x2="80" y2="2"/>
+    </svg>
+    <svg id="line10" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 20 20">
+      <line stroke-width="4" x1="0" y1="18" x2="40" y2="18"/>
+      <line stroke-width="4" x1="2" y1="0" x2="2" y2="40"/>
+    </svg>
+    <div id="tri-box">
+	    <svg id="line7" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 180 4">
+	      <line stroke-width="4" x1="0" y1="2" x2="180" y2="2"/>
+	    </svg>
+	    <svg id="line8" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 150 4">
+	      <line stroke-width="4" x1="0" y1="2" x2="150" y2="2"/>
+	    </svg>
+	    <svg id="line9" class="line" version="1.1" x="0px" y="0px" viewBox="0 0 90 4">
+	      <line stroke-width="4" x1="0" y1="2" x2="90" y2="2"/>
+	    </svg>
+	    <svg id="tri-top-left" class="tri" version="1.1" x="0px" y="0px" viewBox="0 0 20 20">
+	      <polygon points="0,20 0,0 20,0 "/>
+	    </svg>
+	    <svg id="tri-top-right" class="tri" version="1.1" x="0px" y="0px" viewBox="0 0 20 20">
+	      <polygon points="0,0 20,0 20,20 "/>
+	    </svg>
+	    <svg id="tri-bottom-left" class="tri" version="1.1" x="0px" y="0px" viewBox="0 0 20 20">
+	      <polygon points="0,0 0,20 20,20 "/>
+	    </svg>
+	    <svg id="tri-bottom-right" class="tri" version="1.1" x="0px" y="0px" viewBox="0 0 20 20">
+	      <polygon points="0,20 20,20 20,0 "/>
+	    </svg>
+	  </div>
   </template>
 </dom-module>
 
@@ -105,7 +325,7 @@ Polymer({
     this.style.width = (Polymer.dom(this).node.clientHeight * ratio) + 'px';
     
     // set the height of #word-zone
-    this.$['word-zone'].style.height = (Polymer.dom(this).node.clientHeight - Polymer.dom(this.$['image-wrapper']).node.offsetHeight - 8 * 3 + parseInt(getComputedStyle(Polymer.dom(this.$['word-zone']).node, null).getPropertyValue('border-bottom-width'))) + 'px';
+    this.$['word-zone'].style.height = (Polymer.dom(this).node.clientHeight - Polymer.dom(this.$['image-wrapper']).node.offsetHeight - 4 * 3 + parseInt(getComputedStyle(Polymer.dom(this.$['word-zone']).node, null).getPropertyValue('border-bottom-width'))) + 'px';
     
     
     var tiles = this._getLetterTiles();
@@ -125,9 +345,12 @@ Polymer({
     
     var image = this._getImage();
 
+    var wrap = Polymer.dom(this.$['image-wrapper']).node;
+    var style = window.getComputedStyle(image);
+    
     // resize the image
-    image.style.height = Polymer.dom(this.$['image-wrapper']).node.clientHeight + 'px';
-    image.style.width = Polymer.dom(this.$['image-wrapper']).node.clientWidth + 'px';
+    image.style.height = (wrap.clientHeight - parseInt(style.marginTop) - parseInt(style.marginBottom)) + 'px';
+    image.style.width = (wrap.clientWidth - parseInt(style.marginLeft) - parseInt(style.marginRight)) + 'px';
   },
   
   /**
