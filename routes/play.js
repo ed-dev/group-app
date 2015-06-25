@@ -44,7 +44,12 @@ module.exports = function(app, client){
   //Takes parameters 'difficulty'.
   //Returns {'data': [{'img':url,'word':word}]}
   app.get('/play', check_params(['difficulty']), function(request, response) {
-    
+    if(request.query.difficulty < 0 || request.query.difficulty > 2){
+      response.statusCode = 400;
+      response.send("Difficulty must be between 0 and 2");
+      return;
+    }
+
     var images_so_far = [];
 
     cb = function(err,res){

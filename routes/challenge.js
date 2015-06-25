@@ -6,9 +6,9 @@ module.exports = function(app, client){
   //Possible expansion: images completed, time taken for each, etc etc.
   //Returns 'true' or 'false'
   app.post('/challenge', check_params(['user_id','difficulty','time','game']), app.auth, function(request, res) {
-    if(request.query.difficulty < 1 || request.query.difficulty > 3){
+    if(request.query.difficulty < 0 || request.query.difficulty > 2){
       res.statusCode = 400;
-      res.send("Difficulty must be between 1 and 3");
+      res.send("Difficulty must be between 0 and 2");
       return;
     }
     if(request.query.time < 1){
