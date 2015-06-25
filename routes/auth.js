@@ -1,4 +1,5 @@
 var https = require('https');
+var path = require('path');
 var check_params = require('./check_params');
 
 module.exports = function(app, client){
@@ -107,6 +108,11 @@ module.exports = function(app, client){
       });
     }
   );
+
+  app.get('/index.html', function(req,res){
+    res.header('content-type', 'text/html');
+    res.sendFile(path.join(__dirname, '../client', 'v.html'));
+  });
 
   app.get('/login2', check_params(['token']), function(req,res){
     
