@@ -43,39 +43,39 @@ module.exports = function(app, client){
   }
   //Takes parameters 'difficulty'.
   //Returns {'data': [{'img':url,'word':word}]}
-  app.get('/play', check_params(['difficulty']), function(request, response) {
-    if(request.query.difficulty < 0 || request.query.difficulty > 2){
-      response.statusCode = 400;
-      response.send("Difficulty must be between 0 and 2");
+  app.get('/play', check_params(['difficulty']), function(req, res) {
+    if(req.query.difficulty < 0 || req.query.difficulty > 2){
+      res.statusCode = 400;
+      res.send("Difficulty must be between 0 and 2");
       return;
     }
 
     var images_so_far = [];
 
     cb = function(err,res){
-      if(err) response.send(err);
+      if(err) res.send(err);
   
       var images = randomChoices(res.images, 10);
   
-      var titleWords = [];
+      var title_words = [];
       images.forEach(function(img){
         img.title = img.title.toLowerCase().split(" ");
-        titleWords = titleWords.concat(img.title);
+        title_words = title_words.concat(img.title);
       })
   
       //Make a list of unique words over all titles
-      titleWords = titleWords.filter(function(w,i,l){return w != '' && l.indexOf(w) === i;})
+      title_words = title_words.filter(function(w,i,l){return w != '' && l.indexOf(w) === i;})
   
-      var params = titleWords.map(function(w,i){return '$'+(i+1);});
+      var params = title_words.map(function(w,i){return '$'+(i+1);});
       var words = {};
   
-      var query = client.query('SELECT word,difficulty FROM words WHERE word IN (' + params.join(',') + ')',titleWords);
+      var query = client.query('SELECT word,difficulty FROM words WHERE word IN (' + params.join(',') + ')',title_words);
       query.on('row',function(w){words[w.word] = w;});
       query.on('end',function(){
   
         images.forEach(function(img){
           img.nouns = img.title.filter(function(w){
-            return (w in words) && words[w].difficulty == request.query.difficulty;
+            return (w in words) && words[w].difficulty == req.query.difficulty;
           });
         });
   
@@ -85,8 +85,8 @@ module.exports = function(app, client){
 
         if(images.length < 3){
           if(i > 10){
-            response.statusCode = 500;
-            response.send("Failed to find images with tags of that difficulty.");
+            res.statusCode = 500;
+            res.send("Failed to find images with tags of that difficulty.");
             return;
           }
           images_so_far = images;
@@ -100,8 +100,8 @@ module.exports = function(app, client){
         }
         data_to_send = {'data': randomChoices(images,3).map(image_mapper)};
   
-        response.header('Content-Length',data_to_send.data.length);
-        response.send(data_to_send);
+        res.header('Content-Length',data_to_send.data.length);
+        res.send(data_to_send);
   
       });
     };
@@ -112,16 +112,16 @@ module.exports = function(app, client){
 //Takes parameter 'score' where score equals the number to increase the users score by
 //calculated based on difficulty, time taken etc.
 //Returns the updated score
-app.post('/updatescore', check_params(['score']), app.auth, function(request, response){
+app.post('/updatescore', check_params(['score']), app.auth, function(req, res){
 	var query = client.query('UPDATE users '+
                       'SET score = $1 '+
-                      'WHERE user_id = $2', [request.query.score, request.user.user_id]);
+                      'WHERE user_id = $2', [req.query.score, req.user.user_id]);
     query.on('error', function(){
-      response.statusCode = 500;
-      response.send(false);
+      res.statusCode = 500;
+      res.send(false);
     });
 	query.on('end', function() {
-      response.send(true);
+      res.send(true);
 	});
 });
 
