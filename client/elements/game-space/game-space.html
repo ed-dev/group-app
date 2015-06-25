@@ -91,7 +91,7 @@
     <div id="titlebar">
       <content></content>
       <user-time time="[[time]]"></user-time>
-      <user-score score="[[score]]"></user-score>
+      <user-score score="[[score]]" hidden$="[[challengeLevel]]"></user-score>
     </div>
     <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
@@ -181,6 +181,12 @@ Polymer({
       notify: true
     },
     
+    challengeLevel:{
+      type: Boolean,
+      value: false,
+      notify: true
+    },
+    
     /**
      * The path to the server to get the game json data
      */
@@ -225,6 +231,7 @@ Polymer({
    * Start a new Level
    */
   newLevel: function(){
+    this.challengeLevel = false;
     this.loading = true;
     // clear the old ajaxGameDataResponse object - so that the arn't tiles hanging around for the last level
     if(this.ajaxGameDataResponse){
@@ -237,12 +244,29 @@ Polymer({
     this.time = 0;
   },
   
+  loadLevel: function(gameData){
+    this.challengeLevel = true;
+    this.loading = true;
+    this.ajaxGameDataResponse = { data: [] };
+    this.$['picture-space'].reset();
+    this.levelComplete = false;
+    
+    var $this = this;
+    setTimeout(function(){
+      $this.ajaxGameDataResponse.data = gameData;
+      $this.notifyPath('ajaxGameDataResponse.data', $this.ajaxGameDataResponse.data);
+      $this.levelStarted = true;
+      $this.time = 0;
+      $this._startLevel();
+    }, 0);
+  },
+  
   _updateTime: function(){
 	  var $this = this;
 	  var update = function(){
-		  if(!$this.levelStarted){
-		    return;
-		  }
+	    if(!$this.levelStarted){
+	      return;
+	    }
 	    $this.time = parseInt((new Date().getTime() - $this._startTimeStamp) / 1000);
 		  if(!$this.levelComplete){
         setTimeout(update, 1000);
@@ -301,6 +325,14 @@ Polymer({
     return letters;
   },
   
+  _startLevel: function(){
+    this.loading = false;
+    this.fire('level-load-success');
+    this.levelStarted = true;
+    this._startTimeStamp = new Date().getTime();
+    this._updateTime();
+  },
+  
   /**
    * Handeler for when the game data ajax request succeed
    */
@@ -309,11 +341,7 @@ Polymer({
       this._ajaxGameDataErrorHandler(event, detail, sender);
     }
     else{
-      this.loading = false;
-      this.fire('level-load-success');
-      this.levelStarted = true;
-      this._startTimeStamp = new Date().getTime();
-      this._updateTime();
+      this._startLevel();
     }
   },
   
@@ -390,7 +418,9 @@ Polymer({
 	  if(allCorrect){
       this.levelComplete = true;
 		  this.fire('level-complete');
-      this.$['ajax-update-score'].generateRequest();
+		  if(!this.challengeLevel){
+		    this.$['ajax-update-score'].generateRequest();
+		  }
 	  }
   },
   
