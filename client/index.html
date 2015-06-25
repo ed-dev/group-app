@@ -32,6 +32,7 @@
   <link rel="import" href="elements/challenge-entry/challenge-entry.html">
   <link rel="import" href="elements/challenge-key/challenge-key.html">
   <link rel="import" href="elements/user-level/user-level.html">
+  <link rel="import" href="elements/page-heading/page-heading.html">
   
   <link rel="import" href="helpers/array-shuffle/array-shuffle.html">
   <link rel="import" href="helpers/time-formatter/time-formatter.html">
@@ -123,7 +124,7 @@
     }
     selection-dialog .text-content{
       @apply(--layout-self-start);
-      padding: 0 24px;
+      padding: 24px;
     }
     selection-dialog .text-content p:last-of-type{
       margin: 0;
@@ -138,6 +139,12 @@
     selection-dialog .action-btns main-button{
       font-size: 5.5vw; 
     }
+    selection-dialog .align-bottom{
+	    position: absolute;
+		  bottom: 0;
+		  left: 0;
+		  right: 0;
+	  }
     #pages > section{
       background: -webkit-linear-gradient(160deg, #711740, #bf4337);
       background: -o-linear-gradient(160deg, #711740, #bf4337);
@@ -230,7 +237,7 @@
           <div class="padder"></div>
         </section>
         <section id="challenge">
-          <div style="height: 110px;">Heading</div>
+          <page-heading src="assets/images/heading-challenges.png"></page-heading>
           <my-challenges>
             <div hidden$="[[!_loadingChallenges]]">Loading...</div>
             <div hidden$="[[_loadingChallenges]]">
@@ -253,7 +260,7 @@
           <challenges-key></challenges-key>
         </section>
         <section id="create-challenge">
-          <div style="height: 110px;">Heading</div>
+          <page-heading src="assets/images/heading-create-challenge.png"></page-heading>
           <span>Who do you want to challenge?</span><br>
           <main-select-field selected="[[_challengeFriend]]" large-popup></main-select-field>
           <span>Difficulty:</span><br>
@@ -322,7 +329,7 @@
       </selection-dialog>
       <selection-dialog id="level-win-dialog" class="small">
         <h1>Well Done</h1>
-        <div>
+        <div class="text-content">
           Level Score: <span>[[levelScore]]</span><br>
           Time Taken: <span>[[levelTime]]</span><br>
         </div>
@@ -333,8 +340,10 @@
       </selection-dialog>
       <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
         <h1>Error</h1>
-        An error has occured while trying to load the level.
-        <main-button on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
+        <div class="text-content">
+          An error has occured while trying to load the level.
+        </div>
+        <main-button class="align-bottom" on-tap="_btnLevelLoadErrorOkAction">OK</main-button>
       </selection-dialog>
       <selection-dialog id="exit-dialog" class="small" on-iron-overlay-closed="_onExitDialogClose">
         <h1>Exit</h1>
