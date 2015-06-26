@@ -397,7 +397,6 @@
         </div>
         <div style="width: 100%;">
           <main-button on-tap="_btnNextLevelAction">Next Level</main-button>
-          <main-button class="multiline" on-tap="_btnLevelCompleteStartChallengeAction">Challenge Someone<br>to this Level</main-button>
         </div>
       </selection-dialog>
       <selection-dialog id="level-loading-error-dialog" class="small" no-close-btn>
@@ -844,7 +843,7 @@
     	  }
         this._challengeId = challenge.challengeId;
     	  this._challengeName = challenge.name;
-        this._challengeTime = formatTime(challenge.time);
+        this._challengeTime = challenge.time;
         this._challengeDifficulty = this._difficultyIntToString(challenge.difficulty);
     	  this.$['challenge-dialog'].open();
       },
@@ -872,10 +871,6 @@
        */
       _btnChallengeSomeoneAction: function(){
     	  this.page = 'create-challenge';
-      },
-      
-      _btnLevelCompleteStartChallengeAction: function(){
-    	  
       },
       
       _btnChallengeCompleteAction: function(){
