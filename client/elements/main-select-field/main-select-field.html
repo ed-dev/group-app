@@ -1,6 +1,8 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
   
 <dom-module id="main-select-field">
   <style>
@@ -21,6 +23,14 @@
       @apply(--layout-center);
       @apply(--layout-center-justified);
     }
+    #field span{
+      max-height: 100%;
+    }
+    .ellipsis{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     #icon{
       position: absolute;
       top: 0;
@@ -28,13 +38,32 @@
       --iron-icon-width: 1.5em;
       --iron-icon-height: 1.5em;
     }
+    #select-dialog{
+      @apply(--layout-fit);
+    }
+    #select-dialog paper-menu{
+      width: 100%;
+    }
+    #select-dialog paper-menu paper-item{
+      font-size: 24px;
+      margin: 4px 0;
+      @apply(--layout-center-justified);
+    }
   </style>
   <template>
     <span id="label">[[label]]</span>
-    <div id="field">
-      <span>[[selected]]</span>
+    <div id="field" on-tap="open">
+      <span class="ellipsis">[[selected.name]]</span>
       <iron-icon id="icon" icon="icons:arrow-drop-down" item-icon></iron-icon>
     </div>
+    <selection-dialog id="select-dialog" class="small">
+      <h1>[[dialogLabel]]</h1>
+      <paper-menu on-iron-select="_selectAction">
+	      <template is="dom-repeat" items="[[options]]">
+	        <paper-item index="[[index]]" user-id="[[item.id]]" user-name="[[item.name]]">[[item.name]]</paper-item>
+	      </template>
+      </paper-menu>
+    </selection-dialog>
   </template>
 </dom-module>
 
@@ -48,10 +77,33 @@ Polymer({
       value: ''
     },
     
+    dialogLabel: {
+    	type: String,
+    	value: ''
+    },
+    
     selected: {
-      type: String,
-      value: ''
+      type: Object,
+      notify: true
+    },
+    
+    options: {
+    	type: Array
     }
+  },
+  
+  open: function(){
+	  this.$['select-dialog'].open();
+  },
+  
+  _selectAction: function(e, detail){
+	  var item = detail.item;
+	  this.selected = this.options[item.index];
+		this.fire('main-selection', this.selected);
+	  
+    Polymer.dom(e.target).querySelector('.iron-selected').blur(); // unfocuse the item
+    e.target.selected = -1; // deselect the item
+    this.$['select-dialog'].close();
   }
 });
 </script>

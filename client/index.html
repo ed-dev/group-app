@@ -215,7 +215,7 @@
         url="[[friendsListDataPath]]"
         params='[[_getAjaxTokenParam(_userToken)]]'
         method="GET"
-        on-response="_ajaxChallengesSentSuccessHandler"
+        on-response="_ajaxFriendsListSuccessHandler"
         on-error="_ajaxFriendsListErrorHandler"></iron-ajax>
 	    <iron-ajax
 	      id="ajax-challenges-sent-and-received"
@@ -226,13 +226,29 @@
 	      on-response="_ajaxChallengesSentAndReceivedSuccessHandler"
 	      on-error="_ajaxChallengesSentAndReceivedErrorHandler"></iron-ajax>
       <iron-ajax
-        id="ajax-challenge-responce"
+        id="ajax-challenge-response"
         handle-as="json"
-        url="[[challengeResponcePath]]"
-        params='[[_getAjaxChallengeResponceParams(_challengeId, _challengeResponce, _userToken)]]'
+        url="[[challengeResponsePath]]"
+        params='[[_getAjaxChallengeResponseParams(_challengeId, _challengeResponse, _userToken)]]'
         method="GET"
-        on-response="_ajaxChallengeResponceSuccessHandler"
-        on-error="_ajaxChallengeResponceErrorHandler"></iron-ajax>
+        on-response="_ajaxChallengeResponseSuccessHandler"
+        on-error="_ajaxChallengeResponseErrorHandler"></iron-ajax>
+      <iron-ajax
+	      id="ajax-challenge-someone"
+	      handle-as="json"
+	      url="[[sendChallengePath]]"
+	      params='[[_getAjaxChallengeSomeoneParams(difficulty, time, _challengeId, _gameData.data, _userToken)]]'
+	      method="POST"
+	      on-response="_ajaxChallengeSomeoneSuccessHandler"
+	      on-error="_ajaxChallengeSomeoneErrorHandler"></iron-ajax>
+	    <iron-ajax
+        id="ajax-complete-challenge"
+        handle-as="json"
+        url="[[completeChallengePath]]"
+        params='[[_getAjaxCompleteChallengeParams(time, _challengeId, _userToken)]]'
+        method="POST"
+        on-response="_ajaxCompleteChallengeSuccessHandler"
+        on-error="_ajaxCompleteChallengeErrorHandler"></iron-ajax>
       <iron-ajax
         id="ajax-get-score"
         handle-as="json"
@@ -262,7 +278,6 @@
         </section>
         <section id="challenge">
           <page-heading src="assets/images/heading-challenges.svg"></page-heading>
-          <button on-tap="_tempfun">tempfun</button>
           <my-challenges>
             <div hidden$="[[!_loadingChallenges]]">Loading...</div>
             <div hidden$="[[_loadingChallenges]]">
@@ -286,10 +301,10 @@
         </section>
         <section id="create-challenge">
           <page-heading src="assets/images/heading-create-challenge.svg"></page-heading>
-          <main-select-field selected="[[_challengeFriend]]" label="Who do you want to challenge?" large-popup></main-select-field>
-          <main-select-field selected="[[_challengeDifficulty]]" label="Difficulty:"></main-select-field>
+          <main-select-field selected="[[_challengeFriend]]" options="[[_friends]]" label="Who do you want to challenge?" dialog-label="Friends" on-main-selection="_onMainSelectionSetChallengee"></main-select-field>
+          <main-select-field selected="[[_challengeDifficulty]]" options="[[_difficulties]]" dialog-label="Difficulty" label="Difficulty:" on-main-selection="_onMainSelectionSetChallengeDifficulty"></main-select-field>
           <div class="flex"></div>
-          <main-button class="large end">Send</main-button>
+          <main-button class="large end" on-tap="_btnCreateChallengeSendAction">Create</main-button>
         </section>
         <section id="ingame">
           <paper-drawer-panel force-narrow disable-edge-swipe>
@@ -315,7 +330,6 @@
             <paper-header-panel main>
               <game-space id="game-space"
               url-game-data-path="[[gameDataPath]]"
-              url-challenge-someone-path="[[sendChallengePath]]"
               user-token="[[_userToken]]"
               score="{{score}}"
               time="{{time}}"
@@ -323,6 +337,7 @@
               level-started="{{_levelStarted}}"
               level-complete="{{_levelComplete}}"
               challenge-level="{{_challengeLevel}}"
+              game-data="{{_gameData}}"
               letter-tile-src="assets/images/tiles.png"
               tile-size="144"
               on-level-complete="_onLevelComplete"
@@ -344,8 +359,8 @@
       <selection-dialog id="challenge-dialog" class="small">
         <h1>Challenge</h1>
         <div class="text-content">
-          <p><span>[[_challengeSender]]</span> has callenged you.</p>
-          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in a time of <span>[[_challengeTime]]</span>.</p>
+          <p><span>[[_challengeName]]</span> has callenged you.</p>
+          <p>They completed this level on <span>[[_challengeDifficulty]]</span> in a time of <span>[[_formatTime(_challengeTime)]]</span>.</p>
           <p>Think you can do better?</p>
         </div>
         <div class="action-btns">
@@ -353,13 +368,22 @@
           <main-button on-tap="_btnChallengeAccept">Accept</main-button>
         </div>
       </selection-dialog>
-      <selection-dialog id="challenge-complete-dialog" class="small">
+      <selection-dialog id="challenge-complete-dialog" no-close-btn class="small">
         <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'won')]]">You Win</h1>
         <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'lost')]]">You Lost</h1>
         <h1 hidden$="[[!_challengeResultIs(_challengeResult, 'drew')]]">It's a Draw</h1>
         <div class="text-content">
           Your Time: <span>[[levelTime]]</span><br>
           Opponent's Time: <span>[[_formatTime(_challengeTime)]]</span><br>
+        </div>
+        <div style="width: 100%;">
+          <main-button on-tap="_btnChallengeCompleteAction">Exit</main-button>
+        </div>
+      </selection-dialog>
+      <selection-dialog id="challenge-sent-dialog" no-close-btn class="small">
+        <h1>Challenge Sent</h1>
+        <div class="text-content">
+          This challenge has been sent to <span>[[_challengeName]]</span>
         </div>
         <div style="width: 100%;">
           <main-button on-tap="_btnChallengeCompleteAction">Exit</main-button>
@@ -406,7 +430,13 @@
          */
         page: {
           type: String,
-          value: 'home',
+          value: function(){
+        	  var page = this._getQueryParams(document.location.search).page;  // the page is provided as a query param
+        	  if(!page){
+        		  page = 'home';
+        	  }
+            return page
+          },
           observer: '_pageChangeEvent'
         },
         
@@ -416,8 +446,13 @@
         _userToken: {
           type: String,
           value: function(){
-            return this._getQueryParams(document.location.search).token;  // the token is provided as a query param
-          }
+            var token = this._getQueryParams(document.location.search).token;  // the token is provided as a query param
+            if(!token){
+            	token = this.getCookie('token');
+            }
+            return token;
+          },
+          observer: '_tokenChangeEvent'
         },
         
         /**
@@ -436,6 +471,11 @@
           type: String,
           value: "https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=https%3A%2F%2Fstill-waters-3351.herokuapp.com%2Fauthredir&scope=email&client_id=431848180596-4n65gocm2d8k71elvq3a6vchtka9cqgv.apps.googleusercontent.com",
           readOnly: true
+        },
+        
+        _gameData:{
+        	type: Object,
+        	value: {}
         },
         
         /**
@@ -477,8 +517,8 @@
           computed: '_join(_serverPath, "challengessent/")'
         },
         
-        // acceptchallenge(challengeid, responce, token)
-        challengeResponcePath: {
+        // acceptchallenge(challengeid, response, token)
+        challengeResponsePath: {
           type: String,
           computed: '_join(_serverPath, "acceptchallenge/")'
         },
@@ -486,6 +526,11 @@
         sendChallengePath: {
           type: String,
           computed: '_join(_serverPath, "challenge/")'
+        },
+        
+        completeChallengePath: {
+          type: String,
+          computed: '_join(_serverPath, "completechallenge/")'
         },
         
         /**
@@ -558,6 +603,20 @@
         _challengeTime:{
           type: Number,
           value: 0
+        },
+        
+        _difficulties: {
+        	type: Array,
+        	value: [
+            { id: 0, name: 'Easy'},
+            { id: 1, name: 'Medium'},
+            { id: 2, name: 'Hard'}
+          ]
+        },
+        
+        _friends: {
+          type: Array,
+          value: []
         }
       },
       
@@ -569,7 +628,9 @@
       },
       
       attached: function(){
-        this.$['ajax-get-score'].generateRequest();
+    	  if(this.signedin){
+ 	        this.$['ajax-get-score'].generateRequest();
+    	  }
       },
       
       /**
@@ -657,15 +718,47 @@
             }            
             break;
           
+          case 'create-challenge':
+            $this.$['ajax-friends-list'].generateRequest();
+            break;
+          
           case 'challenge':
             $this._loadingChallenges = true;
         	  $this.$['ajax-challenges-sent-and-received'].generateRequest();
         	  break;
           }
           
-          history.pushState({page: newPage, token: $this._userToken}, newPage, '?page='+newPage);
+          history.pushState({page: newPage, token: $this._userToken}, newPage, '?page=' + newPage);
         }, 0);
       },
+      
+      _tokenChangeEvent: function(token){
+    	  if(token){
+ 	        this.setCookie('token', token);
+    	  }
+    	  else{
+    		  this.deleteCookie('token');
+    	  }
+      },
+      
+      setCookie: function(cname, cvalue) {
+    	  document.cookie = cname + "=" + cvalue;
+    	},
+    	
+    	getCookie: function(cname) {
+    	  var name = cname + "=";
+    	  var ca = document.cookie.split(';');
+    	  for(var i=0; i<ca.length; i++) {
+    	    var c = ca[i];
+    	    while (c.charAt(0)==' ') c = c.substring(1);
+    	      if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    	    }
+    	  return "";
+    	},
+    	
+    	deleteCookie: function( name ) {
+  		  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  		},
       
       _challengeResultIs: function(challengeResult, input){
         return challengeResult == input;
@@ -749,8 +842,8 @@
     	  if(!challenge){
     		  return;
     	  }
-        this._challengeId = challenge.id;
-    	  this._challengeSender = challenge.name;
+        this._challengeId = challenge.challengeId;
+    	  this._challengeName = challenge.name;
         this._challengeTime = formatTime(challenge.time);
         this._challengeDifficulty = this._difficultyIntToString(challenge.difficulty);
     	  this.$['challenge-dialog'].open();
@@ -760,34 +853,17 @@
        * Called on-tap of the accept challenge button
        */
       _btnChallengeAccept: function(){
-        this._challengeResponce = true;
-        this.$['ajax-challenge-responce'].generateRequest();
+        this._challengeResponse = true;
+        this.$['ajax-challenge-response'].generateRequest();
         this.$['challenge-dialog'].close();
-      },
-      
-      _tempfun: function(){
-        var data = [
-            {
-              img: 'imgsrc1',
-              word: 'a'
-            },
-            {
-              img: 'imgsrc2',
-              word: 'b'
-            },
-            {
-              img: 'imgsrc3',
-              word: 'c'
-            }];
-        this._acceptChallenge(data);
       },
       
       /**
        * Called on-tap of the reject challenge button
        */
       _btnChallengeReject: function(){
-        this._challengeResponce = false;
-        this.$['ajax-challenge-responce'].generateRequest();
+        this._challengeResponse = false;
+        this.$['ajax-challenge-response'].generateRequest();
         this.$['challenge-dialog'].close();
       },
       
@@ -804,7 +880,13 @@
       
       _btnChallengeCompleteAction: function(){
         this.$['challenge-complete-dialog'].close();
+        this.$['challenge-sent-dialog'].close();
         this.page = 'home';
+      },
+      
+      _btnCreateChallengeSendAction: function(){
+        this._createChallengeOnLevelCompete = true;
+        this.page = 'ingame';
       },
       
       /**
@@ -819,6 +901,15 @@
        */
       _btnNoYes: function(){
         this.$['exit-dialog'].close();
+      },
+      
+      _onMainSelectionSetChallengee: function(e, detail){
+    	  this._challengeId = detail.id;
+    	  this._challengeName = detail.name;
+      },
+      
+      _onMainSelectionSetChallengeDifficulty: function(e, detail){
+    	  this.difficulty = detail.id;
       },
       
       /**
@@ -844,11 +935,16 @@
     	  this.levelScore = this.$['game-space'].getScore();
     	  this.levelTime = formatTime(time);
     	  this.score += this.levelScore;
-    	  if(this.signedin){
+    	  if(this.signedin && !this._challengeLevel){
  	        this.$['ajax-update-score'].generateRequest();
     	  }
     	  
-    	  if(this._challengeGameData){
+    	  if(this._createChallengeOnLevelCompete){
+    		  this._createChallengeOnLevelCompete = false;
+    		  this.$['ajax-challenge-someone'].generateRequest();
+    	  }
+    	  else if(this._challengeGameData){
+    		  this.$['ajax-complete-challenge'].generateRequest();
     	    if(time < this._challengeTime){
     	      this._challengeResult = 'won';
     	    }
@@ -858,7 +954,7 @@
     	    else{
     	      this._challengeResult = 'drew';
     	    }
-    	    
+
     	    this.$['challenge-complete-dialog'].open();
     	  }
     	  else{
@@ -944,12 +1040,12 @@
       },
       
       /**
-       * Get the params from the challenge responce request to send to the server
+       * Get the params from the challenge response request to send to the server
        */
-      _getAjaxChallengeResponceParams: function(_id, _responce, _token){
+      _getAjaxChallengeResponseParams: function(_id, _response, _token){
     	  return {
     		  challenge_id: _id,
-    		  responce: _responce,
+    		  response: _response,
     		  token: _token
     	  };
       },
@@ -1023,7 +1119,7 @@
        * Handeler for when the challenges sent ajax request succeed
        */
       _ajaxChallengesSentSuccessHandler: function(event, detail, sender){
-        console.log(detail.response);
+        
       },
       
       /**
@@ -1034,10 +1130,10 @@
       },
       
       /**
-       * Handeler for when the challenges responce ajax request succeed
+       * Handeler for when the challenges response ajax request succeed
        */
-      _ajaxChallengeResponceSuccessHandler: function(event, detail, sender){
-        console.log(detail.response);
+      _ajaxChallengeResponseSuccessHandler: function(event, detail, sender){
+        this._acceptChallenge(detail.response);
       },
       
       _acceptChallenge: function(gamedata){
@@ -1046,17 +1142,26 @@
       },
       
       /**
-       * Handeler for when the challenges responce ajax request fails
+       * Handeler for when the challenges response ajax request fails
        */
-      _ajaxChallengeResponceErrorHandler: function(event, detail, sender){
-        console.error('failed to send challenge responce.');
+      _ajaxChallengeResponseErrorHandler: function(event, detail, sender){
+        console.error('failed to send challenge response.');
       },
       
       /**
        * Handeler for when the friends list ajax request succeed
        */
       _ajaxFriendsListSuccessHandler: function(event, detail, sender){
-        console.log(detail.response);
+    	  var r = detail.response;
+    	  var newF = [];
+    	  for(var i=0;i<r.length;i++){
+    		  newF.push({
+    			  name: r[i].display_name,
+    			  score: r[i].score,
+            id: r[i].user_id
+    		  });
+    	  }
+        this._friends = newF;
       },
       
       /**
@@ -1092,6 +1197,58 @@
        */
       _ajaxGetScoreErrorHandler: function (event, detail, sender) {
         console.error('coundn\'t get user score.');
+      },
+      
+      /**
+       * Handeler for when the challenge someone ajax request succeed
+       */
+      _ajaxChallengeSomeoneSuccessHandler: function(event, detail, sender){
+    	  this.$['challenge-sent-dialog'].open();
+      },
+      
+      /**
+       * Handeler for when the challenge someone ajax request fails
+       */
+      _ajaxChallengeSomeoneErrorHandler: function (event, detail, sender) {
+        console.error('coundn\'t send challenge.');
+      },
+      
+      /**
+       * Get the params from the challenge someone request to send to the server
+       */
+      _getAjaxChallengeSomeoneParams: function(_difficulty, _time, _id, _gameData, _token){
+        return {
+          difficulty: _difficulty,
+          time: _time,
+          user_id: _id,
+          token: _token,
+          game: JSON.stringify(_gameData)
+        };
+      },
+      
+      /**
+       * Handeler for when the complete challenge ajax request succeed
+       */
+      _ajaxCompleteChallengeSuccessHandler: function(event, detail, sender){
+        //this.$['challenge-sent-dialog'].open();
+      },
+      
+      /**
+       * Handeler for when the complete challenge ajax request fails
+       */
+      _ajaxCompleteChallengeErrorHandler: function (event, detail, sender) {
+        console.error('coundn\'t send challenge.');
+      },
+      
+      /**
+       * Get the params from the complete challenge request to send to the server
+       */
+      _getAjaxCompleteChallengeParams: function(_time, _id, _token){
+        return {
+        	time_taken: _time,
+          challenge_id: _id,
+          token: _token
+        };
       }
     });
   });

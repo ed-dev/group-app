@@ -77,17 +77,9 @@
       url="[[urlGameDataPath]]"
       params='[[_getAjaxGameDataParams(difficulty)]]'
       method="GET"
-      last-response="{{ajaxGameDataResponse}}"
+      last-response="{{gameData}}"
       on-response="_ajaxGameDataSuccessHandler"
       on-error="_ajaxGameDataErrorHandler"></iron-ajax>
-    <iron-ajax
-      id="ajax-challenge-someone"
-      handle-as="json"
-      url="[[urlChallengeSomeonePath]]"
-      params='[[_getAjaxChallengeSomeoneParams(difficulty, time, ajaxGameDataResponse.data, userToken)]]'
-      method="POST"
-      on-response="_ajaxChallengeSomeoneSuccessHandler"
-      on-error="_ajaxChallengeSomeoneErrorHandler"></iron-ajax>
     <div id="titlebar">
       <content></content>
       <user-time time="[[time]]"></user-time>
@@ -95,7 +87,7 @@
     </div>
     <div class="flex"></div>
     <picture-space id="picture-space" loading="[[loading]]">
-      <template is="dom-repeat" items="[[ajaxGameDataResponse.data]]">
+      <template is="dom-repeat" items="[[gameData.data]]">
         <picture-element word="{{item.word}}" picture-space="[[_pictureSpace]]" on-add-tile="_pictureElementOnAddTile" on-remove-tile="_pictureElementOnRemoveTile" class="letter-tile-drop-zone">
           <img src="{{item.img}}">
         </picture-element>
@@ -103,7 +95,7 @@
     </picture-space>
     <div class="flex"></div>
     <tile-space loading="[[loading]]" class="letter-tile-drop-zone redisplay-letter-tiles">
-      <template is="dom-repeat" items=[[_getAllLetters(ajaxGameDataResponse.data)]]">
+      <template is="dom-repeat" items=[[_getAllLetters(gameData.data)]]">
         <letter-tile src="[[letterTileSrc]]" letter="[[item]]" index="[[index]]" drag-container="[[_gameSpace]]"></letter-tile>
       </template>
     </tile-space>
@@ -172,6 +164,12 @@ Polymer({
     	notify: true
     },
     
+    gameData:{
+    	type: Object,
+    	value: {},
+    	notify: true
+    },
+    
     /**
      * True if the game is waiting for images from the server
      */
@@ -191,11 +189,6 @@ Polymer({
      * The path to the server to get the game json data
      */
     urlGameDataPath: String,
-    
-    /**
-     * The path to send challenges to
-     */
-    urlChallengeSomeonePath: String,
     
     /**
      * the path to the tile images
@@ -233,9 +226,9 @@ Polymer({
   newLevel: function(){
     this.challengeLevel = false;
     this.loading = true;
-    // clear the old ajaxGameDataResponse object - so that the arn't tiles hanging around for the last level
-    if(this.ajaxGameDataResponse){
-      this.ajaxGameDataResponse = { data: [] };
+    // clear the old gameData object - so that the arn't tiles hanging around for the last level
+    if(this.gameData){
+      this.gameData = { data: [] };
     }
     this.$['ajax-game-data'].generateRequest();
     this.$['picture-space'].reset();
@@ -247,14 +240,14 @@ Polymer({
   loadLevel: function(gameData){
     this.challengeLevel = true;
     this.loading = true;
-    this.ajaxGameDataResponse = { data: [] };
+    this.gameData = { data: [] };
     this.$['picture-space'].reset();
     this.levelComplete = false;
     
     var $this = this;
     setTimeout(function(){
-      $this.ajaxGameDataResponse.data = gameData;
-      $this.notifyPath('ajaxGameDataResponse.data', $this.ajaxGameDataResponse.data);
+      $this.gameData.data = gameData;
+      $this.notifyPath('gameData.data', $this.gameData.data);
       $this.levelStarted = true;
       $this.time = 0;
       $this._startLevel();
@@ -362,38 +355,6 @@ Polymer({
     };
   },
   
-  sendChallenge: function(){
-    this.$['ajax-challenge-someone'].generateRequest();
-  },
-  
-  /**
-   * Handeler for when the challenge someone ajax request succeed
-   */
-  _ajaxChallengeSomeoneSuccessHandler: function(event, detail, sender){
-    console.log(detail);
-    this.fire('challenge-someone-success');
-  },
-  
-  /**
-   * Handeler for when the challenge someone ajax request fails
-   */
-  _ajaxChallengeSomeoneErrorHandler: function (event, detail, sender) {
-    console.error('coundn\'t send challenge.');
-    this.fire('challenge-someone-failed');
-  },
-  
-  /**
-   * Get the params from the challenge someone request to send to the server
-   */
-  _getAjaxChallengeSomeoneParams: function(_difficulty, _time, _gameData, _token){
-    return {
-      difficulty: _difficulty,
-      time: _time,
-      token: _token,
-      game: JSON.stringify(_gameData)
-    };
-  },
-  
   /**
    * return the picture elements within this element
    */
@@ -418,9 +379,6 @@ Polymer({
 	  if(allCorrect){
       this.levelComplete = true;
 		  this.fire('level-complete');
-		  if(!this.challengeLevel){
-		    this.$['ajax-update-score'].generateRequest();
-		  }
 	  }
   },
   
